@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^3.1.1",
+    "@material-ui/lab": "^3.0.0-alpha.17",
     "led-matrix-ts": "^0.4.5",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
