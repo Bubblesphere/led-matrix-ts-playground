@@ -9,10 +9,9 @@
       "sourceMap": true,
       "removeComments": true,
       "jsx": "react",
-      "moduleResolution": "node"
+      "moduleResolution": "node",
     },
     "exclude": [
-        "node_modules",
         "dist",
     ]
   }
