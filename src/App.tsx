@@ -2,6 +2,8 @@ import * as React from 'react';
 import './App.css';
 import ProfileTest from './Profile/ProfileTest';
 import { Component } from 'react';
+import NumberPicker from './Inputs/NumberPicker';
+import CustomSlider from './Inputs/Slider';
 
 /*const theme = createMuiTheme({
   typography: {
@@ -52,6 +54,10 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
         <div className="App">
+          <NumberPicker />
+          <CustomSlider id="test"/>
+          <CustomSlider id="test2"/>
+          <CustomSlider id="test3"/>
           <ProfileTest value={this.state.value}/>
         </div>
     );
