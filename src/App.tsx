@@ -1,9 +1,9 @@
 import * as React from 'react';
 import './App.css';
-import ProfileTest from './Profile/ProfileTest';
 import { Component } from 'react';
-import NumberPicker from './Inputs/NumberPicker';
-import CustomSlider from './Inputs/Slider';
+import Profile from './Profile/Profile';
+import { Grid } from '@material-ui/core';
+import { StyleSheet, css } from 'aphrodite';
 
 /*const theme = createMuiTheme({
   typography: {
@@ -23,6 +23,21 @@ interface AppProps {
 interface AppState {
   value: string
 }
+
+const appStyles = StyleSheet.create({
+  menu: {
+    background: '#444'
+  },
+  profiles: {
+    background: '#eee'
+  },
+  main: {
+    background: '#ddd'
+  },
+  centeredVertical: {
+    alignSelf: 'center'
+  }
+});
 
 class App extends Component<AppProps, AppState> {
   state = {
@@ -53,13 +68,15 @@ class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-        <div className="App">
-          <NumberPicker />
-          <CustomSlider id="test"/>
-          <CustomSlider id="test2"/>
-          <CustomSlider id="test3"/>
-          <ProfileTest value={this.state.value}/>
-        </div>
+        <Grid container={true} spacing={24} className="App" >
+          <Grid item={true} xs={1} className={css(appStyles.menu)}>
+            <p>Menu</p>
+          </Grid>
+          <Profile/>
+          <Grid item={true} xs={8} className={css(appStyles.main)}>
+            <p>main</p>
+          </Grid>
+        </Grid>
     );
   }
 }
