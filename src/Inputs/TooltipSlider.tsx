@@ -16,8 +16,8 @@ interface TooltipSliderProps {
   max?: number,
   step?: number,
   id: string,
-  value: number,
-  onChange: (event, value) => void
+  lastCapturedValue: number,
+  onChangeCapture: (property, value) => void
 }
 
 const styles = StyleSheet.create({
@@ -54,29 +54,35 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
   state = {
     active: false, // Whether the slider is transitionning from one value to another
     tooltipPosition: 0, // The left offset to move the tooltip to
-    dragging: false // Whether the user is currently dragging the slider
+    dragging: false, // Whether the user is currently dragging the slider
+    value: this.props.lastCapturedValue // The value displayed on the slider
   }
   
   static defaultProps: TooltipSliderPropsOpt;
 
   constructor(props) {
     super(props);
-    this.onTransitionEndCapture = this.onTransitionEndCapture.bind(this);
+    this.onTransitionEnd = this.onTransitionEnd.bind(this);
   }
 
   componentDidMount() {
     this.updateTooltipPosition();
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.value != prevProps.value) {
+  componentDidUpdate(prevProps, prevState) {
+    // If the lastCapturedValue is changed, we need to updated the slider's value
+    if (this.props.lastCapturedValue != prevProps.lastCapturedValue) {
+      this.setState((prevState) => ({ ...prevState, value: this.props.lastCapturedValue }));
+    }
+
+    if (this.state.value != prevState.value) {
       this.updateTooltipPosition();
     }
   }
-  
+
   private onChange = (event, value) => {
-    this.props.onChange(this.props.id, value);
-  };
+    this.setState((prevState) => ({ ...prevState, value: value }));
+  }
 
   private onDragStart = () => {
     this.setState((prevState) => ({ ...prevState, active: true, dragging: true }));
@@ -86,10 +92,11 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
     this.setState((prevState) => ({ ...prevState, dragging: false }));
   }
 
-  private onTransitionEndCapture(e) {
+  private onTransitionEnd(e) {
     if (e.propertyName === 'height') {
       if (e.target.offsetHeight == this.sliderButtonInactiveOffsetHeight) {
         // Reached when the height of the slider button changes and the new height is the size of the it's inactive state
+        this.props.onChangeCapture(this.props.id, this.state.value);
         this.setState((prevState) => ({ ...prevState, active: false }));
       }
     }
@@ -97,10 +104,10 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
 
   private updateTooltipPosition() {
     const sliderTooltip = document.getElementById(`slider-tooltip-${this.props.id}`);
-    const slider = document.getElementById(`slider-${this.props.id}`);
+    const slider = document.getElementById(this.props.id);
 
     // Get the position % an element should be placed if it had no width
-    const basePositionPercentage = (this.props.value - this.props.min) / (this.props.max - this.props.min) * 100;
+    const basePositionPercentage = (this.state.value - this.props.min) / (this.props.max - this.props.min) * 100;
     
     // We need to move half the width of the tooltip to the left
     const offsetPositionForTooltipPercentage = (sliderTooltip.offsetWidth / 2) / slider.offsetWidth * 100;
@@ -118,7 +125,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
 
     return (
       <div 
-        id={this.props.id} 
+        id={`container-${this.props.id}`} 
         className={css(styles.sliderContainer)}
       >
         <span
@@ -126,11 +133,11 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
           className={css(activeTooltipClass, dragTooltipClass, styles.tooltip)}
           style={{ left: this.state.tooltipPosition + "%" }}
         >
-          {this.props.value}
+          {this.state.value}
         </span>
         <Slider
-          id={`slider-${this.props.id}`}
-          value={this.props.value}
+          id={this.props.id}
+          value={this.state.value}
           min={this.props.min}
           max={this.props.max}
           step={this.props.step}
@@ -139,7 +146,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
           classes={{ ...this.props.classes }}
           onDragStart={this.onDragStart}
           onDragEnd={this.onDragEnd}
-          onTransitionEnd={this.onTransitionEndCapture}
+          onTransitionEnd={this.onTransitionEnd}
         />
       </div>
     )
