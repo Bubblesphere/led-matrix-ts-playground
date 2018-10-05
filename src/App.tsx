@@ -2,8 +2,11 @@ import * as React from 'react';
 import './App.css';
 import { Component } from 'react';
 import Profile from './Profile/Profile';
+import Led from './LedMatrix/Led';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
+import { PanelType, RendererType, Renderer } from 'led-matrix-ts';
+import { LedMovementState } from './LedMatrix/enum-mapper';
 
 /*const theme = createMuiTheme({
   typography: {
@@ -21,7 +24,15 @@ interface AppProps {
 }
 
 interface AppState {
-  value: string
+  panelType: PanelType,
+  rendererType: RendererType,
+  increment: number,
+  fps: number,
+  width: number,
+  spacing: number,
+  input: string,
+  size: number,
+  state: LedMovementState
 }
 
 const appStyles = StyleSheet.create({
@@ -41,29 +52,24 @@ const appStyles = StyleSheet.create({
 
 class App extends Component<AppProps, AppState> {
   state = {
-    value: "test"
+    panelType: PanelType.SideScrollingPanel,
+    rendererType: RendererType.CanvasSquare,
+    increment: 1,
+    fps: 60,
+    width: 80,
+    spacing: 2,
+    input: 'Deric',
+    size: 1,
+    state: LedMovementState.play
   }
-  /*state = {
-    profile: {
-      fps: 30,
-      increment: 1,
-      input: "test",
-      padding: [0],
-      panelType: PanelType.SideScrollingPanel,
-      panelWidth: 80,
-      pathCharacters: "",
-      renderer: new AsciiRenderer({
-        characterBitOff: ' ',
-        characterBitOn: 'X',
-        element: document.getElementById('led-matrix')
-      }),
-      reverse: false,
-      spacing: 2
-    }
-  };*/
 
   constructor(props) {
     super(props);
+    this.handleChanges = this.handleChanges.bind(this);
+  }
+
+  handleChanges(property, value) {
+    this.setState((prevState) => ({ ...prevState, [property]: value }));
   }
 
   render() {
@@ -72,10 +78,8 @@ class App extends Component<AppProps, AppState> {
           <Grid item={true} xs={1} className={css(appStyles.menu)}>
             <p>Menu</p>
           </Grid>
-          <Profile/>
-          <Grid item={true} xs={8} className={css(appStyles.main)}>
-            <p>main</p>
-          </Grid>
+          <Profile {...this.state} onChange={this.handleChanges}/>
+          <Led {...this.state} onChange={this.handleChanges}/>
         </Grid>
     );
   }

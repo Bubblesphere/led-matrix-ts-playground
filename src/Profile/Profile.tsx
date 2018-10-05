@@ -2,14 +2,26 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Typography, Checkbox } from '@material-ui/core';
+import { Grid, Select, MenuItem } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
+import { PanelType, LedMatrix } from 'led-matrix-ts';
+import { panelTypes, renderers, LedMovementState } from '../LedMatrix/enum-mapper';
 
 interface ProfileState {
-  increment: number
+
 }
 
 interface ProfileProps {
+  panelType: PanelType,
+  rendererType: number,
+  increment: number,
+  fps: number,
+  width: number,
+  spacing: number,
+  input: string,
+  size: number,
+  state: LedMovementState,
+  onChange: (property, value) => void
 }
 
 const styles = StyleSheet.create({
@@ -19,33 +31,65 @@ const styles = StyleSheet.create({
 });
 
 class Profile extends Component<ProfileProps, ProfileState> {
-  state = {
-    increment: 1,
-    fps: 60,
-    width: 80,
-    spacing: 2
-  }
+  ledMatrix: LedMatrix;
 
   constructor(props) {
     super(props);
+    this.handleChangesSelect = this.handleChangesSelect.bind(this);
+    this.handleChangesInput = this.handleChangesInput.bind(this);
+    this.handleChangesMovement = this.handleChangesMovement.bind(this);
     this.handleChanges = this.handleChanges.bind(this);
   }
 
-  private handleChanges(id, value) {
-    this.setState((prevState) => ({ ...prevState, [id]: value }));
+  handleChangesSelect(event) {
+    this.handleChanges(event.target.name, event.target.value);
+  }
+
+
+  handleChangesMovement(event) {
+    this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
+  }
+
+  handleChangesInput(event) {
+    this.handleChanges(event.target.name, event.target.value == "" ? " " : event.target.value);
+  }
+
+
+  handleChanges(property, value) {
+    this.props.onChange(property, value);
   }
 
   render() {
     return (
       <Grid item={true} xs={3} container={true} className={css(styles.profiles)} direction={"column"}>
     
+        <ProfileFormItem name="panel">
+          <Select
+            name="panelType"
+            value={this.props.panelType}
+            onChange={this.handleChangesSelect}
+          >
+            {panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+          </Select>
+        </ProfileFormItem>
+
+        <ProfileFormItem name="renderer">
+          <Select
+            name="rendererType"
+            value={this.props.rendererType}
+            onChange={this.handleChangesSelect}
+          >
+            {renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+          </Select>
+        </ProfileFormItem>
+
         <ProfileFormItem name="Increment">
           <TooltipSlider 
             id="increment"
             min={0} 
             max={20} 
-            value={this.state.increment} 
-            onChange={this.handleChanges} 
+            lastCapturedValue={this.props.increment} 
+            onChangeCapture={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -54,8 +98,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
             id="fps"
             min={0} 
             max={60} 
-            value={this.state.fps} 
-            onChange={this.handleChanges} 
+            lastCapturedValue={this.props.fps} 
+            onChangeCapture={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -64,8 +108,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
             id="width"
             min={1} 
             max={200} 
-            value={this.state.width} 
-            onChange={this.handleChanges} 
+            lastCapturedValue={this.props.width} 
+            onChangeCapture={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -74,11 +118,34 @@ class Profile extends Component<ProfileProps, ProfileState> {
             id="spacing"
             min={0} 
             max={20} 
-            value={this.state.spacing} 
-            onChange={this.handleChanges} 
+            lastCapturedValue={this.props.spacing} 
+            onChangeCapture={this.handleChanges} 
           />
         </ProfileFormItem>
 
+                <ProfileFormItem name="Input">
+          <input
+            name="input"
+            type="text"
+            value={this.props.input}
+            onChange={this.handleChangesInput}
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Size">
+          <TooltipSlider 
+            id="size"
+            min={1} 
+            max={5} 
+            lastCapturedValue={this.props.size} 
+            onChangeCapture={this.handleChanges} 
+          />
+        </ProfileFormItem>
+
+        <input type="button" name="state" value="Play" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Pause" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Stop" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Resume" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
       </Grid>
     );
   }
