@@ -2,23 +2,25 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Typography, Checkbox, Select, MenuItem } from '@material-ui/core';
+import { Grid, Select, MenuItem } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix } from 'led-matrix-ts';
-import { panelTypes, renderers } from '../LedMatrix/enum-mapper';
-
+import { panelTypes, renderers, LedMovementState } from '../LedMatrix/enum-mapper';
 
 interface ProfileState {
 
 }
 
 interface ProfileProps {
-  panel: PanelType,
-  renderer: number,
+  panelType: PanelType,
+  rendererType: number,
   increment: number,
   fps: number,
   width: number,
   spacing: number,
+  input: string,
+  size: number,
+  state: LedMovementState,
   onChange: (property, value) => void
 }
 
@@ -34,12 +36,24 @@ class Profile extends Component<ProfileProps, ProfileState> {
   constructor(props) {
     super(props);
     this.handleChangesSelect = this.handleChangesSelect.bind(this);
+    this.handleChangesInput = this.handleChangesInput.bind(this);
+    this.handleChangesMovement = this.handleChangesMovement.bind(this);
     this.handleChanges = this.handleChanges.bind(this);
   }
 
   handleChangesSelect(event) {
     this.handleChanges(event.target.name, event.target.value);
   }
+
+
+  handleChangesMovement(event) {
+    this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
+  }
+
+  handleChangesInput(event) {
+    this.handleChanges(event.target.name, event.target.value == "" ? " " : event.target.value);
+  }
+
 
   handleChanges(property, value) {
     this.props.onChange(property, value);
@@ -51,8 +65,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
     
         <ProfileFormItem name="panel">
           <Select
-            name="panel"
-            value={this.props.panel}
+            name="panelType"
+            value={this.props.panelType}
             onChange={this.handleChangesSelect}
           >
             {panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
@@ -61,8 +75,8 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
         <ProfileFormItem name="renderer">
           <Select
-            name="renderer"
-            value={this.props.renderer}
+            name="rendererType"
+            value={this.props.rendererType}
             onChange={this.handleChangesSelect}
           >
             {renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
@@ -108,6 +122,30 @@ class Profile extends Component<ProfileProps, ProfileState> {
             onChangeCapture={this.handleChanges} 
           />
         </ProfileFormItem>
+
+                <ProfileFormItem name="Input">
+          <input
+            name="input"
+            type="text"
+            value={this.props.input}
+            onChange={this.handleChangesInput}
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Size">
+          <TooltipSlider 
+            id="size"
+            min={1} 
+            max={5} 
+            lastCapturedValue={this.props.size} 
+            onChangeCapture={this.handleChanges} 
+          />
+        </ProfileFormItem>
+
+        <input type="button" name="state" value="Play" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Pause" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Stop" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
+        <input type="button" name="state" value="Resume" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
       </Grid>
     );
   }

@@ -5,7 +5,7 @@ import Profile from './Profile/Profile';
 import Led from './LedMatrix/Led';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType } from 'led-matrix-ts';
+import { PanelType, RendererType, Renderer } from 'led-matrix-ts';
 import { LedMovementState } from './LedMatrix/enum-mapper';
 
 /*const theme = createMuiTheme({
@@ -24,8 +24,8 @@ interface AppProps {
 }
 
 interface AppState {
-  panel: PanelType,
-  renderer: number,
+  panelType: PanelType,
+  rendererType: RendererType,
   increment: number,
   fps: number,
   width: number,
@@ -52,8 +52,8 @@ const appStyles = StyleSheet.create({
 
 class App extends Component<AppProps, AppState> {
   state = {
-    panel: PanelType.SideScrollingPanel,
-    renderer: 0,
+    panelType: PanelType.SideScrollingPanel,
+    rendererType: RendererType.CanvasSquare,
     increment: 1,
     fps: 60,
     width: 80,

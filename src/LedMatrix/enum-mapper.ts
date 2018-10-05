@@ -1,5 +1,18 @@
 import { PanelType } from 'led-matrix-ts';
 
+export enum LedMovementState {
+  play,
+  stop,
+  pause,
+  resume
+}
+
+export enum Renderers {
+  ASCII,
+  CanvasSquare,
+  CanvasCircle
+}
+
 export const panelTypes = [
   {
     id: PanelType.SideScrollingPanel,
@@ -13,22 +26,16 @@ export const panelTypes = [
 
 export const renderers = [
   {
-    id: 0,
+    id: Renderers.ASCII,
     text: "ASCII"
   },
   {
-    id: 1,
+    id: Renderers.CanvasSquare,
     text: "Canvas (Square)"
   },
   {
-    id: 2,
+    id: Renderers.CanvasCircle,
     text: "Canvas (Circle)"
   }
 ]
 
-export enum LedMovementState {
-  play,
-  stop,
-  pause,
-  resume
-}

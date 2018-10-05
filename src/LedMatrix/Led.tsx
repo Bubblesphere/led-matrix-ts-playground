@@ -2,10 +2,9 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, CanvaRenderer, CanvaRenderers } from 'led-matrix-ts';
+import { PanelType, LedMatrix, CanvaRenderers, RendererType } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from './enum-mapper';
-import ProfileFormItem from '../Profile/ProfileFormItem';
-import TooltipSlider from '../Inputs/TooltipSlider';
+
 
 
 interface LedState {
@@ -13,8 +12,8 @@ interface LedState {
 }
 
 interface LedProps {
-  panel: PanelType,
-  renderer: number,
+  panelType: PanelType,
+  rendererType: RendererType,
   increment: number,
   fps: number,
   width: number,
@@ -36,14 +35,19 @@ class Led extends Component<LedProps, LedState> {
 
   constructor(props) {
     super(props);
-    this.handleChangesInput = this.handleChangesInput.bind(this);
-    this.handleChanges = this.handleChanges.bind(this);
-    this.handleChangesMovement = this.handleChangesMovement.bind(this);
+
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.panel != prevProps.panel) {
-      this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panel)[0].id;
+    if (this.props.panelType != prevProps.panel) {
+      this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panelType)[0].id;
+    }
+
+    if (this.props.rendererType != prevProps.rendererType) {
+      this.ledMatrix.setRendererFromBuilder({
+        element: document.getElementById('led-matrix'),
+        rendererType: this.props.rendererType
+      });
     }
 
     if (this.props.fps != prevProps.fps) {
@@ -94,67 +98,27 @@ class Led extends Component<LedProps, LedState> {
       fps: this.props.fps,
       increment: this.props.increment,
       input: this.props.input,
-      panelType: this.props.panel,
+      panelType: this.props.panelType,
       panelWidth: this.props.width,
       spacing: this.props.spacing,
-      renderer: new CanvaRenderers.Rect({
-        canva: document.getElementById('led-matrix-canva') as HTMLCanvasElement
-      })
+      element: document.getElementById('led-matrix'),
+      rendererType: this.props.rendererType
     });
 
-    this.ledMatrix.init(1, () => {
-      /*this.setState({
-        panel: this.ledMatrix.panelType,
-        increment: this.ledMatrix.increment,
-        fps: this.ledMatrix.fps,
-        width: this.ledMatrix.viewportWidth,
-        spacing: this.ledMatrix.spacing,
-        input: this.ledMatrix.input,
-        size: this.ledMatrix.size
-      })*/
-    });
+    this.ledMatrix.init(1);
   }
 
-  handleChangesMovement(event) {
-    this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
+  GetRendererElement() {
+    return this.props.rendererType == RendererType.ASCII ?
+      <div id="led-matrix" style={{fontFamily: 'monospace', whiteSpace: 'pre'}}/> :
+      <canvas id="led-matrix" width="1000" height="256" />
   }
 
-  handleChangesInput(event) {
-    this.handleChanges(event.target.name, event.target.value == "" ? " " : event.target.value);
-  }
-
-  handleChanges(property, value) {
-    this.props.onChange(property, value);
-  }
 
   render() {
     return (
       <Grid item={true} xs={8} className={css(styles.main)}>
-        <ProfileFormItem name="Input">
-          <input
-            name="input"
-            type="text"
-            value={this.props.input}
-            onChange={this.handleChangesInput}
-          />
-        </ProfileFormItem>
-
-        <ProfileFormItem name="Size">
-          <TooltipSlider 
-            id="size"
-            min={1} 
-            max={5} 
-            lastCapturedValue={this.props.size} 
-            onChangeCapture={this.handleChanges} 
-          />
-        </ProfileFormItem>
-
-        <input type="button" name="state" value="Play" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Stop" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Pause" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Resume" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
-        <div id="led-matrix" style={{fontFamily: 'monospace', whiteSpace: 'pre'}}/>
-        <canvas id="led-matrix-canva" width="1000" height="256" />
+        {this.GetRendererElement()}
       </Grid>
     );
   }
