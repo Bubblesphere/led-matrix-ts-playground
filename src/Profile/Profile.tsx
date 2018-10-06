@@ -22,6 +22,10 @@ interface ProfileProps {
   size: number,
   state: LedMovementState,
   reverse: boolean,
+  paddingTop: number,
+  paddingRight: number,
+  paddingBottom: number,
+  paddingLeft: number
   onChange: (property, value) => void
 }
 
@@ -155,6 +159,47 @@ class Profile extends Component<ProfileProps, ProfileState> {
             value="reverse"
           />
         </ProfileFormItem>
+
+        <ProfileFormItem name="Padding Top">
+          <TooltipSlider 
+            id="paddingTop"
+            min={0} 
+            max={20} 
+            lastCapturedValue={this.props.paddingTop}
+            onChangeCapture={this.handleChanges}
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Padding Right">
+          <TooltipSlider 
+            id="paddingRight"
+            min={0} 
+            max={20} 
+            lastCapturedValue={this.props.paddingRight}
+            onChangeCapture={this.handleChanges}
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Padding Bottom">
+          <TooltipSlider 
+            id="paddingBottom"
+            min={0} 
+            max={20} 
+            lastCapturedValue={this.props.paddingBottom}
+            onChangeCapture={this.handleChanges}
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Padding Left">
+          <TooltipSlider 
+            id="paddingLeft"
+            min={0} 
+            max={20} 
+            lastCapturedValue={this.props.paddingLeft}
+            onChangeCapture={this.handleChanges}
+          />
+        </ProfileFormItem>
+
 
       </Grid>
     );

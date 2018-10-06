@@ -2,9 +2,8 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, CanvaRenderers, RendererType } from 'led-matrix-ts';
+import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from './enum-mapper';
-
 
 
 interface LedState {
@@ -22,6 +21,7 @@ interface LedProps {
   size: number,
   state: LedMovementState,
   reverse: boolean,
+  padding: Padding
   onChange: (property, value) => void
 }
 
@@ -78,6 +78,11 @@ class Led extends Component<LedProps, LedState> {
     if (this.props.reverse != prevProps.reverse) {
       this.ledMatrix.reverse = this.props.reverse;
     }
+
+    if (this.props.padding != prevProps.padding) {
+      this.ledMatrix.padding = this.props.padding;
+    }
+
     if (this.props.state != prevProps.state) {
       switch(Number(this.props.state) as LedMovementState) {
         case LedMovementState.play:
@@ -108,6 +113,7 @@ class Led extends Component<LedProps, LedState> {
       element: document.getElementById('led-matrix'),
       rendererType: this.props.rendererType
       reverse: this.props.reverse,
+      padding: this.props.padding
     });
 
     this.ledMatrix.init(1);

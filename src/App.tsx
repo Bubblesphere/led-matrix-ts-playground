@@ -63,6 +63,10 @@ class App extends Component<AppProps, AppState> {
     size: 1,
     state: LedMovementState.play
     reverse: false,
+    paddingTop: 1,
+    paddingRight: 1,
+    paddingBottom: 1,
+    paddingLeft: 1
   }
 
   constructor(props) {
@@ -81,7 +85,11 @@ class App extends Component<AppProps, AppState> {
             <p>Menu</p>
           </Grid>
           <Profile {...this.state} onChange={this.handleChanges}/>
-          <Led {...this.state} onChange={this.handleChanges}/>
+          <Led 
+            {...this.state} 
+            onChange={this.handleChanges} 
+            padding={[this.state.paddingTop, this.state.paddingRight, this.state.paddingBottom, this.state.paddingLeft]} 
+          />
         </Grid>
     );
   }
