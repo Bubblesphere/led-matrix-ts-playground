@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Select, MenuItem } from '@material-ui/core';
+import { Grid, Select, MenuItem, Switch, LinearProgress } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix } from 'led-matrix-ts';
 import { panelTypes, renderers, LedMovementState } from '../LedMatrix/enum-mapper';
@@ -21,6 +21,7 @@ interface ProfileProps {
   input: string,
   size: number,
   state: LedMovementState,
+  reverse: boolean,
   onChange: (property, value) => void
 }
 
@@ -36,6 +37,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
   constructor(props) {
     super(props);
     this.handleChangesSelect = this.handleChangesSelect.bind(this);
+    this.handleChangesCheckbox = this.handleChangesCheckbox.bind(this);
     this.handleChangesInput = this.handleChangesInput.bind(this);
     this.handleChangesMovement = this.handleChangesMovement.bind(this);
     this.handleChanges = this.handleChanges.bind(this);
@@ -45,6 +47,9 @@ class Profile extends Component<ProfileProps, ProfileState> {
     this.handleChanges(event.target.name, event.target.value);
   }
 
+  handleChangesCheckbox(event) {
+    this.handleChanges(event.target.name, event.target.checked);
+  }
 
   handleChangesMovement(event) {
     this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
@@ -142,10 +147,15 @@ class Profile extends Component<ProfileProps, ProfileState> {
           />
         </ProfileFormItem>
 
-        <input type="button" name="state" value="Play" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Pause" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Stop" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
-        <input type="button" name="state" value="Resume" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
+        <ProfileFormItem name="Reverse">
+          <Switch
+            checked={this.props.reverse}
+            name="reverse"
+            onChange={this.handleChangesCheckbox}
+            value="reverse"
+          />
+        </ProfileFormItem>
+
       </Grid>
     );
   }

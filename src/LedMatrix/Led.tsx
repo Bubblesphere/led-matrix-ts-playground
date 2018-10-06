@@ -21,6 +21,7 @@ interface LedProps {
   input: string,
   size: number,
   state: LedMovementState,
+  reverse: boolean,
   onChange: (property, value) => void
 }
 
@@ -74,6 +75,9 @@ class Led extends Component<LedProps, LedState> {
       this.ledMatrix.size = this.props.size;
     }
 
+    if (this.props.reverse != prevProps.reverse) {
+      this.ledMatrix.reverse = this.props.reverse;
+    }
     if (this.props.state != prevProps.state) {
       switch(Number(this.props.state) as LedMovementState) {
         case LedMovementState.play:
@@ -103,6 +107,7 @@ class Led extends Component<LedProps, LedState> {
       spacing: this.props.spacing,
       element: document.getElementById('led-matrix'),
       rendererType: this.props.rendererType
+      reverse: this.props.reverse,
     });
 
     this.ledMatrix.init(1);

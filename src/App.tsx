@@ -33,6 +33,7 @@ interface AppState {
   input: string,
   size: number,
   state: LedMovementState
+  reverse: boolean
 }
 
 const appStyles = StyleSheet.create({
@@ -61,6 +62,7 @@ class App extends Component<AppProps, AppState> {
     input: 'Deric',
     size: 1,
     state: LedMovementState.play
+    reverse: false,
   }
 
   constructor(props) {
