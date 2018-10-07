@@ -21,7 +21,9 @@ interface LedProps {
   size: number,
   state: LedMovementState,
   reverse: boolean,
+  index: number,
   padding: Padding
+  onPanelUpdate: (index, indexUpperBound) => void,
   onChange: (property, value) => void
 }
 
@@ -40,7 +42,7 @@ class Led extends Component<LedProps, LedState> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.panelType != prevProps.panel) {
+    if (this.props.panelType != prevProps.panelType) {
       this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panelType)[0].id;
     }
 
@@ -97,8 +99,13 @@ class Led extends Component<LedProps, LedState> {
         case LedMovementState.pause:
           this.ledMatrix.pause();
           break;
+        case LedMovementState.seek:
+        console.log('seek')
+          this.ledMatrix.seek(this.props.index);
+          break;
       }
     }
+
   }
 
   componentDidMount() {
@@ -111,12 +118,18 @@ class Led extends Component<LedProps, LedState> {
       panelWidth: this.props.width,
       spacing: this.props.spacing,
       element: document.getElementById('led-matrix'),
-      rendererType: this.props.rendererType
+      rendererType: this.props.rendererType,
       reverse: this.props.reverse,
       padding: this.props.padding
     });
 
+    
     this.ledMatrix.init(1);
+    
+    this.ledMatrix.event.panelUpdate.on((i) => {
+      this.props.onPanelUpdate(this.ledMatrix.index, this.ledMatrix.indexUpperBound);
+    })
+
   }
 
   GetRendererElement() {

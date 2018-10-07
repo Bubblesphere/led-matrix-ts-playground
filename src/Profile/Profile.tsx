@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../Inputs/TooltipSlider';
+import Timeline from '../Inputs/Timeline';
 import ProfileFormItem from './ProfileFormItem';
 import { Grid, Select, MenuItem, Switch, LinearProgress } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
@@ -22,6 +23,8 @@ interface ProfileProps {
   size: number,
   state: LedMovementState,
   reverse: boolean,
+  index: number,
+  indexUpperBound: number,
   paddingTop: number,
   paddingRight: number,
   paddingBottom: number,
@@ -44,6 +47,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
     this.handleChangesCheckbox = this.handleChangesCheckbox.bind(this);
     this.handleChangesInput = this.handleChangesInput.bind(this);
     this.handleChangesMovement = this.handleChangesMovement.bind(this);
+    this.handleChangesTimeline = this.handleChangesTimeline.bind(this);
     this.handleChanges = this.handleChanges.bind(this);
   }
 
@@ -63,9 +67,50 @@ class Profile extends Component<ProfileProps, ProfileState> {
     this.handleChanges(event.target.name, event.target.value == "" ? " " : event.target.value);
   }
 
+  handleChangesTimeline(property, value) {
+    this.handleChanges(property, value);
+    this.handleChanges("state", LedMovementState.seek);
+    this.handleChanges("state", LedMovementState.resume);
+  }
 
   handleChanges(property, value) {
     this.props.onChange(property, value);
+  }
+
+  renderMovementControls() {
+    switch (this.props.state) {
+      case LedMovementState.pause:
+        return (
+          <div>
+            <input type="button" name="state" value="<<" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="&#9658;" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="&#9633;" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
+          </div>
+        )
+      case LedMovementState.play:
+        return (
+          <div>
+            <input type="button" name="state" value="<<" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="||" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="&#9633;" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
+          </div>
+        )
+      case LedMovementState.resume:
+        return (
+          <div>
+            <input type="button" name="state" value="<<" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="||" data-value={LedMovementState.pause} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="&#9633;" data-value={LedMovementState.stop} onClick={this.handleChangesMovement} />
+          </div>
+        )
+      case LedMovementState.stop:
+        return (
+          <div>
+            <input type="button" name="state" value="<<" data-value={LedMovementState.play} onClick={this.handleChangesMovement} />
+            <input type="button" name="state" value="&#9658;" data-value={LedMovementState.resume} onClick={this.handleChangesMovement} />
+          </div>
+        )
+    }
   }
 
   render() {
@@ -132,7 +177,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
           />
         </ProfileFormItem>
 
-                <ProfileFormItem name="Input">
+        <ProfileFormItem name="Input">
           <input
             name="input"
             type="text"
@@ -157,6 +202,17 @@ class Profile extends Component<ProfileProps, ProfileState> {
             name="reverse"
             onChange={this.handleChangesCheckbox}
             value="reverse"
+          />
+        </ProfileFormItem>
+
+        <ProfileFormItem name="Index">
+          <Timeline 
+            id="index"
+            min={0} 
+            max={this.props.indexUpperBound} 
+            lastCapturedValue={this.props.index}
+            removeLeftTransition={true}
+            onChangeCapture={this.handleChangesTimeline}
           />
         </ProfileFormItem>
 
@@ -200,6 +256,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
           />
         </ProfileFormItem>
 
+        {this.renderMovementControls()}
 
       </Grid>
     );

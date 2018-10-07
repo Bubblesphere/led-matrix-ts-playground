@@ -32,7 +32,7 @@ interface AppState {
   spacing: number,
   input: string,
   size: number,
-  state: LedMovementState
+  state: LedMovementState,
   reverse: boolean
 }
 
@@ -61,8 +61,10 @@ class App extends Component<AppProps, AppState> {
     spacing: 2,
     input: 'Deric',
     size: 1,
-    state: LedMovementState.play
+    state: LedMovementState.play,
     reverse: false,
+    index: 0,
+    indexUpperBound: 0,
     paddingTop: 1,
     paddingRight: 1,
     paddingBottom: 1,
@@ -72,10 +74,15 @@ class App extends Component<AppProps, AppState> {
   constructor(props) {
     super(props);
     this.handleChanges = this.handleChanges.bind(this);
+    this.handlePanelUpdate = this.handlePanelUpdate.bind(this);
   }
 
   handleChanges(property, value) {
     this.setState((prevState) => ({ ...prevState, [property]: value }));
+  }
+
+  handlePanelUpdate(index, indexUpperBound) {
+    this.setState((prevState) => ({ ...prevState, index: index, indexUpperBound: indexUpperBound }));
   }
 
   render() {
@@ -88,6 +95,7 @@ class App extends Component<AppProps, AppState> {
           <Led 
             {...this.state} 
             onChange={this.handleChanges} 
+            onPanelUpdate={this.handlePanelUpdate} 
             padding={[this.state.paddingTop, this.state.paddingRight, this.state.paddingBottom, this.state.paddingLeft]} 
           />
         </Grid>

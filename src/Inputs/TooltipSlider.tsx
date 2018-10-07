@@ -15,9 +15,12 @@ interface TooltipSliderProps {
   min?: number,
   max?: number,
   step?: number,
+  removeLeftTransition?: boolean,
   id: string,
   lastCapturedValue: number,
-  onChangeCapture: (property, value) => void
+  onChangeCapture: (property, value) => void,
+  onDragStart: () => void,
+  onDragEnd: (value) => void
 }
 
 const styles = StyleSheet.create({
@@ -35,6 +38,9 @@ const styles = StyleSheet.create({
   styleDragEnd: {
     // When clicking/tapping elsewhere than where the slider button is, we want to transition smoothly
     transition: 'left 0.2s, top 0.2s'
+  },
+  styleDragEndNoLeftTransition: {
+    transition: 'left 0s, top 0.2s'
   },
   styleActiveStart: {
     color: '#000',
@@ -85,16 +91,23 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
   }
 
   private onDragStart = () => {
+    if (this.props.onDragStart) {
+      this.props.onDragStart();
+    }
     this.setState((prevState) => ({ ...prevState, active: true, dragging: true }));
   }
 
   private onDragEnd = () => {
+
     this.setState((prevState) => ({ ...prevState, dragging: false }));
   }
 
   private onTransitionEnd(e) {
     if (e.propertyName === 'height') {
       if (e.target.offsetHeight == this.sliderButtonInactiveOffsetHeight) {
+        if (this.props.onDragEnd) {
+          this.props.onDragEnd(this.state.value);
+        }
         // Reached when the height of the slider button changes and the new height is the size of the it's inactive state
         this.props.onChangeCapture(this.props.id, this.state.value);
         this.setState((prevState) => ({ ...prevState, active: false }));
@@ -121,7 +134,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
 
   render() {
     const activeTooltipClass = this.state.active ? styles.styleActiveStart : styles.styleActiveEnd;
-    const dragTooltipClass = this.state.dragging ? styles.styleDragStart : styles.styleDragEnd;
+    const dragTooltipClass = this.state.dragging ? styles.styleDragStart :  (this.props.removeLeftTransition ? styles.styleDragEndNoLeftTransition : styles.styleDragEnd);
 
     return (
       <div 

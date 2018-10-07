@@ -4,7 +4,8 @@ export enum LedMovementState {
   play,
   stop,
   pause,
-  resume
+  resume,
+  seek
 }
 
 export enum Renderers {
