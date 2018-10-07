@@ -27,7 +27,7 @@ interface LedProps {
 
 const styles = StyleSheet.create({
   main: {
-    background: '#bbb'
+    background: '#e7e7e7'
   }
 });
 
@@ -111,7 +111,7 @@ class Led extends Component<LedProps, LedState> {
       panelWidth: this.props.width,
       spacing: this.props.spacing,
       element: document.getElementById('led-matrix'),
-      rendererType: this.props.rendererType
+      rendererType: this.props.rendererType,
       reverse: this.props.reverse,
       padding: this.props.padding
     });
@@ -128,8 +128,10 @@ class Led extends Component<LedProps, LedState> {
 
   render() {
     return (
-      <Grid item={true} xs={8} className={css(styles.main)}>
+      <Grid container={true} justify={"center"} alignItems={"center"} item={true} xs={9} className={css(styles.main)}>
+        <Grid>
         {this.GetRendererElement()}
+        </Grid>
       </Grid>
     );
   }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Select, MenuItem, Switch, LinearProgress } from '@material-ui/core';
+import { Grid, Select, MenuItem, Switch, LinearProgress, Typography } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix } from 'led-matrix-ts';
 import { panelTypes, renderers, LedMovementState } from '../LedMatrix/enum-mapper';
@@ -31,7 +31,10 @@ interface ProfileProps {
 
 const styles = StyleSheet.create({
   profiles: {
-    background: '#eee'
+    flex: 1,
+    background: '#f1f1f1',
+    borderRight: '1px solid #bbb',
+    padding: '48px'
   }
 });
 
@@ -70,8 +73,10 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
   render() {
     return (
-      <Grid item={true} xs={3} container={true} className={css(styles.profiles)} direction={"column"}>
+      <Grid item={true} container={true} className={css(styles.profiles)} direction={"column"}>
     
+        <Typography gutterBottom={true} variant={"headline"}>Profile</Typography>
+
         <ProfileFormItem name="panel">
           <Select
             name="panelType"
