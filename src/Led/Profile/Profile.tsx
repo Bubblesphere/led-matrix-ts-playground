@@ -4,7 +4,7 @@ import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
 import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix } from 'led-matrix-ts';
+import { PanelType, LedMatrix, RendererType } from 'led-matrix-ts';
 import { panelTypes, renderers, LedMovementState } from '../LedMatrix/led-map';
 import SelectCustom from '../../Inputs/Select';
 import SwitchCustom from '../../Inputs/Switch';
@@ -14,6 +14,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
 
 interface ProfileState {
 
@@ -81,7 +82,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         }}
         wrap="nowrap"
       >
-      <ExpansionPanel style={{background: '#fafafa'}}>
+      <ExpansionPanel style={{background: '#fafafa'}} defaultExpanded={true}> 
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Panel</Typography>
         </ExpansionPanelSummary>
@@ -134,7 +135,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
               />
             </ProfileFormItem>
 
-            <ProfileFormItem name="Width">
+            <ProfileFormItem name="Viewport width">
               <TooltipSlider 
                 id="width"
                 min={1} 
@@ -153,7 +154,13 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
           <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Renderer</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-        <ProfileFormItem name="Renderer">
+          <Grid 
+            item 
+            container 
+            direction={"column"} 
+            spacing={16}
+          >
+            <ProfileFormItem name="Renderer">
               <SelectCustom
                 id="rendererType"
                 menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
@@ -161,6 +168,51 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 value={this.props.rendererType}
               />
             </ProfileFormItem>
+
+            {this.props.rendererType == RendererType.ASCII ? 
+              (
+                <Grid item>
+                  <ProfileFormItem name="Character on">
+                    <h1>t</h1>
+                  </ProfileFormItem>
+
+                  <ProfileFormItem name="Character off">
+                  <h1>t</h1>
+                  </ProfileFormItem>
+                </Grid>
+              ) : (
+                <Grid item>
+                  <ProfileFormItem name="Color on">
+                    <ColorPickerDialog 
+                      id="colorOn"
+                      onInputCaptured={this.handleChanges}
+                    />
+                  </ProfileFormItem>
+
+                  <ProfileFormItem name="Color off">
+                    <ColorPickerDialog 
+                      id="colorOff"
+                      onInputCaptured={this.handleChanges}
+                    />
+                  </ProfileFormItem>
+
+                  <ProfileFormItem name="Stroke on">
+                    <ColorPickerDialog 
+                      id="strokeOn"
+                      onInputCaptured={this.handleChanges}
+                    />
+                  </ProfileFormItem>
+
+                  <ProfileFormItem name="Stroke off">
+                    <ColorPickerDialog 
+                      id="strokeOff"
+                      onInputCaptured={this.handleChanges}
+                    />
+                  </ProfileFormItem>
+                </Grid>
+              )
+            }
+          </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
 

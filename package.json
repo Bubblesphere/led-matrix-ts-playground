@@ -15,8 +15,9 @@
     "@material-ui/icons": "^3.0.1",
     "@material-ui/lab": "^3.0.0-alpha.17",
     "aphrodite": "^2.2.3",
-    "led-matrix-ts": "^0.5.4",
+    "led-matrix-ts": "^0.5.5",
     "react": "^16.5.2",
+    "react-color": "^2.14.1",
     "react-dom": "^16.5.2"
   },
   "scripts": {
