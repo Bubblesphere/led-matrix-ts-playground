@@ -28,7 +28,8 @@ interface AppState {
 const appStyles = StyleSheet.create({
   app: {
     margin: 0,
-    minHeight: '100vh'
+    minHeight: '100vh',
+    width: '100%'
   },
   centeredVertical: {
     alignSelf: 'center'
@@ -48,9 +49,9 @@ class App extends Component<AppProps, AppState> {
     state: LedMovementState.play,
     reverse: false,
     paddingTop: 1,
-    paddingRight: 10,
+    paddingRight: 15,
     paddingBottom: 1,
-    paddingLeft: 10
+    paddingLeft: 1
   }
 
   constructor(props) {
@@ -65,9 +66,8 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
         <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          <Menu/>
-          <ConfigurationSection profile={{onChange: this.handleChanges, ...this.state}}/>
           <DisplaySection led={{onChange: this.handleChanges, ...this.state}} />
+          <ConfigurationSection profile={{onChange: this.handleChanges, ...this.state}}/>
         </Grid>
     );
   }

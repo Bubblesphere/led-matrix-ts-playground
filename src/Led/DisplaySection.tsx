@@ -9,21 +9,17 @@ import Stop from '@material-ui/icons/StopRounded'
 import Pause from '@material-ui/icons/PauseRounded';
 
 import IconButtonCustom from '../Inputs/IconButton';
-import ProfileFormItem from './Profile/ProfileFormItem';
 import TextFieldCustom from '../Inputs/TextField';
 import { LedMovementState } from './LedMatrix/led-map';
 
 const styles = StyleSheet.create({
     display: {
         background: '#e7e7e7'
-    },
-    noFlexBasis: {
-      flexBasis: '0%'
     }
 });
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
-  root: {
+  inputRoot: {
     fontSize: typography.fontSize * 3,
     marginBottom: spacing.unit * 4,
     paddingRight: spacing.unit * 10
@@ -32,8 +28,11 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
     color: palette.primary.main,
     fontSize: typography.fontSize * 4
   },
-  pauseResumeButton: {
-    fontSize: typography.fontSize * 4
+  controlsPadding: {
+    paddingLeft: spacing.unit * 10,
+    paddingRight: spacing.unit * 10,
+    paddingBottom: spacing.unit * 5,
+    paddingTop: spacing.unit * 5,
   }
 });
 
@@ -44,8 +43,8 @@ interface DisplaySectionProps {
 const DisplaySection: React.SFC<DisplaySectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
       <Grid container={true} justify={"center"}  direction="column" alignItems={"center"} item={true} xs={9} className={css(styles.display)}>
-        <Grid item={true} md={8} container={true} justify="flex-start" className={css(styles.noFlexBasis)}>
-          <Grid item={true}>
+        <Grid item={true} container={true} justify="flex-start">
+          <Grid item={true} className={props.classes.controlsPadding}>
             <TextFieldCustom
                 id="input"
                 label="Input"
@@ -53,30 +52,33 @@ const DisplaySection: React.SFC<DisplaySectionProps & WithStyles<typeof themeDep
                 onInputCaptured={props.led.onChange}
                 InputProps={{
                   classes: {
-                    root: props.classes.root, 
+                    root: props.classes.inputRoot, 
                   },
                 }}
             />
           </Grid>
         </Grid>
         
-        <Grid item={true}>
+        <Grid item container justify="center">
           <Led {...props.led} />
         </Grid>
 
-        <Grid item={true} md={8} container={true} alignItems={"center"} justify="flex-end" className={css(styles.noFlexBasis)}>
+        <Grid item={true} container={true} alignItems={"center"} justify="flex-end">
+          <Grid item style={{alignSelf: "flex-end"}} className={props.classes.controlsPadding} >
           {props.led.state == LedMovementState.play || props.led.state == LedMovementState.resume ? (
-              <IconButtonCustom  id="state" value={LedMovementState.pause} onInputCaptured={props.led.onChange}>
-                <Pause className={props.classes.pauseResumeButton + ' ' + props.classes.icons} />
-              </IconButtonCustom> 
-          ) : (
-              <IconButtonCustom  id="state" value={LedMovementState.resume} onInputCaptured={props.led.onChange}>
-                <Resume className={props.classes.pauseResumeButton + ' ' + props.classes.icons} />
-              </IconButtonCustom>
-          )}
-          <IconButtonCustom  id="state" value={LedMovementState.stop} onInputCaptured={props.led.onChange}>
-            <Stop className={props.classes.icons} />
-          </IconButtonCustom>
+                <IconButtonCustom  id="state" value={LedMovementState.pause} onInputCaptured={props.led.onChange}>
+                  <Pause className={[props.classes.icons].join(' ')} />
+                </IconButtonCustom> 
+            ) : (
+                <IconButtonCustom  id="state" value={LedMovementState.resume} onInputCaptured={props.led.onChange}>
+                  <Resume className={[props.classes.icons].join(' ')} />
+                </IconButtonCustom>
+            )}
+            <IconButtonCustom  id="state" value={LedMovementState.stop} onInputCaptured={props.led.onChange}>
+              <Stop className={props.classes.icons} />
+            </IconButtonCustom>
+          </Grid>
+
         </Grid>
 
       </Grid>

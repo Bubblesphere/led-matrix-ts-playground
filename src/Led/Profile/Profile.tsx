@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Select, MenuItem, Switch, Typography } from '@material-ui/core';
+import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix } from 'led-matrix-ts';
 import { panelTypes, renderers, LedMovementState } from '../LedMatrix/led-map';
@@ -10,6 +10,10 @@ import SelectCustom from '../../Inputs/Select';
 import SwitchCustom from '../../Inputs/Switch';
 import TextFieldCustom from '../../Inputs/TextField';
 import { MenuItemProps } from '@material-ui/core/MenuItem';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 interface ProfileState {
 
@@ -36,7 +40,16 @@ export interface ProfileProps {
 const styles = StyleSheet.create({
 });
 
-class Profile extends Component<ProfileProps, ProfileState> {
+const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
+  title: {
+    color: palette.primary.main
+  },
+  container: {
+    margin: spacing.unit * 4
+  }
+});
+
+class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantStyles>, ProfileState> {
   ledMatrix: LedMatrix;
 
   constructor(props) {
@@ -58,59 +71,114 @@ class Profile extends Component<ProfileProps, ProfileState> {
   render() {
 
     return (
-      <Grid item={true} container={true} direction={"column"}>
-    
-        <Typography gutterBottom={true} variant={"headline"}>Profile</Typography>
+      <Grid 
+        item 
+        container 
+        direction={"column"} 
+        spacing={16}
+        classes={{
+          container: this.props.classes.container
+        }}
+        wrap="nowrap"
+      >
+      <ExpansionPanel style={{background: '#fafafa'}}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Panel</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
 
-        <ProfileFormItem name="panel">
-          <SelectCustom
-            id="panelType"
-            menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.handleChanges}
-            value={this.props.panelType}
-          />
-        </ProfileFormItem>
+          <Grid 
+            item 
+            container 
+            direction={"column"} 
+            spacing={16}
+          >
+            <ProfileFormItem name="Scrolling">
+              <SelectCustom
+                id="panelType"
+                menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+                onInputCaptured={this.handleChanges}
+                value={this.props.panelType}
+                
+              />
+            </ProfileFormItem>
+            
 
-        <ProfileFormItem name="renderer">
-          <SelectCustom
-            id="rendererType"
-            menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.handleChanges}
-            value={this.props.rendererType}
-          />
-        </ProfileFormItem>
 
-        <ProfileFormItem name="Increment">
-          <TooltipSlider 
-            id="increment"
-            min={0} 
-            max={20} 
-            lastCapturedValue={this.props.increment} 
-            onInputCaptured={this.handleChanges} 
-          />
-        </ProfileFormItem>
 
-        <ProfileFormItem name="FPS">
-          <TooltipSlider 
-            id="fps"
-            min={0} 
-            max={60} 
-            lastCapturedValue={this.props.fps} 
-            onInputCaptured={this.handleChanges} 
-          />
-        </ProfileFormItem>
+          <ProfileFormItem name="Reverse">
+              <SwitchCustom
+                checked={this.props.reverse}
+                id="reverse"
+                onInputCaptured={this.handleChanges}
+              />
+            </ProfileFormItem>
 
-        <ProfileFormItem name="Width">
-          <TooltipSlider 
-            id="width"
-            min={1} 
-            max={200} 
-            lastCapturedValue={this.props.width} 
-            onInputCaptured={this.handleChanges} 
-          />
-        </ProfileFormItem>
+            <ProfileFormItem name="Increment">
+              <TooltipSlider 
+                id="increment"
+                min={0} 
+                max={20} 
+                lastCapturedValue={this.props.increment} 
+                onInputCaptured={this.handleChanges} 
+              />
+            </ProfileFormItem>
 
-        <ProfileFormItem name="Spacing">
+            <ProfileFormItem name="FPS">
+              <TooltipSlider 
+                id="fps"
+                min={0} 
+                max={60} 
+                lastCapturedValue={this.props.fps} 
+                onInputCaptured={this.handleChanges} 
+              />
+            </ProfileFormItem>
+
+            <ProfileFormItem name="Width">
+              <TooltipSlider 
+                id="width"
+                min={1} 
+                max={200} 
+                lastCapturedValue={this.props.width} 
+                onInputCaptured={this.handleChanges} 
+              />
+            </ProfileFormItem>
+          </Grid>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+
+
+      <ExpansionPanel style={{background: '#fafafa'}}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Renderer</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+        <ProfileFormItem name="Renderer">
+              <SelectCustom
+                id="rendererType"
+                menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+                onInputCaptured={this.handleChanges}
+                value={this.props.rendererType}
+              />
+            </ProfileFormItem>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+
+
+      <ExpansionPanel style={{background: '#fafafa'}}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Board</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+
+          <Grid 
+            item 
+            container 
+            direction={"column"} 
+            spacing={16}
+          >
+
+        <ProfileFormItem name="Letter spacing">
           <TooltipSlider 
             id="spacing"
             min={0} 
@@ -119,8 +187,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
             onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
-
-
 
         <ProfileFormItem name="Size">
           <TooltipSlider 
@@ -132,15 +198,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
           />
         </ProfileFormItem>
 
-        <ProfileFormItem name="Reverse">
-          <SwitchCustom
-            checked={this.props.reverse}
-            id="reverse"
-            onInputCaptured={this.handleChanges}
-          />
-        </ProfileFormItem>
-
-        <ProfileFormItem name="Padding Top">
+        <ProfileFormItem name="Padding" centerLabel={false}>
           <TooltipSlider 
             id="paddingTop"
             min={0} 
@@ -148,9 +206,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
             lastCapturedValue={this.props.paddingTop}
             onInputCaptured={this.handleChanges}
           />
-        </ProfileFormItem>
-
-        <ProfileFormItem name="Padding Right">
           <TooltipSlider 
             id="paddingRight"
             min={0} 
@@ -158,9 +213,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
             lastCapturedValue={this.props.paddingRight}
             onInputCaptured={this.handleChanges}
           />
-        </ProfileFormItem>
-
-        <ProfileFormItem name="Padding Bottom">
           <TooltipSlider 
             id="paddingBottom"
             min={0} 
@@ -168,9 +220,6 @@ class Profile extends Component<ProfileProps, ProfileState> {
             lastCapturedValue={this.props.paddingBottom}
             onInputCaptured={this.handleChanges}
           />
-        </ProfileFormItem>
-
-        <ProfileFormItem name="Padding Left">
           <TooltipSlider 
             id="paddingLeft"
             min={0} 
@@ -179,6 +228,12 @@ class Profile extends Component<ProfileProps, ProfileState> {
             onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
+          </Grid>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+
+
+
 
 
       </Grid>
@@ -186,4 +241,4 @@ class Profile extends Component<ProfileProps, ProfileState> {
   }
 }
 
-export default Profile;
+export default withStyles(themeDependantStyles)(Profile);

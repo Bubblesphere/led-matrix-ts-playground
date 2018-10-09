@@ -1,31 +1,48 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 
 const styles = StyleSheet.create({
-  centeredVertical: {
+  typoAlignStart: {
+    alignSelf: 'flex-start'
+  },
+  typoAlignCenter: {
     alignSelf: 'center'
+  }
+});
+
+const themeDependantStyles = ({typography, palette}: Theme) => createStyles({
+  typography: {
+    fontSize: typography.fontSize,
+    color: palette.text.secondary,
+    letterSpacing: 1
   }
 });
 
 interface ProfileFormItemProps {
   name: string,
   children: ReactNode,
-  css?: object
+  centerLabel?: boolean
 }
 
-const ProfileFormItem = (props: ProfileFormItemProps) => {
+const ProfileFormItem: React.SFC<ProfileFormItemProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
-    <Grid container={true}>
-      <Grid item={true} xs={5} className={css(styles.centeredVertical, props.css)}>
-        <Typography gutterBottom={true}>{props.name}</Typography>
+    <Grid item container>
+      <Grid item xs={5} className={css(props.centerLabel ? styles.typoAlignCenter : styles.typoAlignStart)}>
+        <Typography gutterBottom className={props.classes.typography}>{props.name}</Typography>
       </Grid>
-      <Grid item={true} xs={7}>
-        {props.children}
+      <Grid item xs={7}>
+        <Grid item>
+         {props.children}
+        </Grid>
       </Grid>
     </Grid>
   );
 }
 
-export default ProfileFormItem
+ProfileFormItem.defaultProps = {
+  centerLabel: true
+}
+
+export default withStyles(themeDependantStyles)(ProfileFormItem);

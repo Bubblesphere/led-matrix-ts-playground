@@ -125,13 +125,12 @@ class Led extends Component<LedProps, LedState> {
   GetRendererElement() {
     return this.props.rendererType == RendererType.ASCII ?
       <div id="led-matrix" style={{fontFamily: 'monospace', whiteSpace: 'pre'}}/> :
-      <canvas id="led-matrix" width="1000" height="256" />
+      <canvas id="led-matrix" width="1000" height="256" style={{width: '1000px'}}/>
   }
-
 
   render() {
     return (
-      <Grid item={true}>
+      <Grid item>
         {this.GetRendererElement()}
       </Grid>
     );
