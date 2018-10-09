@@ -1,26 +1,13 @@
 import * as React from 'react';
 import { Component } from 'react';
-import Profile from './Profile/Profile';
-import Led from './LedMatrix/Led';
-import { Grid, Tooltip } from '@material-ui/core';
+import ConfigurationSection from './Led/ConfigurationSection';
+import DisplaySection from './Led/DisplaySection';
+import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, RendererType, Renderer } from 'led-matrix-ts';
-import { LedMovementState } from './LedMatrix/enum-mapper';
+import { PanelType, RendererType } from 'led-matrix-ts';
+import { LedMovementState } from './Led/LedMatrix/led-map';
+import Menu from './Menu/Menu';
 
-import GridOn from '@material-ui/icons/GridOn';
-import Translate from '@material-ui/icons/Translate';
-
-/*const theme = createMuiTheme({
-  typography: {
-    // Use the system font instead of the default Roboto font.
-    fontFamily: [
-      'Rubik',
-      'sans-serif'
-    ].join(','),
-    fontSize: 18,
-  },
-});
-*/
 interface AppProps {
 
 }
@@ -43,22 +30,8 @@ const appStyles = StyleSheet.create({
     margin: 0,
     minHeight: '100vh'
   },
-  menu: {
-    background: '#444',
-    flex: '0 0 64px',
-    color: '#bbb',
-
-  },
   centeredVertical: {
     alignSelf: 'center'
-  },
-  icon: {
-    fontSize: 32,
-    marginBottom: '16px',
-    ':hover': {
-      color: 'white',
-      cursor: 'pointer'
-    }
   },
 });
 
@@ -92,25 +65,9 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
         <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          
-          <Grid container={true} item={true} justify={"center"}  className={css(appStyles.menu)}>
-            <Grid item={true}>
-              <Tooltip title="Led Panel" enterDelay={500} placement={'right'}>
-                <GridOn  className={css(appStyles.icon)} />
-              </Tooltip>
-              <Tooltip title="Alphabet" enterDelay={500} placement={'right'}>
-                <Translate  className={css(appStyles.icon)} />
-              </Tooltip>
-            </Grid>
-          </Grid>
-
-          <Profile {...this.state} onChange={this.handleChanges}/>
-          <Led 
-            {...this.state} 
-            onChange={this.handleChanges} 
-            padding={[this.state.paddingTop, this.state.paddingRight, this.state.paddingBottom, this.state.paddingLeft]} 
-          />
-
+          <Menu/>
+          <ConfigurationSection profile={{onChange: this.handleChanges, ...this.state}}/>
+          <DisplaySection led={{onChange: this.handleChanges, ...this.state}} />
         </Grid>
     );
   }

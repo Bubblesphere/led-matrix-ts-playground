@@ -1,17 +1,21 @@
 import * as React from 'react';
 import { Component, ReactNode } from 'react';
-import TooltipSlider from '../Inputs/TooltipSlider';
+import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Select, MenuItem, Switch, LinearProgress, Typography } from '@material-ui/core';
+import { Grid, Select, MenuItem, Switch, Typography } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix } from 'led-matrix-ts';
-import { panelTypes, renderers, LedMovementState } from '../LedMatrix/enum-mapper';
+import { panelTypes, renderers, LedMovementState } from '../LedMatrix/led-map';
+import SelectCustom from '../../Inputs/Select';
+import SwitchCustom from '../../Inputs/Switch';
+import TextFieldCustom from '../../Inputs/TextField';
+import { MenuItemProps } from '@material-ui/core/MenuItem';
 
 interface ProfileState {
 
 }
 
-interface ProfileProps {
+export interface ProfileProps {
   panelType: PanelType,
   rendererType: number,
   increment: number,
@@ -30,12 +34,6 @@ interface ProfileProps {
 }
 
 const styles = StyleSheet.create({
-  profiles: {
-    flex: 1,
-    background: '#f1f1f1',
-    borderRight: '1px solid #bbb',
-    padding: '48px'
-  }
 });
 
 class Profile extends Component<ProfileProps, ProfileState> {
@@ -43,58 +41,43 @@ class Profile extends Component<ProfileProps, ProfileState> {
 
   constructor(props) {
     super(props);
-    this.handleChangesSelect = this.handleChangesSelect.bind(this);
-    this.handleChangesCheckbox = this.handleChangesCheckbox.bind(this);
-    this.handleChangesInput = this.handleChangesInput.bind(this);
-    this.handleChangesMovement = this.handleChangesMovement.bind(this);
+    //this.handleChangesMovement = this.handleChangesMovement.bind(this);
     this.handleChanges = this.handleChanges.bind(this);
   }
 
-  handleChangesSelect(event) {
-    this.handleChanges(event.target.name, event.target.value);
-  }
-
-  handleChangesCheckbox(event) {
-    this.handleChanges(event.target.name, event.target.checked);
-  }
-
+  /*
   handleChangesMovement(event) {
     this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
   }
-
-  handleChangesInput(event) {
-    this.handleChanges(event.target.name, event.target.value == "" ? " " : event.target.value);
-  }
-
+  */
 
   handleChanges(property, value) {
     this.props.onChange(property, value);
   }
 
   render() {
+
     return (
-      <Grid item={true} container={true} className={css(styles.profiles)} direction={"column"}>
+      <Grid item={true} container={true} direction={"column"}>
     
         <Typography gutterBottom={true} variant={"headline"}>Profile</Typography>
 
         <ProfileFormItem name="panel">
-          <Select
-            name="panelType"
+          <SelectCustom
+            id="panelType"
+            menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+            onInputCaptured={this.handleChanges}
             value={this.props.panelType}
-            onChange={this.handleChangesSelect}
-          >
-            {panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-          </Select>
+          />
         </ProfileFormItem>
 
         <ProfileFormItem name="renderer">
-          <Select
-            name="rendererType"
+          <SelectCustom
+            id="rendererType"
+            menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+            onInputCaptured={this.handleChanges}
             value={this.props.rendererType}
-            onChange={this.handleChangesSelect}
-          >
-            {renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-          </Select>
+          />
         </ProfileFormItem>
 
         <ProfileFormItem name="Increment">
@@ -103,7 +86,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.increment} 
-            onChangeCapture={this.handleChanges} 
+            onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -113,7 +96,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={60} 
             lastCapturedValue={this.props.fps} 
-            onChangeCapture={this.handleChanges} 
+            onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -123,7 +106,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={1} 
             max={200} 
             lastCapturedValue={this.props.width} 
-            onChangeCapture={this.handleChanges} 
+            onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
 
@@ -133,18 +116,11 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.spacing} 
-            onChangeCapture={this.handleChanges} 
+            onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
 
-                <ProfileFormItem name="Input">
-          <input
-            name="input"
-            type="text"
-            value={this.props.input}
-            onChange={this.handleChangesInput}
-          />
-        </ProfileFormItem>
+
 
         <ProfileFormItem name="Size">
           <TooltipSlider 
@@ -152,16 +128,15 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={1} 
             max={5} 
             lastCapturedValue={this.props.size} 
-            onChangeCapture={this.handleChanges} 
+            onInputCaptured={this.handleChanges} 
           />
         </ProfileFormItem>
 
         <ProfileFormItem name="Reverse">
-          <Switch
+          <SwitchCustom
             checked={this.props.reverse}
-            name="reverse"
-            onChange={this.handleChangesCheckbox}
-            value="reverse"
+            id="reverse"
+            onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
 
@@ -171,7 +146,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.paddingTop}
-            onChangeCapture={this.handleChanges}
+            onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
 
@@ -181,7 +156,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.paddingRight}
-            onChangeCapture={this.handleChanges}
+            onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
 
@@ -191,7 +166,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.paddingBottom}
-            onChangeCapture={this.handleChanges}
+            onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
 
@@ -201,7 +176,7 @@ class Profile extends Component<ProfileProps, ProfileState> {
             min={0} 
             max={20} 
             lastCapturedValue={this.props.paddingLeft}
-            onChangeCapture={this.handleChanges}
+            onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
 

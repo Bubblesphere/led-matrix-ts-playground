@@ -3,14 +3,14 @@ import { Component, ReactNode } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding } from 'led-matrix-ts';
-import { panelTypes, LedMovementState } from './enum-mapper';
+import { panelTypes, LedMovementState } from './led-map';
 
 
 interface LedState {
 
 }
 
-interface LedProps {
+export interface LedProps {
   panelType: PanelType,
   rendererType: RendererType,
   increment: number,
@@ -21,14 +21,14 @@ interface LedProps {
   size: number,
   state: LedMovementState,
   reverse: boolean,
-  padding: Padding
+  paddingTop: number,
+  paddingRight: number,
+  paddingBottom: number,
+  paddingLeft: number,
   onChange: (property, value) => void
 }
 
 const styles = StyleSheet.create({
-  main: {
-    background: '#e7e7e7'
-  }
 });
 
 class Led extends Component<LedProps, LedState> {
@@ -40,7 +40,7 @@ class Led extends Component<LedProps, LedState> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.panelType != prevProps.panel) {
+    if (this.props.panelType != prevProps.panelType) {
       this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panelType)[0].id;
     }
 
@@ -79,8 +79,11 @@ class Led extends Component<LedProps, LedState> {
       this.ledMatrix.reverse = this.props.reverse;
     }
 
-    if (this.props.padding != prevProps.padding) {
-      this.ledMatrix.padding = this.props.padding;
+    if (this.props.paddingTop != prevProps.paddingTop ||
+      this.props.paddingRight != prevProps.paddingRight ||
+      this.props.paddingBottom != prevProps.paddingBottom ||
+      this.props.paddingLeft != prevProps.paddingLeft) {
+      this.ledMatrix.padding = [this.props.paddingTop, this.props.paddingRight, this.props.paddingBottom, this.props.paddingLeft];
     }
 
     if (this.props.state != prevProps.state) {
@@ -113,7 +116,7 @@ class Led extends Component<LedProps, LedState> {
       element: document.getElementById('led-matrix'),
       rendererType: this.props.rendererType,
       reverse: this.props.reverse,
-      padding: this.props.padding
+      padding: [this.props.paddingTop, this.props.paddingRight, this.props.paddingBottom, this.props.paddingLeft]
     });
 
     this.ledMatrix.init(1);
@@ -128,10 +131,8 @@ class Led extends Component<LedProps, LedState> {
 
   render() {
     return (
-      <Grid container={true} justify={"center"} alignItems={"center"} item={true} xs={9} className={css(styles.main)}>
-        <Grid>
+      <Grid item={true}>
         {this.GetRendererElement()}
-        </Grid>
       </Grid>
     );
   }

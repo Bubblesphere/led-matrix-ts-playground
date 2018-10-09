@@ -18,10 +18,10 @@ interface ProfileFormItemProps {
 const ProfileFormItem = (props: ProfileFormItemProps) => {
   return (
     <Grid container={true}>
-      <Grid item={true} xs={6} className={css(styles.centeredVertical, props.css)}>
+      <Grid item={true} xs={5} className={css(styles.centeredVertical, props.css)}>
         <Typography gutterBottom={true}>{props.name}</Typography>
       </Grid>
-      <Grid item={true} xs={6}>
+      <Grid item={true} xs={7}>
         {props.children}
       </Grid>
     </Grid>

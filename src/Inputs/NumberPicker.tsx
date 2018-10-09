@@ -1,15 +1,17 @@
 import * as React from 'react'
 import { TextField } from '@material-ui/core';
+import { InputProps } from './Inputs';
+import { TextFieldProps } from 'material-ui';
 
-interface NumberPickerProps {
+interface NumberPickerProps extends InputProps {
+  id: string,
   value?: number,
   min?: number,
   max?: number,
-  label?: string,
-  onChange?: (value: number) => void
+  label: string,
 };
 
-const NumberPicker: React.SFC<NumberPickerProps> = (props) => {
+const NumberPicker: React.SFC<NumberPickerProps & InputProps & TextFieldProps> = (props) => {
   const validate = (value) => {
     if (value < props.min) {
       return props.min;
@@ -20,6 +22,7 @@ const NumberPicker: React.SFC<NumberPickerProps> = (props) => {
     }
 
     return value;
+  
   }
 
   const onChange = (e) => {
@@ -29,12 +32,13 @@ const NumberPicker: React.SFC<NumberPickerProps> = (props) => {
 
     if (value === e.target.value) {
       // A new valid value was inputed
-      props.onChange(value);
+      props.onInputCaptured(props.id, value);
     }
   };
 
   return (
    <TextField
+    id={props.id}
     label={props.label}
     helperText={`Value must be between ${props.min} and ${props.max}`}
     type="number"
@@ -49,7 +53,7 @@ NumberPicker.defaultProps = {
   min: 0,
   max: 100,
   label: "label",
-  onChange: (value) => { console.log(value); }
+  onInputCaptured: (value) => { console.log(value); }
 }
 
 export default NumberPicker;

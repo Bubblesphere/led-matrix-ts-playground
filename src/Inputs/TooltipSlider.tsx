@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Slider } from '@material-ui/lab';
 import { withStyles, WithStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
+import { InputProps } from './Inputs';
 
 interface TooltipSliderState {}
 
@@ -16,8 +17,7 @@ interface TooltipSliderProps {
   max?: number,
   step?: number,
   id: string,
-  lastCapturedValue: number,
-  onChangeCapture: (property, value) => void
+  lastCapturedValue: number
 }
 
 const styles = StyleSheet.create({
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   }
 });
 
-class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thumb'> & WithStyles<'root'> & WithStyles<'container'>, TooltipSliderState> {
+class TooltipSlider extends React.Component<TooltipSliderProps & InputProps & WithStyles<'thumb'> & WithStyles<'root'> & WithStyles<'container'>, TooltipSliderState> {
   // TODO: Auto-detect slider button's inactive offsetHeight
   private sliderButtonInactiveOffsetHeight = 12;
 
@@ -96,7 +96,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
     if (e.propertyName === 'height') {
       if (e.target.offsetHeight == this.sliderButtonInactiveOffsetHeight) {
         // Reached when the height of the slider button changes and the new height is the size of the it's inactive state
-        this.props.onChangeCapture(this.props.id, this.state.value);
+        this.props.onInputCaptured(this.props.id, this.state.value);
         this.setState((prevState) => ({ ...prevState, active: false }));
       }
     }
