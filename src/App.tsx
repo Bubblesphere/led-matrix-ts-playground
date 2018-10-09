@@ -7,6 +7,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './Led/LedMatrix/led-map';
 import Menu from './Menu/Menu';
+import { RGBColor } from 'react-color';
 
 interface AppProps {
 
@@ -21,8 +22,12 @@ interface AppState {
   spacing: number,
   input: string,
   size: number,
-  state: LedMovementState
-  reverse: boolean
+  state: LedMovementState,
+  reverse: boolean,
+  colorOn: RGBColor,
+  colorOff: RGBColor,
+  strokeOn: RGBColor,
+  strokeOff: RGBColor
 }
 
 const appStyles = StyleSheet.create({
@@ -44,16 +49,20 @@ class App extends Component<AppProps, AppState> {
     fps: 25,
     width: 50,
     spacing: 1,
-    input: 'Welcome fellow visitor',
+    input: 'Test',
     size: 1,
     state: LedMovementState.play,
     reverse: false,
     paddingTop: 1,
     paddingRight: 15,
     paddingBottom: 1,
-    paddingLeft: 1
+    paddingLeft: 1,
+    colorOn: { r: 39, g: 174, b: 96, a: 1} as RGBColor,
+    colorOff: { r: 44, g: 62, b: 80, a: 1} as RGBColor,
+    strokeOn: { r: 46, g: 204, b: 113, a: 1} as RGBColor,
+    strokeOff:{ r: 52, g: 73, b: 94, a: 1} as RGBColor
   }
-
+  
   constructor(props) {
     super(props);
     this.handleChanges = this.handleChanges.bind(this);

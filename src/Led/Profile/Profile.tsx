@@ -15,6 +15,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
+import { RGBColor } from 'react-color';
 
 interface ProfileState {
 
@@ -34,7 +35,11 @@ export interface ProfileProps {
   paddingTop: number,
   paddingRight: number,
   paddingBottom: number,
-  paddingLeft: number
+  paddingLeft: number,
+  colorOn: RGBColor,
+  colorOff: RGBColor,
+  strokeOn: RGBColor,
+  strokeOff: RGBColor,
   onChange: (property, value) => void
 }
 
@@ -185,6 +190,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Color on">
                     <ColorPickerDialog 
                       id="colorOn"
+                      defaultValue={this.props.colorOn}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -192,6 +198,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Color off">
                     <ColorPickerDialog 
                       id="colorOff"
+                      defaultValue={this.props.colorOff}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -199,6 +206,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Stroke on">
                     <ColorPickerDialog 
                       id="strokeOn"
+                      defaultValue={this.props.strokeOn}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -206,6 +214,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Stroke off">
                     <ColorPickerDialog 
                       id="strokeOff"
+                      defaultValue={this.props.strokeOff}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>

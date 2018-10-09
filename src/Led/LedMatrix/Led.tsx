@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding } from 'led-matrix-ts';
+import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding, CanvaRendererParameter } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from './led-map';
-
+import { RGBColor } from 'react-color';
 
 interface LedState {
 
@@ -25,6 +25,10 @@ export interface LedProps {
   paddingRight: number,
   paddingBottom: number,
   paddingLeft: number,
+  colorOn: RGBColor,
+  colorOff: RGBColor,
+  strokeOn: RGBColor,
+  strokeOff: RGBColor,
   onChange: (property, value) => void
 }
 
@@ -102,6 +106,35 @@ class Led extends Component<LedProps, LedState> {
           break;
       }
     }
+
+    if (this.props.rendererType == RendererType.ASCII) {
+
+      
+    } else {
+      if (this.props.colorOn != prevProps.colorOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.colorOn);
+      }
+
+      if (this.props.colorOff != prevProps.colorOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.colorOff);
+      }
+
+      if (this.props.strokeOn != prevProps.strokeOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.strokeOn);
+      }
+
+      if (this.props.strokeOff != prevProps.strokeOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.strokeOff);
+      }
+    }
+
+  }
+
+  private convertRGBColorToHexString(color: RGBColor) {
+    return "#" +
+      ("0" + color.r.toString(16)).slice(-2) +
+      ("0" + color.g.toString(16)).slice(-2) +
+      ("0" + color.b.toString(16)).slice(-2);
   }
 
   componentDidMount() {
@@ -118,6 +151,15 @@ class Led extends Component<LedProps, LedState> {
       reverse: this.props.reverse,
       padding: [this.props.paddingTop, this.props.paddingRight, this.props.paddingBottom, this.props.paddingLeft]
     });
+
+    if (this.props.rendererType == RendererType.ASCII) {
+
+    } else {
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.colorOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.colorOff);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.strokeOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.strokeOff);
+    }
 
     this.ledMatrix.init(1);
   }

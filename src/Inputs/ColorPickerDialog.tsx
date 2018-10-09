@@ -2,7 +2,7 @@ import * as React from 'react';
 import { withStyles, Dialog, DialogTitle, IconButton } from '@material-ui/core';
 import Lens from '@material-ui/icons/Lens';
 import { InputProps } from './Inputs';
-import {TwitterPicker} from 'react-color';
+import {TwitterPicker, RGBColor} from 'react-color';
 
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 const styles = {
@@ -17,7 +17,7 @@ interface ColorPickerButtonPropsOpt {
 }
 
 interface ColorPickerButtonProps {
-
+  defaultValue: RGBColor
 }
 
 class ColorPickerButton extends React.Component<ColorPickerButtonProps & InputProps, ColorPickerButtonState> {
@@ -25,12 +25,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps & InputPr
 
     state = {
         displayColorPicker: false,
-        color: {
-          r: '241',
-          g: '112',
-          b: '19',
-          a: '1',
-        },
+        color: this.props.defaultValue,
     };
     
     handleClick = () => {
@@ -43,6 +38,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps & InputPr
 
     handleChange = (color) => {
       this.setState({ color: color.rgb })
+      this.props.onInputCaptured(this.props.id, color.rgb);
     };
   
     render() {
@@ -71,8 +67,5 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps & InputPr
       );
     }
   }
-  
-  ColorPickerButton.defaultProps = {
-  };
 
   export default ColorPickerButton;
