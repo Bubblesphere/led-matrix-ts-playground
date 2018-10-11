@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
-import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
+import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles, Input } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix, RendererType } from 'led-matrix-ts';
 import { panelTypes, renderers, LedMovementState } from '../LedMatrix/led-map';
@@ -16,6 +16,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
 import { RGBColor } from 'react-color';
+import InputCustom from '../../Inputs/InputCustom';
 
 interface ProfileState {
 
@@ -40,6 +41,8 @@ export interface ProfileProps {
   colorOff: RGBColor,
   strokeOn: RGBColor,
   strokeOff: RGBColor,
+  characterOn: string,
+  characterOff: string,
   onChange: (property, value) => void
 }
 
@@ -178,11 +181,19 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
               (
                 <Grid item>
                   <ProfileFormItem name="Character on">
-                    <h1>t</h1>
+                    <InputCustom
+                      id="characterOn"
+                      value={this.props.characterOn}
+                      onInputCaptured={this.handleChanges}
+                    />
                   </ProfileFormItem>
 
                   <ProfileFormItem name="Character off">
-                  <h1>t</h1>
+                    <InputCustom
+                      id="characterOff"
+                      value={this.props.characterOff}
+                      onInputCaptured={this.handleChanges}
+                    />
                   </ProfileFormItem>
                 </Grid>
               ) : (

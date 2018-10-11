@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding, CanvaRendererParameter } from 'led-matrix-ts';
+import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding, CanvaRendererParameter, AsciiRenderer, AsciiRendererParameter } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from './led-map';
 import { RGBColor } from 'react-color';
 
@@ -29,6 +29,8 @@ export interface LedProps {
   colorOff: RGBColor,
   strokeOn: RGBColor,
   strokeOff: RGBColor,
+  characterOn: string,
+  characterOff: string,
   onChange: (property, value) => void
 }
 
@@ -108,8 +110,13 @@ class Led extends Component<LedProps, LedState> {
     }
 
     if (this.props.rendererType == RendererType.ASCII) {
+      if (this.props.characterOn != prevProps.characterOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.characterOn;
+      }
 
-      
+      if (this.props.characterOff != prevProps.characterOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.props.characterOff;
+      }
     } else {
       if (this.props.colorOn != prevProps.colorOn || this.props.rendererType != prevProps.rendererType) {
         (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.colorOn);

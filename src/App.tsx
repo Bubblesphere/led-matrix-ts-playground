@@ -27,7 +27,9 @@ interface AppState {
   colorOn: RGBColor,
   colorOff: RGBColor,
   strokeOn: RGBColor,
-  strokeOff: RGBColor
+  strokeOff: RGBColor,
+  characterOn: string,
+  characterOff: string
 }
 
 const appStyles = StyleSheet.create({
@@ -60,9 +62,11 @@ class App extends Component<AppProps, AppState> {
     colorOn: { r: 39, g: 174, b: 96, a: 1} as RGBColor,
     colorOff: { r: 44, g: 62, b: 80, a: 1} as RGBColor,
     strokeOn: { r: 46, g: 204, b: 113, a: 1} as RGBColor,
-    strokeOff:{ r: 52, g: 73, b: 94, a: 1} as RGBColor
+    strokeOff:{ r: 52, g: 73, b: 94, a: 1} as RGBColor,
+    characterOn: 'X',
+    characterOff: ' '
   }
-  
+
   constructor(props) {
     super(props);
     this.handleChanges = this.handleChanges.bind(this);
@@ -75,8 +79,8 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
         <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          <DisplaySection led={{onChange: this.handleChanges, ...this.state}} />
           <ConfigurationSection profile={{onChange: this.handleChanges, ...this.state}}/>
+          <DisplaySection led={{onChange: this.handleChanges, ...this.state}} />
         </Grid>
     );
   }

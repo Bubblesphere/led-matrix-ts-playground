@@ -14,7 +14,7 @@ import { LedMovementState } from './LedMatrix/led-map';
 
 const styles = StyleSheet.create({
     display: {
-        background: 'rgb(242,242,242)'
+        background: 'rgb(240, 240, 240)'
     }
 });
 
