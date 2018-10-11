@@ -8,7 +8,7 @@ interface TextFieldCustomProps {
 
 const TextFieldCustom: React.SFC<TextFieldCustomProps & InputProps & TextFieldProps> = (props) => {
   const handleChanges = (e) => {
-    props.onInputCaptured(props.id, e.target.value == "" ? " " : e.target.value);
+    props.onInputCaptured(props.statePath, e.target.value == "" ? " " : e.target.value);
   }
     
   return (

@@ -6,30 +6,68 @@ import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './Led/LedMatrix/led-map';
-import Menu from './Menu/Menu';
 import { RGBColor } from 'react-color';
 
-interface AppProps {
+interface AppProps {}
 
+export enum p {
+  led = 'led',
+  asciiParameters = 'asciiParameters',
+  characterOff = 'characterOff',
+  characterOn = 'characterOn',
+  canvaParameters = 'canvaParameters',
+  colorOff = 'colorOff',
+  colorOn = 'colorOn',
+  strokeOff = 'strokeOff',
+  strokeOn = 'strokeOn',
+  fps = 'fps',
+  increment = 'increment',
+  input = 'input',
+  padding = 'padding',
+  bottom = 'bottom',
+  left = 'left',
+  right = 'right',
+  top = 'top',
+  panelType = 'panelType',
+  pathToCharacters = 'pathToCharacters',
+  rendererType = 'rendererType',
+  reverse = 'reverse',
+  size = 'size',
+  spacing = 'spacing',
+  state = 'state',
+  width = 'width',
 }
 
 interface AppState {
-  panelType: PanelType,
-  rendererType: RendererType,
-  increment: number,
-  fps: number,
-  width: number,
-  spacing: number,
-  input: string,
-  size: number,
-  state: LedMovementState,
-  reverse: boolean,
-  colorOn: RGBColor,
-  colorOff: RGBColor,
-  strokeOn: RGBColor,
-  strokeOff: RGBColor,
-  characterOn: string,
-  characterOff: string
+  led: {
+    asciiParameters: {
+      characterOff: string,
+      characterOn: string,
+    },
+    canvaParameters: {
+      colorOff: RGBColor,
+      colorOn: RGBColor,
+      strokeOff: RGBColor,
+      strokeOn: RGBColor,
+    },
+    fps: number,
+    increment: number,
+    input: string,
+    padding: {
+      bottom: number,
+      left: number
+      right: number,
+      top: number,
+    },
+    panelType: PanelType,
+    pathToCharacters: string,
+    rendererType: RendererType,
+    reverse: boolean,
+    size: number,
+    spacing: number,
+    state: LedMovementState,
+    width: number,
+  }
 }
 
 const appStyles = StyleSheet.create({
@@ -45,26 +83,35 @@ const appStyles = StyleSheet.create({
 
 class App extends Component<AppProps, AppState> {
   state = {
-    panelType: PanelType.SideScrollingPanel,
-    rendererType: RendererType.CanvasSquare,
-    increment: 1,
-    fps: 25,
-    width: 50,
-    spacing: 1,
-    input: 'Test',
-    size: 1,
-    state: LedMovementState.play,
-    reverse: false,
-    paddingTop: 1,
-    paddingRight: 15,
-    paddingBottom: 1,
-    paddingLeft: 1,
-    colorOn: { r: 39, g: 174, b: 96, a: 1} as RGBColor,
-    colorOff: { r: 44, g: 62, b: 80, a: 1} as RGBColor,
-    strokeOn: { r: 46, g: 204, b: 113, a: 1} as RGBColor,
-    strokeOff:{ r: 52, g: 73, b: 94, a: 1} as RGBColor,
-    characterOn: 'X',
-    characterOff: ' '
+    led: {
+      asciiParameters: {
+        characterOff: ' ',
+        characterOn: 'X',
+      },
+      canvaParameters: {
+        colorOff: { r: 44, g: 62, b: 80, a: 1} as RGBColor,
+        colorOn: { r: 39, g: 174, b: 96, a: 1} as RGBColor,      
+        strokeOff: { r: 52, g: 73, b: 94, a: 1} as RGBColor,
+        strokeOn: { r: 46, g: 204, b: 113, a: 1} as RGBColor,
+      },
+      fps: 25,
+      increment: 1,
+      input: 'Test',
+      padding: {
+        bottom: 1,
+        left: 1,
+        right: 15,
+        top: 1
+      },
+      panelType: PanelType.SideScrollingPanel,
+      pathToCharacters: `${process.env.PUBLIC_URL}/alphabet.json`,
+      rendererType: RendererType.CanvasSquare,
+      reverse: false,
+      size: 1,
+      spacing: 1,
+      state: LedMovementState.play,
+      width: 50,
+    }
   }
 
   constructor(props) {
@@ -72,15 +119,37 @@ class App extends Component<AppProps, AppState> {
     this.handleChanges = this.handleChanges.bind(this);
   }
 
-  handleChanges(property, value) {
-    this.setState((prevState) => ({ ...prevState, [property]: value }));
+  handleChanges(keys: p[], value) {
+    let newState = Object.assign({}, this.state);
+    keys.reduce(function(acc, cur, index) {
+      // Make sure the key is a property that exists on prevState
+      if (!acc.hasOwnProperty(cur)) {
+        throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
+      }
+
+      return acc[cur] = keys.length - 1 == index ? 
+        value : // We reached the end, modify the property to our value
+        {...acc[cur]}; // Continue spreading
+    }, newState);
+    
+    this.setState(newState);
   }
 
   render() {
     return (
         <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          <ConfigurationSection profile={{onChange: this.handleChanges, ...this.state}}/>
-          <DisplaySection led={{onChange: this.handleChanges, ...this.state}} />
+          <ConfigurationSection 
+            profile={{
+              onChange: this.handleChanges, 
+              ...this.state.led
+            }}
+          />
+          <DisplaySection 
+            led={{
+              onChange: this.handleChanges, 
+              ...this.state.led
+            }}
+          />
         </Grid>
     );
   }

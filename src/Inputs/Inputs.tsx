@@ -1,3 +1,4 @@
+import { p } from "../App";
 
 /*
 import * as React from 'react';
@@ -37,5 +38,6 @@ export default hoc;
 
 export interface InputProps {
   id: string,
-  onInputCaptured: (property: string, value: any) => void
+  statePath: p[],
+  onInputCaptured: (statePath: p[], value: any) => void
 }

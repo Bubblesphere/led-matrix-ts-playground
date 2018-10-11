@@ -17,33 +17,41 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
 import { RGBColor } from 'react-color';
 import InputCustom from '../../Inputs/InputCustom';
+import { p } from '../../App';
 
 interface ProfileState {
 
 }
 
 export interface ProfileProps {
-  panelType: PanelType,
-  rendererType: number,
-  increment: number,
+  asciiParameters: {
+    characterOff: string,
+    characterOn: string,
+  },
+  canvaParameters: {
+    colorOff: RGBColor,
+    colorOn: RGBColor,
+    strokeOff: RGBColor,
+    strokeOn: RGBColor,
+  },
   fps: number,
-  width: number,
-  spacing: number,
+  increment: number,
   input: string,
-  size: number,
-  state: LedMovementState,
+  padding: {
+    bottom: number,
+    left: number
+    right: number,
+    top: number,
+  },
+  panelType: PanelType,
+  pathToCharacters: string,
+  rendererType: RendererType,
   reverse: boolean,
-  paddingTop: number,
-  paddingRight: number,
-  paddingBottom: number,
-  paddingLeft: number,
-  colorOn: RGBColor,
-  colorOff: RGBColor,
-  strokeOn: RGBColor,
-  strokeOff: RGBColor,
-  characterOn: string,
-  characterOff: string,
-  onChange: (property, value) => void
+  size: number,
+  spacing: number,
+  state: LedMovementState,
+  width: number,
+  onChange: (value, ...keys) => void
 }
 
 const styles = StyleSheet.create({
@@ -105,6 +113,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             <ProfileFormItem name="Scrolling">
               <SelectCustom
                 id="panelType"
+                statePath={[p.led, p.panelType]}
                 menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
                 onInputCaptured={this.handleChanges}
                 value={this.props.panelType}
@@ -118,6 +127,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
           <ProfileFormItem name="Reverse">
               <SwitchCustom
                 checked={this.props.reverse}
+                statePath={[p.led, p.reverse]}
                 id="reverse"
                 onInputCaptured={this.handleChanges}
               />
@@ -126,6 +136,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             <ProfileFormItem name="Increment">
               <TooltipSlider 
                 id="increment"
+                statePath={[p.led, p.increment]}
                 min={0} 
                 max={20} 
                 lastCapturedValue={this.props.increment} 
@@ -136,6 +147,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             <ProfileFormItem name="FPS">
               <TooltipSlider 
                 id="fps"
+                statePath={[p.led, p.fps]}
                 min={0} 
                 max={60} 
                 lastCapturedValue={this.props.fps} 
@@ -146,6 +158,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             <ProfileFormItem name="Viewport width">
               <TooltipSlider 
                 id="width"
+                statePath={[p.led, p.width]}
                 min={1} 
                 max={200} 
                 lastCapturedValue={this.props.width} 
@@ -171,6 +184,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             <ProfileFormItem name="Renderer">
               <SelectCustom
                 id="rendererType"
+                statePath={[p.led, p.rendererType]}
                 menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
                 onInputCaptured={this.handleChanges}
                 value={this.props.rendererType}
@@ -183,7 +197,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Character on">
                     <InputCustom
                       id="characterOn"
-                      value={this.props.characterOn}
+                      statePath={[p.led, p.asciiParameters, p.characterOn]}
+                      value={this.props.asciiParameters.characterOn}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -191,7 +206,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Character off">
                     <InputCustom
                       id="characterOff"
-                      value={this.props.characterOff}
+                      statePath={[p.led, p.asciiParameters, p.characterOff]}
+                      value={this.props.asciiParameters.characterOff}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -201,7 +217,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Color on">
                     <ColorPickerDialog 
                       id="colorOn"
-                      defaultValue={this.props.colorOn}
+                      statePath={[p.led, p.canvaParameters, p.colorOn]}
+                      defaultValue={this.props.canvaParameters.colorOn}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -209,7 +226,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Color off">
                     <ColorPickerDialog 
                       id="colorOff"
-                      defaultValue={this.props.colorOff}
+                      statePath={[p.led, p.canvaParameters, p.colorOff]}
+                      defaultValue={this.props.canvaParameters.colorOff}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -217,7 +235,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Stroke on">
                     <ColorPickerDialog 
                       id="strokeOn"
-                      defaultValue={this.props.strokeOn}
+                      statePath={[p.led, p.canvaParameters, p.strokeOn]}
+                      defaultValue={this.props.canvaParameters.strokeOn}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -225,7 +244,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                   <ProfileFormItem name="Stroke off">
                     <ColorPickerDialog 
                       id="strokeOff"
-                      defaultValue={this.props.strokeOff}
+                      statePath={[p.led, p.canvaParameters, p.strokeOff]}
+                      defaultValue={this.props.canvaParameters.strokeOff}
                       onInputCaptured={this.handleChanges}
                     />
                   </ProfileFormItem>
@@ -253,6 +273,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         <ProfileFormItem name="Letter spacing">
           <TooltipSlider 
             id="spacing"
+            statePath={[p.led, p.spacing]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.spacing} 
@@ -263,6 +284,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         <ProfileFormItem name="Size">
           <TooltipSlider 
             id="size"
+            statePath={[p.led, p.size]}
             min={1} 
             max={5} 
             lastCapturedValue={this.props.size} 
@@ -273,30 +295,34 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         <ProfileFormItem name="Padding" centerLabel={false}>
           <TooltipSlider 
             id="paddingTop"
+            statePath={[p.led, p.padding, p.top]}
             min={0} 
             max={20} 
-            lastCapturedValue={this.props.paddingTop}
+            lastCapturedValue={this.props.padding.top}
             onInputCaptured={this.handleChanges}
           />
           <TooltipSlider 
             id="paddingRight"
+            statePath={[p.led, p.padding, p.right]}
             min={0} 
             max={20} 
-            lastCapturedValue={this.props.paddingRight}
+            lastCapturedValue={this.props.padding.right}
             onInputCaptured={this.handleChanges}
           />
           <TooltipSlider 
             id="paddingBottom"
+            statePath={[p.led, p.padding, p.bottom]}
             min={0} 
             max={20} 
-            lastCapturedValue={this.props.paddingBottom}
+            lastCapturedValue={this.props.padding.bottom}
             onInputCaptured={this.handleChanges}
           />
           <TooltipSlider 
             id="paddingLeft"
+            statePath={[p.led, p.padding, p.left]}
             min={0} 
             max={20} 
-            lastCapturedValue={this.props.paddingLeft}
+            lastCapturedValue={this.props.padding.left}
             onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>

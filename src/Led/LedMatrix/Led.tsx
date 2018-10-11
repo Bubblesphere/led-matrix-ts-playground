@@ -11,27 +11,34 @@ interface LedState {
 }
 
 export interface LedProps {
-  panelType: PanelType,
-  rendererType: RendererType,
-  increment: number,
+  asciiParameters: {
+    characterOff: string,
+    characterOn: string,
+  },
+  canvaParameters: {
+    colorOff: RGBColor,
+    colorOn: RGBColor,
+    strokeOff: RGBColor,
+    strokeOn: RGBColor,
+  },
   fps: number,
-  width: number,
-  spacing: number,
+  increment: number,
   input: string,
-  size: number,
-  state: LedMovementState,
+  padding: {
+    bottom: number,
+    left: number
+    right: number,
+    top: number,
+  },
+  panelType: PanelType,
+  pathToCharacters: string,
+  rendererType: RendererType,
   reverse: boolean,
-  paddingTop: number,
-  paddingRight: number,
-  paddingBottom: number,
-  paddingLeft: number,
-  colorOn: RGBColor,
-  colorOff: RGBColor,
-  strokeOn: RGBColor,
-  strokeOff: RGBColor,
-  characterOn: string,
-  characterOff: string,
-  onChange: (property, value) => void
+  size: number,
+  spacing: number,
+  state: LedMovementState,
+  width: number,
+  onChange: (value, keys) => void
 }
 
 const styles = StyleSheet.create({
@@ -85,11 +92,11 @@ class Led extends Component<LedProps, LedState> {
       this.ledMatrix.reverse = this.props.reverse;
     }
 
-    if (this.props.paddingTop != prevProps.paddingTop ||
-      this.props.paddingRight != prevProps.paddingRight ||
-      this.props.paddingBottom != prevProps.paddingBottom ||
-      this.props.paddingLeft != prevProps.paddingLeft) {
-      this.ledMatrix.padding = [this.props.paddingTop, this.props.paddingRight, this.props.paddingBottom, this.props.paddingLeft];
+    if (this.props.padding.top != prevProps.paddingTop ||
+      this.props.padding.right != prevProps.paddingRight ||
+      this.props.padding.bottom != prevProps.paddingBottom ||
+      this.props.padding.left != prevProps.paddingLeft) {
+      this.ledMatrix.padding = [this.props.padding.top, this.props.padding.right, this.props.padding.bottom, this.props.padding.left];
     }
 
     if (this.props.state != prevProps.state) {
@@ -110,28 +117,28 @@ class Led extends Component<LedProps, LedState> {
     }
 
     if (this.props.rendererType == RendererType.ASCII) {
-      if (this.props.characterOn != prevProps.characterOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.characterOn;
+      if (this.props.asciiParameters.characterOn != prevProps.characterOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.asciiParameters.characterOn;
       }
 
-      if (this.props.characterOff != prevProps.characterOff || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.props.characterOff;
+      if (this.props.asciiParameters.characterOff != prevProps.characterOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.props.asciiParameters.characterOff;
       }
     } else {
-      if (this.props.colorOn != prevProps.colorOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.colorOn);
+      if (this.props.canvaParameters.colorOn != prevProps.colorOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.canvaParameters.colorOn);
       }
 
-      if (this.props.colorOff != prevProps.colorOff || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.colorOff);
+      if (this.props.canvaParameters.colorOff != prevProps.colorOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.canvaParameters.colorOff);
       }
 
-      if (this.props.strokeOn != prevProps.strokeOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.strokeOn);
+      if (this.props.canvaParameters.strokeOn != prevProps.strokeOn || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOn);
       }
 
-      if (this.props.strokeOff != prevProps.strokeOff || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.strokeOff);
+      if (this.props.canvaParameters.strokeOff != prevProps.strokeOff || this.props.rendererType != prevProps.rendererType) {
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOff);
       }
     }
 
@@ -156,16 +163,17 @@ class Led extends Component<LedProps, LedState> {
       element: document.getElementById('led-matrix'),
       rendererType: this.props.rendererType,
       reverse: this.props.reverse,
-      padding: [this.props.paddingTop, this.props.paddingRight, this.props.paddingBottom, this.props.paddingLeft]
+      padding: [this.props.padding.top, this.props.padding.right, this.props.padding.bottom, this.props.padding.left]
     });
 
     if (this.props.rendererType == RendererType.ASCII) {
-
+      (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.asciiParameters.characterOn;
+      (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.props.asciiParameters.characterOff;
     } else {
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.colorOn);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.colorOff);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.strokeOn);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.strokeOff);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.canvaParameters.colorOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.canvaParameters.colorOff);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOff);
     }
 
     this.ledMatrix.init(1);

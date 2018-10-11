@@ -96,7 +96,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & InputProps & Wi
     if (e.propertyName === 'height') {
       if (e.target.offsetHeight == this.sliderButtonInactiveOffsetHeight) {
         // Reached when the height of the slider button changes and the new height is the size of the it's inactive state
-        this.props.onInputCaptured(this.props.id, this.state.value);
+        this.props.onInputCaptured(this.props.statePath, this.state.value);
         this.setState((prevState) => ({ ...prevState, active: false }));
       }
     }

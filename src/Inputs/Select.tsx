@@ -10,7 +10,7 @@ interface SelectCustomProps {
 
 const SelectCustom: React.SFC<SelectCustomProps & InputProps & SelectProps> = (props) => {
   const handleChanges = (e) => {
-    return props.onInputCaptured(props.id, e.target.value);
+    return props.onInputCaptured(props.statePath, e.target.value);
   }
   
   return (

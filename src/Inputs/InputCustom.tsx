@@ -18,7 +18,7 @@ const InputCustom: React.SFC<InputCustomProps & InputProps> = (props) => {
 
     if (value === e.target.value) {
       // A new valid value was inputed
-      props.onInputCaptured(props.id, value);
+      props.onInputCaptured(props.statePath, value);
     }
   };
 

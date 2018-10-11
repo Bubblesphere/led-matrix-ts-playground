@@ -8,7 +8,7 @@ interface SwitchCustomProps {
 
 const SwitchCustom: React.SFC<SwitchCustomProps & InputProps & SwitchProps> = (props) => {
   const handleChanges = (e) => {
-    props.onInputCaptured(props.id, e.target.checked);
+    props.onInputCaptured(props.statePath, e.target.checked);
   }
     
   return (

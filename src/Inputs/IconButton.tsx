@@ -8,7 +8,7 @@ interface IconButtonCustomProps {
 
 const IconButtonCustom: React.SFC<IconButtonCustomProps & InputProps & IconButtonProps> = (props) => {
   const handleChanges = (e) => {
-    props.onInputCaptured(props.id, e.target.value);
+    props.onInputCaptured(props.statePath, e.target.value);
   }
     
   return (

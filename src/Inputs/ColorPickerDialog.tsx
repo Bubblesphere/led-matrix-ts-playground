@@ -38,7 +38,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps & InputPr
 
     handleChange = (color) => {
       this.setState({ color: color.rgb })
-      this.props.onInputCaptured(this.props.id, color.rgb);
+      this.props.onInputCaptured(this.props.statePath, color.rgb);
     };
   
     render() {
