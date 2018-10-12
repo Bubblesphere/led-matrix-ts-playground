@@ -29,45 +29,48 @@ export enum p {
   right = 'right',
   top = 'top',
   panelType = 'panelType',
-  pathToCharacters = 'pathToCharacters',
+  pathCharacters = 'pathCharacters',
   rendererType = 'rendererType',
   reverse = 'reverse',
   size = 'size',
-  spacing = 'spacing',
+  letterSpacing = 'letterSpacing',
   state = 'state',
-  width = 'width',
+  viewportWidth = 'viewportWidth',
 }
 
-interface AppState {
-  led: {
-    asciiParameters: {
-      characterOff: string,
-      characterOn: string,
-    },
-    canvaParameters: {
-      colorOff: RGBColor,
-      colorOn: RGBColor,
-      strokeOff: RGBColor,
-      strokeOn: RGBColor,
-    },
-    fps: number,
-    increment: number,
-    input: string,
-    padding: {
-      bottom: number,
-      left: number
-      right: number,
-      top: number,
-    },
-    panelType: PanelType,
-    pathToCharacters: string,
-    rendererType: RendererType,
-    reverse: boolean,
-    size: number,
-    spacing: number,
-    state: LedMovementState,
-    width: number,
-  }
+export interface LedState {
+  asciiParameters: {
+    characterOff: string,
+    characterOn: string,
+  },
+  canvaParameters: {
+    colorOff: RGBColor,
+    colorOn: RGBColor,
+    strokeOff: RGBColor,
+    strokeOn: RGBColor,
+  },
+  fps: number,
+  increment: number,
+  input: string,
+  padding: {
+    bottom: number,
+    left: number
+    right: number,
+    top: number,
+  },
+  panelType: PanelType,
+  pathCharacters: string,
+  rendererType: RendererType,
+  reverse: boolean,
+  size: number,
+  letterSpacing: number,
+  state: LedMovementState,
+  viewportWidth: number,
+  onChange: (keys: p[], value: any) => void
+}
+
+export interface AppState {
+  led: LedState
 }
 
 const appStyles = StyleSheet.create({
@@ -104,19 +107,20 @@ class App extends Component<AppProps, AppState> {
         top: 1
       },
       panelType: PanelType.SideScrollingPanel,
-      pathToCharacters: `${process.env.PUBLIC_URL}/alphabet.json`,
+      pathCharacters: `${process.env.PUBLIC_URL}/alphabet.json`,
       rendererType: RendererType.CanvasSquare,
       reverse: false,
       size: 1,
-      spacing: 1,
+      letterSpacing: 1,
       state: LedMovementState.play,
-      width: 50,
-    }
+      viewportWidth: 50,
+      onChange: this.handleChanges.bind(this)
+    },
+
   }
 
   constructor(props) {
     super(props);
-    this.handleChanges = this.handleChanges.bind(this);
   }
 
   handleChanges(keys: p[], value) {
@@ -138,18 +142,8 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
         <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          <ConfigurationSection 
-            profile={{
-              onChange: this.handleChanges, 
-              ...this.state.led
-            }}
-          />
-          <DisplaySection 
-            led={{
-              onChange: this.handleChanges, 
-              ...this.state.led
-            }}
-          />
+          <ConfigurationSection profile={{...this.state.led}} />
+          <DisplaySection led={{...this.state.led}} />
         </Grid>
     );
   }

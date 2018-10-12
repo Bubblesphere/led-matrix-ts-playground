@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Grid, withStyles, WithStyles, FormControl, Theme, createStyles, IconButton } from '@material-ui/core';
-import Led, {LedProps} from './LedMatrix/Led';
+import { Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
+import Led from './LedMatrix/Led';
 import { StyleSheet, css } from 'aphrodite';
 
 import Rewind from '@material-ui/icons/FastRewindRounded';
@@ -11,7 +11,7 @@ import Pause from '@material-ui/icons/PauseRounded';
 import IconButtonCustom from '../Inputs/IconButton';
 import TextFieldCustom from '../Inputs/TextField';
 import { LedMovementState } from '../utils/led-map';
-import { p } from '../App';
+import { p, LedState } from '../App';
 
 const styles = StyleSheet.create({
     display: {
@@ -38,7 +38,7 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
 });
 
 interface DisplaySectionProps {
-    led: LedProps,
+    led: LedState
 };
 
 const DisplaySection: React.SFC<DisplaySectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {

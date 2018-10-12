@@ -1,59 +1,23 @@
 import * as React from 'react';
-import { Component, ReactNode } from 'react';
+import { Component } from 'react';
 import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
 import ProfileSection from './ProfileSection';
-import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles, Input } from '@material-ui/core';
-import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, RendererType } from 'led-matrix-ts';
-import { panelTypes, renderers, LedMovementState } from '../../utils/led-map';
+import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
+import { StyleSheet } from 'aphrodite';
+import { LedMatrix, RendererType } from 'led-matrix-ts';
+import { panelTypes, renderers } from '../../utils/led-map';
 import SelectCustom from '../../Inputs/Select';
 import SwitchCustom from '../../Inputs/Switch';
-import TextFieldCustom from '../../Inputs/TextField';
-import { MenuItemProps } from '@material-ui/core/MenuItem';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
-import { RGBColor } from 'react-color';
 import InputCustom from '../../Inputs/InputCustom';
-import { p } from '../../App';
+import { p, LedState } from '../../App';
 
 interface ProfileState {
 
 }
 
-export interface ProfileProps {
-  asciiParameters: {
-    characterOff: string,
-    characterOn: string,
-  },
-  canvaParameters: {
-    colorOff: RGBColor,
-    colorOn: RGBColor,
-    strokeOff: RGBColor,
-    strokeOn: RGBColor,
-  },
-  fps: number,
-  increment: number,
-  input: string,
-  padding: {
-    bottom: number,
-    left: number
-    right: number,
-    top: number,
-  },
-  panelType: PanelType,
-  pathToCharacters: string,
-  rendererType: RendererType,
-  reverse: boolean,
-  size: number,
-  spacing: number,
-  state: LedMovementState,
-  width: number,
-  onChange: (value, ...keys) => void
-}
+export interface ProfileProps extends LedState {}
 
 const styles = StyleSheet.create({
 });
@@ -72,18 +36,6 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
 
   constructor(props) {
     super(props);
-    //this.handleChangesMovement = this.handleChangesMovement.bind(this);
-    this.handleChanges = this.handleChanges.bind(this);
-  }
-
-  /*
-  handleChangesMovement(event) {
-    this.handleChanges(event.target.name, Number(event.target.dataset.value) as LedMovementState);
-  }
-  */
-
-  handleChanges(property, value) {
-    this.props.onChange(property, value);
   }
 
   render() {
@@ -106,7 +58,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             id="panelType"
             statePath={[p.led, p.panelType]}
             menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
             value={this.props.panelType}
             
           />
@@ -117,7 +69,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             checked={this.props.reverse}
             statePath={[p.led, p.reverse]}
             id="reverse"
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
           />
         </ProfileFormItem>
 
@@ -128,7 +80,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={20} 
             lastCapturedValue={this.props.increment} 
-            onInputCaptured={this.handleChanges} 
+            onInputCaptured={this.props.onChange} 
           />
         </ProfileFormItem>
 
@@ -139,18 +91,18 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={60} 
             lastCapturedValue={this.props.fps} 
-            onInputCaptured={this.handleChanges} 
+            onInputCaptured={this.props.onChange} 
           />
         </ProfileFormItem>
 
         <ProfileFormItem name="Viewport width">
           <TooltipSlider 
             id="width"
-            statePath={[p.led, p.width]}
+            statePath={[p.led, p.viewportWidth]}
             min={1} 
             max={200} 
-            lastCapturedValue={this.props.width} 
-            onInputCaptured={this.handleChanges} 
+            lastCapturedValue={this.props.viewportWidth} 
+            onInputCaptured={this.props.onChange} 
           />
         </ProfileFormItem>
       </ProfileSection>
@@ -161,7 +113,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             id="rendererType"
             statePath={[p.led, p.rendererType]}
             menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
             value={this.props.rendererType}
           />
         </ProfileFormItem>
@@ -174,7 +126,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="characterOn"
                 statePath={[p.led, p.asciiParameters, p.characterOn]}
                 value={this.props.asciiParameters.characterOn}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
 
@@ -183,7 +135,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="characterOff"
                 statePath={[p.led, p.asciiParameters, p.characterOff]}
                 value={this.props.asciiParameters.characterOff}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
           </Grid>
@@ -194,7 +146,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="colorOn"
                 statePath={[p.led, p.canvaParameters, p.colorOn]}
                 defaultValue={this.props.canvaParameters.colorOn}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
 
@@ -203,7 +155,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="colorOff"
                 statePath={[p.led, p.canvaParameters, p.colorOff]}
                 defaultValue={this.props.canvaParameters.colorOff}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
 
@@ -212,7 +164,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="strokeOn"
                 statePath={[p.led, p.canvaParameters, p.strokeOn]}
                 defaultValue={this.props.canvaParameters.strokeOn}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
 
@@ -221,7 +173,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
                 id="strokeOff"
                 statePath={[p.led, p.canvaParameters, p.strokeOff]}
                 defaultValue={this.props.canvaParameters.strokeOff}
-                onInputCaptured={this.handleChanges}
+                onInputCaptured={this.props.onChange}
               />
             </ProfileFormItem>
           </Grid>
@@ -232,12 +184,12 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
       <ProfileSection label="Board">
         <ProfileFormItem name="Letter spacing">
           <TooltipSlider 
-            id="spacing"
-            statePath={[p.led, p.spacing]}
+            id="letterSpacing"
+            statePath={[p.led, p.letterSpacing]}
             min={0} 
             max={20} 
-            lastCapturedValue={this.props.spacing} 
-            onInputCaptured={this.handleChanges} 
+            lastCapturedValue={this.props.letterSpacing} 
+            onInputCaptured={this.props.onChange} 
           />
         </ProfileFormItem>
 
@@ -248,7 +200,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={1} 
             max={5} 
             lastCapturedValue={this.props.size} 
-            onInputCaptured={this.handleChanges} 
+            onInputCaptured={this.props.onChange} 
           />
         </ProfileFormItem>
 
@@ -259,7 +211,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.top}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
           />
           <TooltipSlider 
             id="paddingRight"
@@ -267,7 +219,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.right}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
           />
           <TooltipSlider 
             id="paddingBottom"
@@ -275,7 +227,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.bottom}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
           />
           <TooltipSlider 
             id="paddingLeft"
@@ -283,7 +235,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.left}
-            onInputCaptured={this.handleChanges}
+            onInputCaptured={this.props.onChange}
           />
         </ProfileFormItem>
       </ProfileSection>

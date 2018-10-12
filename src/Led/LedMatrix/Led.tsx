@@ -6,39 +6,9 @@ import { PanelType, LedMatrix, RendererType, CanvaRendererParameter, AsciiRender
 import { panelTypes, LedMovementState } from '../../utils/led-map';
 import { RGBColor } from 'react-color';
 import { toHexString } from '../../utils/Color';
+import { LedState } from '../../App';
 
-interface LedState {}
-
-export interface LedProps {
-  asciiParameters: {
-    characterOff: string,
-    characterOn: string,
-  },
-  canvaParameters: {
-    colorOff: RGBColor,
-    colorOn: RGBColor,
-    strokeOff: RGBColor,
-    strokeOn: RGBColor,
-  },
-  fps: number,
-  increment: number,
-  input: string,
-  padding: {
-    bottom: number,
-    left: number
-    right: number,
-    top: number,
-  },
-  panelType: PanelType,
-  pathToCharacters: string,
-  rendererType: RendererType,
-  reverse: boolean,
-  size: number,
-  spacing: number,
-  state: LedMovementState,
-  width: number,
-  onChange: (value, keys) => void
-}
+export interface LedProps extends LedState {}
 
 const styles = StyleSheet.create({
   ascii: {
@@ -80,12 +50,12 @@ class Led extends Component<LedProps, LedState> {
       this.ledMatrix.increment = this.props.increment;
     }
 
-    if (this.props.width != prevProps.width) {
-      this.ledMatrix.viewportWidth = this.props.width;
+    if (this.props.viewportWidth != prevProps.viewportWidth) {
+      this.ledMatrix.viewportWidth = this.props.viewportWidth;
     }
 
-    if (this.props.spacing != prevProps.spacing) {
-      this.ledMatrix.spacing = this.props.spacing;
+    if (this.props.letterSpacing != prevProps.letterSpacing) {
+      this.ledMatrix.spacing = this.props.letterSpacing;
     }
 
     if (this.props.input != prevProps.input) {
@@ -153,13 +123,13 @@ class Led extends Component<LedProps, LedState> {
 
   componentDidMount() {
     this.ledMatrix = new LedMatrix({
-      pathCharacters: this.props.pathToCharacters,
+      pathCharacters: this.props.pathCharacters,
       fps: this.props.fps,
       increment: this.props.increment,
       input: this.props.input,
       panelType: this.props.panelType,
-      panelWidth: this.props.width,
-      spacing: this.props.spacing,
+      panelWidth: this.props.viewportWidth,
+      spacing: this.props.letterSpacing,
       element: document.getElementById(this.ledMatrixId),
       rendererType: this.props.rendererType,
       reverse: this.props.reverse,
@@ -176,7 +146,7 @@ class Led extends Component<LedProps, LedState> {
       (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.props.canvaParameters.strokeOff);
     }
 
-    this.ledMatrix.init(1);
+    this.ledMatrix.init(this.props.size);
   }
 
   GetRendererElement() {
