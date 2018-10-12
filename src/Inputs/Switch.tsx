@@ -3,10 +3,10 @@ import { InputProps } from './Inputs';
 import { Switch } from '@material-ui/core';
 import { SwitchProps } from '@material-ui/core/Switch'
 
-interface SwitchCustomProps {
+interface SwitchCustomProps extends InputProps {
 };
 
-const SwitchCustom: React.SFC<SwitchCustomProps & InputProps & SwitchProps> = (props) => {
+const SwitchCustom: React.SFC<SwitchCustomProps & SwitchProps> = (props) => {
   const handleChanges = (e) => {
     props.onInputCaptured(props.statePath, e.target.checked);
   }

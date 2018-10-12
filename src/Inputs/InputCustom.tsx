@@ -1,12 +1,17 @@
 import * as React from 'react'
 import { Input } from '@material-ui/core';
 import { InputProps } from './Inputs';
+import { InputProps as MaterialInputProps } from '@material-ui/core/Input';
 
-interface InputCustomProps {
-  value: string,
+
+interface InputCustomPropsOpt {
+  value?: string
+}
+
+interface InputCustomProps extends InputCustomPropsOpt, InputProps {
 };
 
-const InputCustom: React.SFC<InputCustomProps & InputProps> = (props) => {
+const InputCustom: React.SFC<InputCustomProps & MaterialInputProps> = (props) => {
   const validate = (value) => {
     return value;
   }
@@ -33,8 +38,7 @@ const InputCustom: React.SFC<InputCustomProps & InputProps> = (props) => {
 }
 
 InputCustom.defaultProps = {
-  value: 'X',
-  onInputCaptured: (value) => { console.log(value); }
+  value: 'X'
 }
 
 export default InputCustom;

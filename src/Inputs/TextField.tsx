@@ -3,10 +3,10 @@ import { InputProps } from './Inputs';
 import { TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField'
 
-interface TextFieldCustomProps {
+interface TextFieldCustomProps extends InputProps {
 };
 
-const TextFieldCustom: React.SFC<TextFieldCustomProps & InputProps & TextFieldProps> = (props) => {
+const TextFieldCustom: React.SFC<TextFieldCustomProps & TextFieldProps> = (props) => {
   const handleChanges = (e) => {
     props.onInputCaptured(props.statePath, e.target.value == "" ? " " : e.target.value);
   }

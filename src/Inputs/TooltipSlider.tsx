@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Slider } from '@material-ui/lab';
-import { withStyles, WithStyles } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { InputProps } from './Inputs';
 
@@ -12,10 +12,7 @@ interface TooltipSliderPropsOpt {
   step?: number
 }
 
-interface TooltipSliderProps {
-  min?: number,
-  max?: number,
-  step?: number,
+interface TooltipSliderProps extends TooltipSliderPropsOpt, InputProps {
   id: string,
   lastCapturedValue: number
 }
@@ -46,7 +43,13 @@ const styles = StyleSheet.create({
   }
 });
 
-class TooltipSlider extends React.Component<TooltipSliderProps & InputProps & WithStyles<'thumb'> & WithStyles<'root'> & WithStyles<'container'>, TooltipSliderState> {
+const themeDependantStyles = () => createStyles({
+  root: {
+    padding: "32px 0px"
+  }
+});
+
+class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<typeof themeDependantStyles>, TooltipSliderState> {
   // TODO: Auto-detect slider button's inactive offsetHeight
   private sliderButtonInactiveOffsetHeight = 12;
 
@@ -105,7 +108,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & InputProps & Wi
   private updateTooltipPosition() {
     const sliderTooltip = document.getElementById(`slider-tooltip-${this.props.id}`);
     const slider = document.getElementById(this.props.id);
-
+ 
     // Get the position % an element should be placed if it had no width
     const basePositionPercentage = (this.state.value - this.props.min) / (this.props.max - this.props.min) * 100;
     
@@ -159,8 +162,4 @@ TooltipSlider.defaultProps = {
   step: 1
 }
 
-export default withStyles({
-  root: {
-    padding: "32px 0px"
-  }
-})(TooltipSlider);
+export default withStyles(themeDependantStyles)(TooltipSlider);
