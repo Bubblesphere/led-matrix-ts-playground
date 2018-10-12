@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Component, ReactNode } from 'react';
 import TooltipSlider from '../../Inputs/TooltipSlider';
 import ProfileFormItem from './ProfileFormItem';
+import ProfileSection from './ProfileSection';
 import { Grid, Select, MenuItem, Switch, Typography, withStyles, WithStyles, Theme, createStyles, Input } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, LedMatrix, RendererType } from 'led-matrix-ts';
-import { panelTypes, renderers, LedMovementState } from '../LedMatrix/led-map';
+import { panelTypes, renderers, LedMovementState } from '../../utils/led-map';
 import SelectCustom from '../../Inputs/Select';
 import SwitchCustom from '../../Inputs/Switch';
 import TextFieldCustom from '../../Inputs/TextField';
@@ -98,178 +99,137 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         }}
         wrap="nowrap"
       >
-      <ExpansionPanel style={{background: '#fafafa'}} defaultExpanded={true}> 
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Panel</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
 
-          <Grid 
-            item 
-            container 
-            direction={"column"} 
-            spacing={16}
-          >
-            <ProfileFormItem name="Scrolling">
-              <SelectCustom
-                id="panelType"
-                statePath={[p.led, p.panelType]}
-                menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-                onInputCaptured={this.handleChanges}
-                value={this.props.panelType}
-                
-              />
-            </ProfileFormItem>
+      <ProfileSection label="Panel">
+        <ProfileFormItem name="Scrolling">
+          <SelectCustom
+            id="panelType"
+            statePath={[p.led, p.panelType]}
+            menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+            onInputCaptured={this.handleChanges}
+            value={this.props.panelType}
             
+          />
+        </ProfileFormItem>
+            
+        <ProfileFormItem name="Reverse">
+          <SwitchCustom
+            checked={this.props.reverse}
+            statePath={[p.led, p.reverse]}
+            id="reverse"
+            onInputCaptured={this.handleChanges}
+          />
+        </ProfileFormItem>
 
+        <ProfileFormItem name="Increment">
+          <TooltipSlider 
+            id="increment"
+            statePath={[p.led, p.increment]}
+            min={0} 
+            max={20} 
+            lastCapturedValue={this.props.increment} 
+            onInputCaptured={this.handleChanges} 
+          />
+        </ProfileFormItem>
 
+        <ProfileFormItem name="FPS">
+          <TooltipSlider 
+            id="fps"
+            statePath={[p.led, p.fps]}
+            min={0} 
+            max={60} 
+            lastCapturedValue={this.props.fps} 
+            onInputCaptured={this.handleChanges} 
+          />
+        </ProfileFormItem>
 
-          <ProfileFormItem name="Reverse">
-              <SwitchCustom
-                checked={this.props.reverse}
-                statePath={[p.led, p.reverse]}
-                id="reverse"
+        <ProfileFormItem name="Viewport width">
+          <TooltipSlider 
+            id="width"
+            statePath={[p.led, p.width]}
+            min={1} 
+            max={200} 
+            lastCapturedValue={this.props.width} 
+            onInputCaptured={this.handleChanges} 
+          />
+        </ProfileFormItem>
+      </ProfileSection>
+
+      <ProfileSection label="Renderer">
+        <ProfileFormItem name="Renderer">
+          <SelectCustom
+            id="rendererType"
+            statePath={[p.led, p.rendererType]}
+            menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+            onInputCaptured={this.handleChanges}
+            value={this.props.rendererType}
+          />
+        </ProfileFormItem>
+
+        {this.props.rendererType == RendererType.ASCII ? 
+          (
+          <Grid item>
+            <ProfileFormItem name="Character on">
+              <InputCustom
+                id="characterOn"
+                statePath={[p.led, p.asciiParameters, p.characterOn]}
+                value={this.props.asciiParameters.characterOn}
                 onInputCaptured={this.handleChanges}
               />
             </ProfileFormItem>
 
-            <ProfileFormItem name="Increment">
-              <TooltipSlider 
-                id="increment"
-                statePath={[p.led, p.increment]}
-                min={0} 
-                max={20} 
-                lastCapturedValue={this.props.increment} 
-                onInputCaptured={this.handleChanges} 
-              />
-            </ProfileFormItem>
-
-            <ProfileFormItem name="FPS">
-              <TooltipSlider 
-                id="fps"
-                statePath={[p.led, p.fps]}
-                min={0} 
-                max={60} 
-                lastCapturedValue={this.props.fps} 
-                onInputCaptured={this.handleChanges} 
-              />
-            </ProfileFormItem>
-
-            <ProfileFormItem name="Viewport width">
-              <TooltipSlider 
-                id="width"
-                statePath={[p.led, p.width]}
-                min={1} 
-                max={200} 
-                lastCapturedValue={this.props.width} 
-                onInputCaptured={this.handleChanges} 
-              />
-            </ProfileFormItem>
-          </Grid>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-
-
-      <ExpansionPanel style={{background: '#fafafa'}}>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Renderer</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Grid 
-            item 
-            container 
-            direction={"column"} 
-            spacing={16}
-          >
-            <ProfileFormItem name="Renderer">
-              <SelectCustom
-                id="rendererType"
-                statePath={[p.led, p.rendererType]}
-                menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+            <ProfileFormItem name="Character off">
+              <InputCustom
+                id="characterOff"
+                statePath={[p.led, p.asciiParameters, p.characterOff]}
+                value={this.props.asciiParameters.characterOff}
                 onInputCaptured={this.handleChanges}
-                value={this.props.rendererType}
+              />
+            </ProfileFormItem>
+          </Grid>
+          ) : (
+          <Grid item>
+            <ProfileFormItem name="Color on">
+              <ColorPickerDialog 
+                id="colorOn"
+                statePath={[p.led, p.canvaParameters, p.colorOn]}
+                defaultValue={this.props.canvaParameters.colorOn}
+                onInputCaptured={this.handleChanges}
               />
             </ProfileFormItem>
 
-            {this.props.rendererType == RendererType.ASCII ? 
-              (
-                <Grid item>
-                  <ProfileFormItem name="Character on">
-                    <InputCustom
-                      id="characterOn"
-                      statePath={[p.led, p.asciiParameters, p.characterOn]}
-                      value={this.props.asciiParameters.characterOn}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
+            <ProfileFormItem name="Color off">
+              <ColorPickerDialog 
+                id="colorOff"
+                statePath={[p.led, p.canvaParameters, p.colorOff]}
+                defaultValue={this.props.canvaParameters.colorOff}
+                onInputCaptured={this.handleChanges}
+              />
+            </ProfileFormItem>
 
-                  <ProfileFormItem name="Character off">
-                    <InputCustom
-                      id="characterOff"
-                      statePath={[p.led, p.asciiParameters, p.characterOff]}
-                      value={this.props.asciiParameters.characterOff}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
-                </Grid>
-              ) : (
-                <Grid item>
-                  <ProfileFormItem name="Color on">
-                    <ColorPickerDialog 
-                      id="colorOn"
-                      statePath={[p.led, p.canvaParameters, p.colorOn]}
-                      defaultValue={this.props.canvaParameters.colorOn}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
+            <ProfileFormItem name="Stroke on">
+              <ColorPickerDialog 
+                id="strokeOn"
+                statePath={[p.led, p.canvaParameters, p.strokeOn]}
+                defaultValue={this.props.canvaParameters.strokeOn}
+                onInputCaptured={this.handleChanges}
+              />
+            </ProfileFormItem>
 
-                  <ProfileFormItem name="Color off">
-                    <ColorPickerDialog 
-                      id="colorOff"
-                      statePath={[p.led, p.canvaParameters, p.colorOff]}
-                      defaultValue={this.props.canvaParameters.colorOff}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
-
-                  <ProfileFormItem name="Stroke on">
-                    <ColorPickerDialog 
-                      id="strokeOn"
-                      statePath={[p.led, p.canvaParameters, p.strokeOn]}
-                      defaultValue={this.props.canvaParameters.strokeOn}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
-
-                  <ProfileFormItem name="Stroke off">
-                    <ColorPickerDialog 
-                      id="strokeOff"
-                      statePath={[p.led, p.canvaParameters, p.strokeOff]}
-                      defaultValue={this.props.canvaParameters.strokeOff}
-                      onInputCaptured={this.handleChanges}
-                    />
-                  </ProfileFormItem>
-                </Grid>
-              )
-            }
+            <ProfileFormItem name="Stroke off">
+              <ColorPickerDialog 
+                id="strokeOff"
+                statePath={[p.led, p.canvaParameters, p.strokeOff]}
+                defaultValue={this.props.canvaParameters.strokeOff}
+                onInputCaptured={this.handleChanges}
+              />
+            </ProfileFormItem>
           </Grid>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+          )
+        }
+      </ProfileSection>
 
-
-      <ExpansionPanel style={{background: '#fafafa'}}>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant={"headline"} classes={{root: this.props.classes.title}}>Board</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-
-          <Grid 
-            item 
-            container 
-            direction={"column"} 
-            spacing={16}
-          >
-
+      <ProfileSection label="Board">
         <ProfileFormItem name="Letter spacing">
           <TooltipSlider 
             id="spacing"
@@ -326,13 +286,7 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             onInputCaptured={this.handleChanges}
           />
         </ProfileFormItem>
-          </Grid>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-
-
-
-
+      </ProfileSection>
 
       </Grid>
     );

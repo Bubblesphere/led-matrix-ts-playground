@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IconButton } from '@material-ui/core';
 import Lens from '@material-ui/icons/Lens';
 import { InputProps } from './Inputs';
-import {TwitterPicker, RGBColor} from 'react-color';
+import {TwitterPicker, RGBColor, TwitterPickerProps} from 'react-color';
 import { toHexString, toRgbString } from '../utils/Color';
 import { StyleSheet, css } from 'aphrodite';
 
@@ -23,11 +23,12 @@ const styles = StyleSheet.create({
 interface ColorPickerButtonState {}
 
 interface ColorPickerButtonPropsOpt {
-  colors?: RGBColor[],
+  rgbColors?: RGBColor[],
   columns?: number
 }
 
-interface ColorPickerButtonProps extends ColorPickerButtonPropsOpt, InputProps {
+interface ColorPickerButtonProps extends ColorPickerButtonPropsOpt, InputProps, TwitterPickerProps {
+  id: string,
   defaultValue: RGBColor
 }
 
@@ -54,7 +55,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
 
   render() {
     return (
-      <div>
+      <div id={this.props.id}>
           <IconButton onClick={this.handleClick}>
               <Lens style={{color: toRgbString(this.props.defaultValue)}} />
           </IconButton>
@@ -66,10 +67,11 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
                   onClick={this.handleClose} 
                 />
                 <TwitterPicker  
+                  {...this.props}
                   width={`${15 + 9 + (36 * this.props.columns)}px`} 
                   color={this.state.color} 
                   onChange={this.handleChange} 
-                  colors={this.props.colors.map(x => toHexString(x))} 
+                  colors={this.props.rgbColors.map(x => toHexString(x))} 
                 />
               </div>
             ) : (
@@ -82,7 +84,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
 }
 
 ColorPickerButton.defaultProps = {
-  colors: [
+  rgbColors: [
     { r: 26, g: 188, b: 156 } as RGBColor,
     { r: 46, g: 204, b: 113 } as RGBColor,
     { r: 52, g: 152, b: 219 } as RGBColor,

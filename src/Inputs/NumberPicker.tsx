@@ -10,7 +10,6 @@ interface NumberPickerPropsOpt {
 }
 
 interface NumberPickerProps extends NumberPickerPropsOpt, InputProps {
-  id: string,
   label: string,
 };
 
@@ -40,7 +39,7 @@ const NumberPicker: React.SFC<NumberPickerProps & TextFieldProps> = (props) => {
 
   return (
    <TextField
-    id={props.id}
+    {...props}
     label={props.label}
     helperText={`Value must be between ${props.min} and ${props.max}`}
     type="number"

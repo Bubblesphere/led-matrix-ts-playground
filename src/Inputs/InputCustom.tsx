@@ -29,7 +29,7 @@ const InputCustom: React.SFC<InputCustomProps & MaterialInputProps> = (props) =>
 
   return (
    <Input
-    id={props.id}
+    {...props}
     type="text"
     defaultValue={validate(props.value)}
     onChange={onChange}

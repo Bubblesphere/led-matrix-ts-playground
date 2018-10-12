@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { Component, ReactNode } from 'react';
+import { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, CanvaRenderers, RendererType, Padding, CanvaRendererParameter, AsciiRenderer, AsciiRendererParameter } from 'led-matrix-ts';
-import { panelTypes, LedMovementState } from './led-map';
+import { PanelType, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter } from 'led-matrix-ts';
+import { panelTypes, LedMovementState } from '../../utils/led-map';
 import { RGBColor } from 'react-color';
+import { toHexString } from '../../utils/Color';
 
-interface LedState {
-
-}
+interface LedState {}
 
 export interface LedProps {
   asciiParameters: {
@@ -42,9 +41,18 @@ export interface LedProps {
 }
 
 const styles = StyleSheet.create({
+  ascii: {
+    fontFamily: 'monospace', 
+    whiteSpace: 'pre'
+  },
+  canvas: {
+    width: '100%',
+    height: '256px'
+  }
 });
 
 class Led extends Component<LedProps, LedState> {
+  private ledMatrixId = 'led-matrix';
   ledMatrix: LedMatrix;
 
   constructor(props) {
@@ -59,7 +67,7 @@ class Led extends Component<LedProps, LedState> {
 
     if (this.props.rendererType != prevProps.rendererType) {
       this.ledMatrix.setRendererFromBuilder({
-        element: document.getElementById('led-matrix'),
+        element: document.getElementById(this.ledMatrixId),
         rendererType: this.props.rendererType
       });
     }
@@ -126,41 +134,33 @@ class Led extends Component<LedProps, LedState> {
       }
     } else {
       if (this.props.canvaParameters.colorOn != prevProps.colorOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.canvaParameters.colorOn);
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = toHexString(this.props.canvaParameters.colorOn);
       }
 
       if (this.props.canvaParameters.colorOff != prevProps.colorOff || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.canvaParameters.colorOff);
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = toHexString(this.props.canvaParameters.colorOff);
       }
 
       if (this.props.canvaParameters.strokeOn != prevProps.strokeOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOn);
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = toHexString(this.props.canvaParameters.strokeOn);
       }
 
       if (this.props.canvaParameters.strokeOff != prevProps.strokeOff || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOff);
+        (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.props.canvaParameters.strokeOff);
       }
     }
-
-  }
-
-  private convertRGBColorToHexString(color: RGBColor) {
-    return "#" +
-      ("0" + color.r.toString(16)).slice(-2) +
-      ("0" + color.g.toString(16)).slice(-2) +
-      ("0" + color.b.toString(16)).slice(-2);
   }
 
   componentDidMount() {
     this.ledMatrix = new LedMatrix({
-      pathCharacters: `${process.env.PUBLIC_URL}/alphabet.json`,
+      pathCharacters: this.props.pathToCharacters,
       fps: this.props.fps,
       increment: this.props.increment,
       input: this.props.input,
       panelType: this.props.panelType,
       panelWidth: this.props.width,
       spacing: this.props.spacing,
-      element: document.getElementById('led-matrix'),
+      element: document.getElementById(this.ledMatrixId),
       rendererType: this.props.rendererType,
       reverse: this.props.reverse,
       padding: [this.props.padding.top, this.props.padding.right, this.props.padding.bottom, this.props.padding.left]
@@ -170,10 +170,10 @@ class Led extends Component<LedProps, LedState> {
       (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.asciiParameters.characterOn;
       (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.props.asciiParameters.characterOff;
     } else {
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = this.convertRGBColorToHexString(this.props.canvaParameters.colorOn);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = this.convertRGBColorToHexString(this.props.canvaParameters.colorOff);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOn);
-      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = this.convertRGBColorToHexString(this.props.canvaParameters.strokeOff);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = toHexString(this.props.canvaParameters.colorOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = toHexString(this.props.canvaParameters.colorOff);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = toHexString(this.props.canvaParameters.strokeOn);
+      (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.props.canvaParameters.strokeOff);
     }
 
     this.ledMatrix.init(1);
@@ -181,8 +181,8 @@ class Led extends Component<LedProps, LedState> {
 
   GetRendererElement() {
     return this.props.rendererType == RendererType.ASCII ?
-      <div id="led-matrix" style={{fontFamily: 'monospace', whiteSpace: 'pre'}}/> :
-      <canvas id="led-matrix" height="256" style={{width: '100%'}}/>
+      <div id={this.ledMatrixId} className={css(styles.ascii)} /> :
+      <canvas id={this.ledMatrixId} className={css(styles.canvas)}/>
   }
 
   render() {

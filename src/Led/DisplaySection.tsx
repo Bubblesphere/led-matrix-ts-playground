@@ -10,7 +10,7 @@ import Pause from '@material-ui/icons/PauseRounded';
 
 import IconButtonCustom from '../Inputs/IconButton';
 import TextFieldCustom from '../Inputs/TextField';
-import { LedMovementState } from './LedMatrix/led-map';
+import { LedMovementState } from '../utils/led-map';
 import { p } from '../App';
 
 const styles = StyleSheet.create({
@@ -68,15 +68,30 @@ const DisplaySection: React.SFC<DisplaySectionProps & WithStyles<typeof themeDep
         <Grid item={true} container={true} alignItems={"center"} justify="flex-end">
           <Grid item style={{alignSelf: "flex-end"}} className={props.classes.controlsPadding} >
           {props.led.state == LedMovementState.play || props.led.state == LedMovementState.resume ? (
-                <IconButtonCustom  id="state" statePath={[p.led, p.state]} value={LedMovementState.pause} onInputCaptured={props.led.onChange}>
+                <IconButtonCustom  
+                  id="state" 
+                  statePath={[p.led, p.state]} 
+                  value={LedMovementState.pause} 
+                  onInputCaptured={props.led.onChange}
+                >
                   <Pause className={[props.classes.icons].join(' ')} />
                 </IconButtonCustom> 
             ) : (
-                <IconButtonCustom  id="state" statePath={[p.led, p.state]} value={LedMovementState.resume} onInputCaptured={props.led.onChange}>
+                <IconButtonCustom 
+                  id="state" 
+                  statePath={[p.led, p.state]} 
+                  value={LedMovementState.resume} 
+                  onInputCaptured={props.led.onChange}
+                >
                   <Resume className={[props.classes.icons].join(' ')} />
                 </IconButtonCustom>
             )}
-            <IconButtonCustom  id="state" statePath={[p.led, p.state]} value={LedMovementState.stop} onInputCaptured={props.led.onChange}>
+            <IconButtonCustom
+              id="state" 
+              statePath={[p.led, p.state]} 
+              value={LedMovementState.stop} 
+              onInputCaptured={props.led.onChange}
+            >
               <Stop className={props.classes.icons} />
             </IconButtonCustom>
           </Grid>

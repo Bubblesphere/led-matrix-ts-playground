@@ -5,7 +5,7 @@ import DisplaySection from './Led/DisplaySection';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
-import { LedMovementState } from './Led/LedMatrix/led-map';
+import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
 
 interface AppProps {}

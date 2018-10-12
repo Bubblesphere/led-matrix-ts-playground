@@ -5,11 +5,9 @@ import { StyleSheet, css } from 'aphrodite';
 
 const styles = StyleSheet.create({
   configuration: {
-    //flex: 1,
     background: 'rgb(240, 240, 240)',
     maxHeight: '100vh',
     overflowY: "auto"
-    //borderRight: '1px solid #bbb',
   }
 });
 

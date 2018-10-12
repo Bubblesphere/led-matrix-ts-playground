@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Slider } from '@material-ui/lab';
+import { SliderProps } from '@material-ui/lab/Slider';
 import { withStyles, WithStyles, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { InputProps } from './Inputs';
@@ -12,8 +13,7 @@ interface TooltipSliderPropsOpt {
   step?: number
 }
 
-interface TooltipSliderProps extends TooltipSliderPropsOpt, InputProps {
-  id: string,
+interface TooltipSliderProps extends TooltipSliderPropsOpt, InputProps, SliderProps {
   lastCapturedValue: number
 }
 
@@ -139,12 +139,11 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<type
           {this.state.value}
         </span>
         <Slider
-          id={this.props.id}
+          {...this.props}
           value={this.state.value}
           min={this.props.min}
           max={this.props.max}
           step={this.props.step}
-          aria-labelledby={this.props.id}
           onChange={this.onChange}
           classes={{ ...this.props.classes }}
           onDragStart={this.onDragStart}
