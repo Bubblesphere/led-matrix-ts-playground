@@ -3,14 +3,9 @@ import { Grid, Tooltip } from '@material-ui/core';
 import GridOn from '@material-ui/icons/GridOn';
 import Translate from '@material-ui/icons/Translate';
 import { StyleSheet, css } from 'aphrodite';
+import { Link } from 'react-router-dom';
 
 const appStyles = StyleSheet.create({
-  menu: {
-    background: '#444',
-    flex: '0 0 64px',
-    color: '#bbb',
-
-  },
   icon: {
     fontSize: 32,
     marginBottom: '16px',
@@ -26,17 +21,22 @@ interface MenuProps {
 
 const Menu: React.SFC<MenuProps> = (props) => {
   return (
-    <Grid container={true} item={true} justify={"center"}  className={css(appStyles.menu)}>
-      <Grid item={true}>
-        <Tooltip title="Led Panel" enterDelay={500} placement={'right'}>
+    <Grid item={true}>
+      <Tooltip title="Led Panel" enterDelay={500} placement={'right'}>
+        <Link to={'/led'}>
           <GridOn  className={css(appStyles.icon)} />
-        </Tooltip>
-        <Tooltip title="Alphabet" enterDelay={500} placement={'right'}>
+        </Link>
+      </Tooltip>
+      <Tooltip title="Alphabet" enterDelay={500} placement={'right'}>
+        <Link to={'/alphabet'}>
           <Translate  className={css(appStyles.icon)} />
-        </Tooltip>
-      </Grid>
+        </Link>
+      </Tooltip>
     </Grid>
   )
 }
 
 export default Menu;
+
+
+

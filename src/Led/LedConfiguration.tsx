@@ -1,23 +1,23 @@
 import * as React from 'react';
 import { Component } from 'react';
-import TooltipSlider from '../../Inputs/TooltipSlider';
-import ProfileFormItem from './ProfileFormItem';
-import ProfileSection from './ProfileSection';
+import TooltipSlider from '../Inputs/TooltipSlider';
+import LedConfigurationFormItem from './LedConfigurationFormItem';
+import LedConfigurationPanel from './LedConfigurationPanel';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
 import { LedMatrix, RendererType } from 'led-matrix-ts';
-import { panelTypes, renderers } from '../../utils/led-map';
-import SelectCustom from '../../Inputs/Select';
-import SwitchCustom from '../../Inputs/Switch';
-import ColorPickerDialog from '../../Inputs/ColorPickerDialog';
-import InputCustom from '../../Inputs/InputCustom';
-import { p, LedState } from '../../App';
+import { panelTypes, renderers } from '../utils/led-map';
+import SelectCustom from '../Inputs/Select';
+import SwitchCustom from '../Inputs/Switch';
+import ColorPickerDialog from '../Inputs/ColorPickerDialog';
+import InputCustom from '../Inputs/InputCustom';
+import { p, LedState } from '../App';
 
 interface ProfileState {
 
 }
 
-export interface ProfileProps extends LedState {}
+export interface LedConfigurationProps extends LedState {}
 
 const styles = StyleSheet.create({
 });
@@ -31,7 +31,7 @@ const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
   }
 });
 
-class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantStyles>, ProfileState> {
+class LedConfiguration extends Component<LedConfigurationProps & WithStyles<typeof themeDependantStyles>, ProfileState> {
   ledMatrix: LedMatrix;
 
   constructor(props) {
@@ -52,8 +52,8 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
         wrap="nowrap"
       >
 
-      <ProfileSection label="Panel">
-        <ProfileFormItem name="Scrolling">
+      <LedConfigurationPanel label="Panel">
+        <LedConfigurationFormItem label="Scrolling">
           <SelectCustom
             id="panelType"
             statePath={[p.led, p.panelType]}
@@ -62,18 +62,18 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             value={this.props.panelType}
             
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
             
-        <ProfileFormItem name="Reverse">
+        <LedConfigurationFormItem label="Reverse">
           <SwitchCustom
             checked={this.props.reverse}
             statePath={[p.led, p.reverse]}
             id="reverse"
             onInputCaptured={this.props.onChange}
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
-        <ProfileFormItem name="Increment">
+        <LedConfigurationFormItem label="Increment">
           <TooltipSlider 
             id="increment"
             statePath={[p.led, p.increment]}
@@ -82,9 +82,9 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.increment} 
             onInputCaptured={this.props.onChange} 
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
-        <ProfileFormItem name="FPS">
+        <LedConfigurationFormItem label="FPS">
           <TooltipSlider 
             id="fps"
             statePath={[p.led, p.fps]}
@@ -93,9 +93,9 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.fps} 
             onInputCaptured={this.props.onChange} 
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
-        <ProfileFormItem name="Viewport width">
+        <LedConfigurationFormItem label="Viewport width">
           <TooltipSlider 
             id="width"
             statePath={[p.led, p.viewportWidth]}
@@ -104,11 +104,11 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.viewportWidth} 
             onInputCaptured={this.props.onChange} 
           />
-        </ProfileFormItem>
-      </ProfileSection>
+        </LedConfigurationFormItem>
+      </LedConfigurationPanel>
 
-      <ProfileSection label="Renderer">
-        <ProfileFormItem name="Renderer">
+      <LedConfigurationPanel label="Renderer">
+        <LedConfigurationFormItem label="Renderer">
           <SelectCustom
             id="rendererType"
             statePath={[p.led, p.rendererType]}
@@ -116,73 +116,73 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             onInputCaptured={this.props.onChange}
             value={this.props.rendererType}
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
         {this.props.rendererType == RendererType.ASCII ? 
           (
           <Grid item>
-            <ProfileFormItem name="Character on">
+            <LedConfigurationFormItem label="Character on">
               <InputCustom
                 id="characterOn"
                 statePath={[p.led, p.asciiParameters, p.characterOn]}
                 value={this.props.asciiParameters.characterOn}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
 
-            <ProfileFormItem name="Character off">
+            <LedConfigurationFormItem label="Character off">
               <InputCustom
                 id="characterOff"
                 statePath={[p.led, p.asciiParameters, p.characterOff]}
                 value={this.props.asciiParameters.characterOff}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
           </Grid>
           ) : (
           <Grid item>
-            <ProfileFormItem name="Color on">
+            <LedConfigurationFormItem label="Color on">
               <ColorPickerDialog 
                 id="colorOn"
                 statePath={[p.led, p.canvaParameters, p.colorOn]}
                 defaultValue={this.props.canvaParameters.colorOn}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
 
-            <ProfileFormItem name="Color off">
+            <LedConfigurationFormItem label="Color off">
               <ColorPickerDialog 
                 id="colorOff"
                 statePath={[p.led, p.canvaParameters, p.colorOff]}
                 defaultValue={this.props.canvaParameters.colorOff}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
 
-            <ProfileFormItem name="Stroke on">
+            <LedConfigurationFormItem label="Stroke on">
               <ColorPickerDialog 
                 id="strokeOn"
                 statePath={[p.led, p.canvaParameters, p.strokeOn]}
                 defaultValue={this.props.canvaParameters.strokeOn}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
 
-            <ProfileFormItem name="Stroke off">
+            <LedConfigurationFormItem label="Stroke off">
               <ColorPickerDialog 
                 id="strokeOff"
                 statePath={[p.led, p.canvaParameters, p.strokeOff]}
                 defaultValue={this.props.canvaParameters.strokeOff}
                 onInputCaptured={this.props.onChange}
               />
-            </ProfileFormItem>
+            </LedConfigurationFormItem>
           </Grid>
           )
         }
-      </ProfileSection>
+      </LedConfigurationPanel>
 
-      <ProfileSection label="Board">
-        <ProfileFormItem name="Letter spacing">
+      <LedConfigurationPanel label="Board">
+        <LedConfigurationFormItem label="Letter spacing">
           <TooltipSlider 
             id="letterSpacing"
             statePath={[p.led, p.letterSpacing]}
@@ -191,9 +191,9 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.letterSpacing} 
             onInputCaptured={this.props.onChange} 
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
-        <ProfileFormItem name="Size">
+        <LedConfigurationFormItem label="Size">
           <TooltipSlider 
             id="size"
             statePath={[p.led, p.size]}
@@ -202,9 +202,9 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.size} 
             onInputCaptured={this.props.onChange} 
           />
-        </ProfileFormItem>
+        </LedConfigurationFormItem>
 
-        <ProfileFormItem name="Padding" centerLabel={false}>
+        <LedConfigurationFormItem label="Padding" centerLabel={false}>
           <TooltipSlider 
             id="paddingTop"
             statePath={[p.led, p.padding, p.top]}
@@ -237,12 +237,12 @@ class Profile extends Component<ProfileProps & WithStyles<typeof themeDependantS
             lastCapturedValue={this.props.padding.left}
             onInputCaptured={this.props.onChange}
           />
-        </ProfileFormItem>
-      </ProfileSection>
+        </LedConfigurationFormItem>
+      </LedConfigurationPanel>
 
       </Grid>
     );
   }
 }
 
-export default withStyles(themeDependantStyles)(Profile);
+export default withStyles(themeDependantStyles)(LedConfiguration);

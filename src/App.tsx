@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { Component } from 'react';
-import ConfigurationSection from './Led/ConfigurationSection';
-import DisplaySection from './Led/DisplaySection';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
+import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import LedSection from './Led/LedSection';
+import Menu from './Menu/Menu';
+import Led from './Led/Led';
 
 interface AppProps {}
 
@@ -34,11 +36,38 @@ export enum p {
   reverse = 'reverse',
   size = 'size',
   letterSpacing = 'letterSpacing',
-  state = 'state',
+  movementState = 'movementState',
   viewportWidth = 'viewportWidth',
+  error = 'error',
+  isError = 'isError',
+  message = 'message'
 }
 
-export interface LedState {
+export type Error = {
+  isError: boolean,
+  message: string
+}
+
+export interface LedChangeable {
+  onChange: (keys: p[], value: any) => void
+}
+
+export interface LedMovement {
+  movementState: LedMovementState
+}
+
+export interface LedError {
+  onError: (keys: p[], value: any) => void,
+  error: {
+    input: Error
+  }
+}
+
+export interface LedInput {
+  input: string
+}
+
+export interface LedState extends LedChangeable, LedMovement, LedInput, LedError, LedInput {
   asciiParameters: {
     characterOff: string,
     characterOn: string,
@@ -51,7 +80,6 @@ export interface LedState {
   },
   fps: number,
   increment: number,
-  input: string,
   padding: {
     bottom: number,
     left: number
@@ -64,9 +92,7 @@ export interface LedState {
   reverse: boolean,
   size: number,
   letterSpacing: number,
-  state: LedMovementState,
   viewportWidth: number,
-  onChange: (keys: p[], value: any) => void
 }
 
 export interface AppState {
@@ -76,8 +102,14 @@ export interface AppState {
 const appStyles = StyleSheet.create({
   app: {
     margin: 0,
-    minHeight: '100vh',
+    flexFlow: "column",
+    height: '100vh',
     width: '100%'
+  },
+  menu: {
+    flex: '0 1 64px',
+    background: '#444',
+    color: '#bbb',
   },
   centeredVertical: {
     alignSelf: 'center'
@@ -112,15 +144,30 @@ class App extends Component<AppProps, AppState> {
       reverse: false,
       size: 1,
       letterSpacing: 1,
-      state: LedMovementState.play,
+      movementState: LedMovementState.play,
       viewportWidth: 50,
-      onChange: this.handleChanges.bind(this)
+      onChange: this.handleChanges.bind(this),
+      onError: this.handleChangesError.bind(this),
+      error: {
+        input: {
+          isError: false,
+          message: ''
+        }
+      }
     },
-
   }
 
   constructor(props) {
     super(props);
+    this.renderLed = this.renderLed.bind(this);
+    this.renderAlphabet = this.renderAlphabet.bind(this);
+    this.renderFullscreen = this.renderFullscreen.bind(this);
+    this.renderNotFullscreen = this.renderNotFullscreen.bind(this);
+  }
+
+  handleChangesError(keys: p[], value) {
+    keys.unshift(p.led, p.error);
+    this.handleChanges(keys, value);
   }
 
   handleChanges(keys: p[], value) {
@@ -139,12 +186,48 @@ class App extends Component<AppProps, AppState> {
     this.setState(newState);
   }
 
+  renderLed() {
+    return (
+      <LedSection {...this.state.led} />
+    );
+  }
+
+  renderAlphabet() {
+    return (
+      <h1>Welcome</h1>
+    );
+  }
+
+  renderFullscreen() {
+    return (
+      <Grid item container direction="column" className={css(appStyles.app)} alignItems="center" justify="center" alignContent="center">
+        <Led {...this.state.led} />
+      </Grid>
+    );
+  }
+
+  renderNotFullscreen() {
+    return (
+      <Grid item container direction="column" className={css(appStyles.app)}>
+        <Grid container item xs={12} className={css(appStyles.menu)}>
+          <Menu />
+        </Grid>
+        <Grid container item xs={12}>
+          <Route exact path="/led" render={this.renderLed}/>
+          <Route exact path="/alphabet" render={this.renderAlphabet} />
+        </Grid>
+      </Grid>
+    );
+  }
+
   render() {
     return (
-        <Grid container={true} spacing={24} className={css(appStyles.app)}>
-          <ConfigurationSection profile={{...this.state.led}} />
-          <DisplaySection led={{...this.state.led}} />
+      <Router>
+        <Grid container>
+          <Route exact path="/fullscreen" render={this.renderFullscreen}/>
+          <Route exact path="/led" render={this.renderNotFullscreen} />
         </Grid>
+      </Router>
     );
   }
 }

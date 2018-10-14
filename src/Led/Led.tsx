@@ -2,11 +2,10 @@ import * as React from 'react';
 import { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { PanelType, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter } from 'led-matrix-ts';
-import { panelTypes, LedMovementState } from '../../utils/led-map';
-import { RGBColor } from 'react-color';
-import { toHexString } from '../../utils/Color';
-import { LedState } from '../../App';
+import { LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter } from 'led-matrix-ts';
+import { panelTypes, LedMovementState } from '../utils/led-map';
+import { toHexString } from '../utils/Color';
+import { LedState, p } from '../App';
 
 export interface LedProps extends LedState {}
 
@@ -59,7 +58,20 @@ class Led extends Component<LedProps, LedState> {
     }
 
     if (this.props.input != prevProps.input) {
-      this.ledMatrix.input = this.props.input;
+      try {
+        this.ledMatrix.input = this.props.input;
+        if (this.props.error.input.isError == true) {
+          this.props.onError([p.input], {
+            isError: false,
+            message: ''
+          })
+        }
+      } catch(e) {
+        this.props.onError([p.input], {
+          isError: true,
+          message: e
+        })
+      }
     }
 
     if (this.props.size != prevProps.size) {
@@ -77,8 +89,8 @@ class Led extends Component<LedProps, LedState> {
       this.ledMatrix.padding = [this.props.padding.top, this.props.padding.right, this.props.padding.bottom, this.props.padding.left];
     }
 
-    if (this.props.state != prevProps.state) {
-      switch(Number(this.props.state) as LedMovementState) {
+    if (this.props.movementState != prevProps.state) {
+      switch(Number(this.props.movementState) as LedMovementState) {
         case LedMovementState.play:
           this.ledMatrix.play();
           break;
@@ -157,8 +169,10 @@ class Led extends Component<LedProps, LedState> {
 
   render() {
     return (
-      <Grid item xs={11}>
-        {this.GetRendererElement()}
+      <Grid item container>
+        <Grid item xs={12}>
+          {this.GetRendererElement()}
+        </Grid>
       </Grid>
     );
   }

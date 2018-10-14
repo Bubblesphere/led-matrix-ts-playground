@@ -3,7 +3,7 @@ import { ExpansionPanel, ExpansionPanelSummary, Typography, ExpansionPanelDetail
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { StyleSheet, css } from 'aphrodite';
 
-export interface ProfileSectionProps {
+export interface LedConfigurationPanelProps {
   label: string
 }
 
@@ -19,7 +19,7 @@ const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
   }
 });
 
-const ProfileSection: React.SFC<ProfileSectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
+const LedConfigurationPanel: React.SFC<LedConfigurationPanelProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
     <ExpansionPanel className={css(styles.panel)}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -44,4 +44,4 @@ const ProfileSection: React.SFC<ProfileSectionProps & WithStyles<typeof themeDep
   )
 }
 
-export default withStyles(themeDependantStyles)(ProfileSection);
+export default withStyles(themeDependantStyles)(LedConfigurationPanel);

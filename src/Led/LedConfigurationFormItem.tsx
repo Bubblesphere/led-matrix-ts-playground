@@ -20,17 +20,17 @@ const themeDependantStyles = ({typography, palette}: Theme) => createStyles({
   }
 });
 
-interface ProfileFormItemProps {
-  name: string,
+interface LedConfigurationFormItemProps {
+  label: string,
   children: ReactNode,
   centerLabel?: boolean
 }
 
-const ProfileFormItem: React.SFC<ProfileFormItemProps & WithStyles<typeof themeDependantStyles>> = (props) => {
+const LedConfigurationFormItem: React.SFC<LedConfigurationFormItemProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
     <Grid item container>
       <Grid item xs={5} className={css(props.centerLabel ? styles.typoAlignCenter : styles.typoAlignStart)}>
-        <Typography gutterBottom className={props.classes.typography}>{props.name}</Typography>
+        <Typography gutterBottom className={props.classes.typography}>{props.label}</Typography>
       </Grid>
       <Grid item xs={7}>
         <Grid item>
@@ -41,8 +41,8 @@ const ProfileFormItem: React.SFC<ProfileFormItemProps & WithStyles<typeof themeD
   );
 }
 
-ProfileFormItem.defaultProps = {
+LedConfigurationFormItem.defaultProps = {
   centerLabel: true
 }
 
-export default withStyles(themeDependantStyles)(ProfileFormItem);
+export default withStyles(themeDependantStyles)(LedConfigurationFormItem);
