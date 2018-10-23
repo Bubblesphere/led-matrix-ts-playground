@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { HashRouter as Router, Link, Route } from 'react-router-dom';
 import LedSection from './Led/LedSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
