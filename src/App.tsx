@@ -213,7 +213,7 @@ class App extends Component<AppProps, AppState> {
           <Menu />
         </Grid>
         <Grid container item xs={12}>
-          <Route exact path="/led" render={this.renderLed}/>
+          <Route exact path="/" render={this.renderLed}/>
           <Route exact path="/alphabet" render={this.renderAlphabet} />
         </Grid>
       </Grid>
@@ -225,7 +225,7 @@ class App extends Component<AppProps, AppState> {
       <Router>
         <Grid container>
           <Route exact path="/fullscreen" render={this.renderFullscreen}/>
-          <Route exact path="/led" render={this.renderNotFullscreen} />
+          <Route exact path="/" render={this.renderNotFullscreen} />
         </Grid>
       </Router>
     );
