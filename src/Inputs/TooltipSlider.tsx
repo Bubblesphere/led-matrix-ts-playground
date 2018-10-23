@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { Slider } from '@material-ui/lab';
-import { withStyles, WithStyles } from '@material-ui/core';
+import { SliderProps } from '@material-ui/lab/Slider';
+import { withStyles, WithStyles, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
+import { InputProps } from './Inputs';
 
 interface TooltipSliderState {}
 
@@ -11,13 +13,8 @@ interface TooltipSliderPropsOpt {
   step?: number
 }
 
-interface TooltipSliderProps {
-  min?: number,
-  max?: number,
-  step?: number,
-  id: string,
-  lastCapturedValue: number,
-  onChangeCapture: (property, value) => void
+interface TooltipSliderProps extends TooltipSliderPropsOpt, InputProps, SliderProps {
+  lastCapturedValue: number
 }
 
 const styles = StyleSheet.create({
@@ -46,7 +43,13 @@ const styles = StyleSheet.create({
   }
 });
 
-class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thumb'> & WithStyles<'root'> & WithStyles<'container'>, TooltipSliderState> {
+const themeDependantStyles = () => createStyles({
+  root: {
+    padding: "32px 0px"
+  }
+});
+
+class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<typeof themeDependantStyles>, TooltipSliderState> {
   // TODO: Auto-detect slider button's inactive offsetHeight
   private sliderButtonInactiveOffsetHeight = 12;
 
@@ -96,7 +99,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
     if (e.propertyName === 'height') {
       if (e.target.offsetHeight == this.sliderButtonInactiveOffsetHeight) {
         // Reached when the height of the slider button changes and the new height is the size of the it's inactive state
-        this.props.onChangeCapture(this.props.id, this.state.value);
+        this.props.onInputCaptured(this.props.statePath, this.state.value);
         this.setState((prevState) => ({ ...prevState, active: false }));
       }
     }
@@ -105,7 +108,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
   private updateTooltipPosition() {
     const sliderTooltip = document.getElementById(`slider-tooltip-${this.props.id}`);
     const slider = document.getElementById(this.props.id);
-
+ 
     // Get the position % an element should be placed if it had no width
     const basePositionPercentage = (this.state.value - this.props.min) / (this.props.max - this.props.min) * 100;
     
@@ -136,12 +139,11 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<'thu
           {this.state.value}
         </span>
         <Slider
-          id={this.props.id}
+          {...this.props}
           value={this.state.value}
           min={this.props.min}
           max={this.props.max}
           step={this.props.step}
-          aria-labelledby={this.props.id}
           onChange={this.onChange}
           classes={{ ...this.props.classes }}
           onDragStart={this.onDragStart}
@@ -159,8 +161,4 @@ TooltipSlider.defaultProps = {
   step: 1
 }
 
-export default withStyles({
-  root: {
-    padding: "32px 0px"
-  }
-})(TooltipSlider);
+export default withStyles(themeDependantStyles)(TooltipSlider);
