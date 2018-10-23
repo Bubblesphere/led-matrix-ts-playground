@@ -2,6 +2,7 @@
   "name": "led-matrix-ts-playground",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://Bubblesphere.github.io/led-matrix-ts-playground",
   "devDependencies": {
     "@types/jest": "^23.3.2",
     "@types/material-ui": "^0.21.5",
@@ -16,6 +17,7 @@
     "@material-ui/lab": "^3.0.0-alpha.17",
     "@types/react-color": "^2.13.6",
     "aphrodite": "^2.2.3",
+    "gh-pages": "^2.0.1",
     "led-matrix-ts": "^0.5.7",
     "react": "^16.5.2",
     "react-color": "^2.14.1",
@@ -23,6 +25,8 @@
     "react-router-dom": "^4.3.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
