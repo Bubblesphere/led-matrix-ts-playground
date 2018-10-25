@@ -23,7 +23,7 @@ const Menu: React.SFC<MenuProps> = (props) => {
   return (
     <Grid item={true}>
       <Tooltip title="Led Panel" enterDelay={500} placement={'right'}>
-        <Link to={'/led'}>
+        <Link to={'/'}>
           <GridOn  className={css(appStyles.icon)} />
         </Link>
       </Tooltip>

@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { HashRouter as Router, Link, Route } from 'react-router-dom';
 import LedSection from './Led/LedSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
@@ -213,7 +213,7 @@ class App extends Component<AppProps, AppState> {
           <Menu />
         </Grid>
         <Grid container item xs={12}>
-          <Route exact path="/led" render={this.renderLed}/>
+          <Route exact path="/" render={this.renderLed}/>
           <Route exact path="/alphabet" render={this.renderAlphabet} />
         </Grid>
       </Grid>
@@ -225,7 +225,7 @@ class App extends Component<AppProps, AppState> {
       <Router>
         <Grid container>
           <Route exact path="/fullscreen" render={this.renderFullscreen}/>
-          <Route exact path="/led" render={this.renderNotFullscreen} />
+          <Route exact path="/" render={this.renderNotFullscreen} />
         </Grid>
       </Router>
     );
