@@ -114,6 +114,9 @@ const appStyles = StyleSheet.create({
   centeredVertical: {
     alignSelf: 'center'
   },
+  fullScreen: {
+    background: '#000'
+  }
 });
 
 class App extends Component<AppProps, AppState> {
@@ -200,7 +203,7 @@ class App extends Component<AppProps, AppState> {
 
   renderFullscreen() {
     return (
-      <Grid item container direction="column" className={css(appStyles.app)} alignItems="center" justify="center" alignContent="center">
+      <Grid item container direction="column" className={css(appStyles.app, appStyles.fullScreen)} alignItems="center" justify="center" alignContent="center">
         <Led {...this.state.led} />
       </Grid>
     );

@@ -5,9 +5,13 @@ import { StyleSheet, css } from 'aphrodite';
 import { LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from '../utils/led-map';
 import { toHexString } from '../utils/Color';
-import { LedState, p } from '../App';
+import { LedState as AppState, p } from '../App';
 
-export interface LedProps extends LedState {}
+export interface LedState {
+  height: number;
+}
+
+export interface LedProps extends AppState {}
 
 const styles = StyleSheet.create({
   ascii: {
@@ -15,8 +19,7 @@ const styles = StyleSheet.create({
     whiteSpace: 'pre'
   },
   canvas: {
-    width: '100%',
-    height: '256px'
+    width: '100%'
   }
 });
 
@@ -24,14 +27,21 @@ class Led extends Component<LedProps, LedState> {
   private ledMatrixId = 'led-matrix';
   ledMatrix: LedMatrix;
 
+  state = {
+    height: 256
+  }
+
   constructor(props) {
     super(props);
-
+    this.updateDimensions = this.updateDimensions.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
+    let shouldUpdateDimensions = false;
+
     if (this.props.panelType != prevProps.panelType) {
       this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panelType)[0].id;
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.rendererType != prevProps.rendererType) {
@@ -39,6 +49,7 @@ class Led extends Component<LedProps, LedState> {
         element: document.getElementById(this.ledMatrixId),
         rendererType: this.props.rendererType
       });
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.fps != prevProps.fps) {
@@ -51,6 +62,7 @@ class Led extends Component<LedProps, LedState> {
 
     if (this.props.viewportWidth != prevProps.viewportWidth) {
       this.ledMatrix.viewportWidth = this.props.viewportWidth;
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.letterSpacing != prevProps.letterSpacing) {
@@ -72,21 +84,25 @@ class Led extends Component<LedProps, LedState> {
           message: e
         })
       }
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.size != prevProps.size) {
       this.ledMatrix.size = this.props.size;
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.reverse != prevProps.reverse) {
       this.ledMatrix.reverse = this.props.reverse;
     }
 
-    if (this.props.padding.top != prevProps.paddingTop ||
-      this.props.padding.right != prevProps.paddingRight ||
-      this.props.padding.bottom != prevProps.paddingBottom ||
-      this.props.padding.left != prevProps.paddingLeft) {
+    if (this.props.padding.top != prevProps.padding.top ||
+      this.props.padding.right != prevProps.padding.right ||
+      this.props.padding.bottom != prevProps.padding.bottom ||
+      this.props.padding.left != prevProps.padding.left) {
       this.ledMatrix.padding = [this.props.padding.top, this.props.padding.right, this.props.padding.bottom, this.props.padding.left];
+
+      shouldUpdateDimensions = true;
     }
 
     if (this.props.movementState != prevProps.state) {
@@ -131,6 +147,10 @@ class Led extends Component<LedProps, LedState> {
         (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.props.canvaParameters.strokeOff);
       }
     }
+
+    if (shouldUpdateDimensions && prevState.height == this.state.height) {
+      this.updateDimensions();
+    }
   }
 
   componentDidMount() {
@@ -158,13 +178,30 @@ class Led extends Component<LedProps, LedState> {
       (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.props.canvaParameters.strokeOff);
     }
 
-    this.ledMatrix.init(this.props.size);
+    this.ledMatrix.init(this.props.size, () => {
+      window.addEventListener("resize", this.updateDimensions);
+    });
+
+
+  }
+
+  componentWillUnmount() {
+      window.removeEventListener("resize", this.updateDimensions);
+  }
+
+  updateDimensions() {
+    const widthPerBit = document.getElementById(this.ledMatrixId).offsetWidth / this.props.viewportWidth;
+    let preferableHeight = this.ledMatrix.height * widthPerBit;
+    if (preferableHeight > window.innerHeight / 2) {
+      preferableHeight = window.innerHeight / 2
+    }
+    this.setState((prevState) => ({ ...prevState, height: preferableHeight}));
   }
 
   GetRendererElement() {
     return this.props.rendererType == RendererType.ASCII ?
-      <div id={this.ledMatrixId} className={css(styles.ascii)} /> :
-      <canvas id={this.ledMatrixId} className={css(styles.canvas)}/>
+      <div id={this.ledMatrixId} className={css(styles.ascii)} style={{height: this.state.height}} /> :
+      <canvas id={this.ledMatrixId} className={css(styles.canvas)} style={{height: this.state.height}}/>
   }
 
   render() {
