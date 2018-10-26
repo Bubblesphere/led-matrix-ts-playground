@@ -10,6 +10,7 @@ import LedSection from './Led/LedSection';
 import AlphabetSection from './Alphabet/AlphabetSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
+import { Character } from 'led-matrix-ts';
 
 interface AppProps {}
 
@@ -41,7 +42,8 @@ export enum p {
   viewportWidth = 'viewportWidth',
   error = 'error',
   isError = 'isError',
-  message = 'message'
+  message = 'message',
+  pendingCharacter = 'pendingCharacter'
 }
 
 export type Error = {
@@ -94,6 +96,7 @@ export interface LedState extends LedChangeable, LedMovement, LedInput, LedError
   size: number,
   letterSpacing: number,
   viewportWidth: number,
+  pendingCharacter: Character
 }
 
 export interface AppState {
@@ -157,7 +160,8 @@ class App extends Component<AppProps, AppState> {
           isError: false,
           message: ''
         }
-      }
+      },
+      pendingCharacter: null
     },
   }
 
@@ -167,6 +171,7 @@ class App extends Component<AppProps, AppState> {
     this.renderAlphabet = this.renderAlphabet.bind(this);
     this.renderFullscreen = this.renderFullscreen.bind(this);
     this.renderNotFullscreen = this.renderNotFullscreen.bind(this);
+    this.onSave = this.onSave.bind(this);
   }
 
   handleChangesError(keys: p[], value) {
@@ -196,9 +201,13 @@ class App extends Component<AppProps, AppState> {
     );
   }
 
+  onSave(character: Character) {
+    this.handleChanges([p.led, p.pendingCharacter], character);
+  }
+
   renderAlphabet() {
     return (
-      <AlphabetSection />
+      <AlphabetSection onSave={this.onSave}/>
     );
   }
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter } from 'led-matrix-ts';
+import { LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, Character, BitArray } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from '../utils/led-map';
 import { toHexString } from '../utils/Color';
 import { LedState as AppState, p } from '../App';
@@ -148,6 +148,12 @@ class Led extends Component<LedProps, LedState> {
       }
     }
 
+    if (this.props.pendingCharacter != null) {
+      this.ledMatrix.addCharacter(this.props.pendingCharacter);
+      this.props.onChange([p.led, p.pendingCharacter], null);
+    }
+
+
     if (shouldUpdateDimensions && prevState.height == this.state.height) {
       this.updateDimensions();
     }
@@ -161,7 +167,7 @@ class Led extends Component<LedProps, LedState> {
       input: this.props.input,
       panelType: this.props.panelType,
       panelWidth: this.props.viewportWidth,
-      spacing: this.props.letterSpacing,
+      letterSpacing: this.props.letterSpacing,
       element: document.getElementById(this.ledMatrixId),
       rendererType: this.props.rendererType,
       reverse: this.props.reverse,

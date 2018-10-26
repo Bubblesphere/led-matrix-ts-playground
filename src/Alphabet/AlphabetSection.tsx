@@ -3,7 +3,7 @@ import { Slider } from '@material-ui/lab';
 import { SliderProps } from '@material-ui/lab/Slider';
 import { withStyles, WithStyles, createStyles } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, CanvaRenderer, CanvaRenderers } from 'led-matrix-ts';
+import { bit, CanvaRenderer, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 
 interface AlphabetSectionState {
   character: {
@@ -11,9 +11,9 @@ interface AlphabetSectionState {
     height: number,
     data: bit[][]
   },
-  lastIndex: {
-    h: number,
-    w: number
+  lastMouseIndex: {
+    x: number,
+    y: number
   },
   isMouseDown: boolean
 }
@@ -22,6 +22,7 @@ interface AlphabetSectionPropsOpt {
 }
 
 interface AlphabetSectionProps extends AlphabetSectionPropsOpt, SliderProps {
+  onSave: (character: Character) => void
 }
 
 const styles = StyleSheet.create({
@@ -51,7 +52,10 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         [0,0,0,0,0,0,0,0,0,0] as bit[]
       ] as bit[][]
     },
-    lastIndex: { h: -1, w: -1},
+    lastMouseIndex: { 
+      x: -1, 
+      y: -1
+    },
     isMouseDown: false
   }
   
@@ -59,7 +63,11 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
   constructor(props) {
     super(props);
-    this.canvaClickHandler = this.canvaClickHandler.bind(this);
+    this.toggleBitAtLastMouseIndex = this.toggleBitAtLastMouseIndex.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onSave = this.onSave.bind(this);
   }
 
   componentDidMount() {
@@ -71,42 +79,16 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
     this.renderer.render(this.state.character.data);
 
-    el.addEventListener('mousemove', (e) => {
-      const i = this.canvaGetIndex(e);
-
-      if (i.h != this.state.lastIndex.h || i.w != this.state.lastIndex.w) {
-        this.setState({...this.state, lastIndex: Object.assign({}, i)})
-        if (this.state.isMouseDown) {
-          this.canvaClickHandler(e)
-        }
-      }
-
-
-    });
-
-    el.addEventListener('mousedown', (e) => {
-      this.canvaClickHandler(e);
-      if(!this.state.isMouseDown) {
-        this.setState({...this.state, isMouseDown: true});
-      }
-    });
-
-    el.addEventListener('mouseup', (e) => {
-      if(this.state.isMouseDown) {
-        this.setState({...this.state, isMouseDown: false});
-      }
-    })
-
-    el.addEventListener('mouseleave', (e) => {
-      if(this.state.isMouseDown) {
-        this.setState({...this.state, isMouseDown: false});
-      }
-    })
+    el.addEventListener('mousemove', this.onMouseMove);
+    el.addEventListener('mousedown', this.onMouseDown);
+    el.addEventListener('mouseup', this.onMouseUp);
   }
 
   componentWillUnmount() {
     const el = document.getElementById("character");
-    el.removeEventListener('click', this.canvaClickHandler);
+    el.removeEventListener('mousemove', this.onMouseMove);
+    el.removeEventListener('mousedown', this.onMouseDown);
+    el.removeEventListener('mouseup', this.onMouseUp);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -115,24 +97,51 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }
   }
 
-  private canvaGetIndex(event) {
+  private onMouseMove(e) {
+    const mouseIndex = this.getMouseIndexOnCanvas(e);
+    if (mouseIndex.y != this.state.lastMouseIndex.y 
+      || mouseIndex.x != this.state.lastMouseIndex.x) {
+      this.setState({...this.state, lastMouseIndex: mouseIndex});
+      if (this.state.isMouseDown) {
+        this.toggleBitAtLastMouseIndex(e)
+      }
+    }
+  }
+
+  private onMouseDown(e) {
+    this.toggleBitAtLastMouseIndex(e);
+    if(!this.state.isMouseDown) {
+      this.setState({...this.state, isMouseDown: true});
+    }
+  }
+
+  private onMouseUp(e) {
+    if(this.state.isMouseDown) {
+      this.setState({...this.state, isMouseDown: false});
+    }
+  }
+
+  private getMouseIndexOnCanvas(event) {
     const el = document.getElementById("character");
     var rect = el.getBoundingClientRect();
     var x = event.clientX - rect.left;
     var y = event.clientY - rect.top;
   
-    const w = Math.floor(x / (el.offsetWidth / this.state.character.data[0].length));
-    const h = Math.floor(y / (el.offsetHeight / this.state.character.data.length));
+    const xPos = Math.floor(x / (el.offsetWidth / this.state.character.data[0].length));
+    const yPos = Math.floor(y / (el.offsetHeight / this.state.character.data.length));
 
-    return {h, w}
+    return {
+      x: xPos, 
+      y: yPos
+    }
   }
 
-  private canvaClickHandler(event) {
+  private toggleBitAtLastMouseIndex(event) {
     var newArr = this.state.character.data.map(function(arr) {
         return arr.slice();
     });
     
-    newArr[this.state.lastIndex.h][this.state.lastIndex.w] = newArr[this.state.lastIndex.h][this.state.lastIndex.w] == 0 ? 1 : 0;
+    newArr[this.state.lastMouseIndex.y][this.state.lastMouseIndex.x] = newArr[this.state.lastMouseIndex.y][this.state.lastMouseIndex.x] == 0 ? 1 : 0;
     
     this.setState((prevState) => ({
       ...prevState, 
@@ -143,11 +152,15 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }));
   }
 
-  render() {
+  private onSave() {
+    this.props.onSave(new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+  }
 
+  render() {
     return (
       <div>
         <canvas id="character" width="400" height="400" />
+        <input type="button" value="Save" onClick={this.onSave}/>
       </div>
     )
   }
