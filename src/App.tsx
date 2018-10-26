@@ -7,6 +7,7 @@ import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
 import { HashRouter as Router, Link, Route } from 'react-router-dom';
 import LedSection from './Led/LedSection';
+import AlphabetSection from './Alphabet/AlphabetSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
 
@@ -197,7 +198,7 @@ class App extends Component<AppProps, AppState> {
 
   renderAlphabet() {
     return (
-      <h1>Welcome</h1>
+      <AlphabetSection />
     );
   }
 
@@ -224,11 +225,12 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
+    console.log(process.env);
     return (
       <Router>
         <Grid container>
           <Route exact path="/fullscreen" render={this.renderFullscreen}/>
-          <Route exact path="/" render={this.renderNotFullscreen} />
+          <Route path="/" render={this.renderNotFullscreen} />
         </Grid>
       </Router>
     );
