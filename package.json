@@ -18,7 +18,7 @@
     "@types/react-color": "^2.13.6",
     "aphrodite": "^2.2.3",
     "gh-pages": "^2.0.1",
-    "led-matrix-ts": "^0.5.8",
+    "led-matrix-ts": "^0.5.9",
     "react": "^16.5.2",
     "react-color": "^2.14.1",
     "react-dom": "^16.5.2",
