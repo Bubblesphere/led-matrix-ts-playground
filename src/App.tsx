@@ -10,11 +10,12 @@ import LedSection from './Led/LedSection';
 import AlphabetSection from './Alphabet/AlphabetSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
+import Structure from './Structure';
 import { Character } from 'led-matrix-ts';
 
 interface AppProps {}
 
-export enum p {
+export enum s {
   led = 'led',
   asciiParameters = 'asciiParameters',
   characterOff = 'characterOff',
@@ -43,7 +44,9 @@ export enum p {
   error = 'error',
   isError = 'isError',
   message = 'message',
-  pendingCharacter = 'pendingCharacter'
+  pendingCharacter = 'pendingCharacter',
+  usedCharacters = 'usedCharacters',
+  loadedCharacters = 'loadedCharacters'
 }
 
 export type Error = {
@@ -51,16 +54,16 @@ export type Error = {
   message: string
 }
 
-export interface LedChangeable {
-  onChange: (keys: p[], value: any) => void
+export interface CanUpdateState {
+  updateState: (keys: s[], value: any) => void
 }
 
 export interface LedMovement {
   movementState: LedMovementState
 }
 
-export interface LedError {
-  onError: (keys: p[], value: any) => void,
+export interface CanUpdateStateErrors {
+  onError: (keys: s[], value: any) => void,
   error: {
     input: Error
   }
@@ -70,7 +73,7 @@ export interface LedInput {
   input: string
 }
 
-export interface LedState extends LedChangeable, LedMovement, LedInput, LedError, LedInput {
+export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovement, LedInput, LedInput {
   asciiParameters: {
     characterOff: string,
     characterOn: string,
@@ -96,32 +99,14 @@ export interface LedState extends LedChangeable, LedMovement, LedInput, LedError
   size: number,
   letterSpacing: number,
   viewportWidth: number,
-  pendingCharacter: Character
+  pendingCharacter: Character,
+  usedCharacters: Character[],
+  loadedCharacters: Character[]
 }
 
 export interface AppState {
   led: LedState
 }
-
-const appStyles = StyleSheet.create({
-  app: {
-    margin: 0,
-    flexFlow: "column",
-    height: '100vh',
-    width: '100%'
-  },
-  menu: {
-    flex: '0 1 64px',
-    background: '#444',
-    color: '#bbb',
-  },
-  centeredVertical: {
-    alignSelf: 'center'
-  },
-  fullScreen: {
-    background: '#000'
-  }
-});
 
 class App extends Component<AppProps, AppState> {
   state = {
@@ -153,33 +138,30 @@ class App extends Component<AppProps, AppState> {
       letterSpacing: 1,
       movementState: LedMovementState.play,
       viewportWidth: 50,
-      onChange: this.handleChanges.bind(this),
-      onError: this.handleChangesError.bind(this),
+      updateState: this.updateState.bind(this),
+      onError: this.updateStateError.bind(this),
       error: {
         input: {
           isError: false,
           message: ''
         }
       },
-      pendingCharacter: null
+      pendingCharacter: null,
+      usedCharacters: null,
+      loadedCharacters: null
     },
   }
 
   constructor(props) {
     super(props);
-    this.renderLed = this.renderLed.bind(this);
-    this.renderAlphabet = this.renderAlphabet.bind(this);
-    this.renderFullscreen = this.renderFullscreen.bind(this);
-    this.renderNotFullscreen = this.renderNotFullscreen.bind(this);
-    this.onSave = this.onSave.bind(this);
   }
 
-  handleChangesError(keys: p[], value) {
-    keys.unshift(p.led, p.error);
-    this.handleChanges(keys, value);
+  updateStateError(keys: s[], value) {
+    keys.unshift(s.led, s.error);
+    this.updateState(keys, value);
   }
 
-  handleChanges(keys: p[], value) {
+  updateState(keys: s[], value) {
     let newState = Object.assign({}, this.state);
     keys.reduce(function(acc, cur, index) {
       // Make sure the key is a property that exists on prevState
@@ -195,52 +177,10 @@ class App extends Component<AppProps, AppState> {
     this.setState(newState);
   }
 
-  renderLed() {
-    return (
-      <LedSection {...this.state.led} />
-    );
-  }
-
-  onSave(character: Character) {
-    this.handleChanges([p.led, p.pendingCharacter], character);
-  }
-
-  renderAlphabet() {
-    return (
-      <AlphabetSection onSave={this.onSave}/>
-    );
-  }
-
-  renderFullscreen() {
-    return (
-      <Grid item container direction="column" className={css(appStyles.app, appStyles.fullScreen)} alignItems="center" justify="center" alignContent="center">
-        <Led {...this.state.led} />
-      </Grid>
-    );
-  }
-
-  renderNotFullscreen() {
-    return (
-      <Grid item container direction="column" className={css(appStyles.app)}>
-        <Grid container item xs={12} className={css(appStyles.menu)}>
-          <Menu />
-        </Grid>
-        <Grid container item xs={12}>
-          <Route exact path="/" render={this.renderLed}/>
-          <Route exact path="/alphabet" render={this.renderAlphabet} />
-        </Grid>
-      </Grid>
-    );
-  }
-
   render() {
-    console.log(process.env);
     return (
       <Router>
-        <Grid container>
-          <Route exact path="/fullscreen" render={this.renderFullscreen}/>
-          <Route path="/" render={this.renderNotFullscreen} />
-        </Grid>
+        <Structure {...this.state} />
       </Router>
     );
   }

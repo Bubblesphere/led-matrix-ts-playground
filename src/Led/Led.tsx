@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, Character, BitArray } from 'led-matrix-ts';
 import { panelTypes, LedMovementState } from '../utils/led-map';
 import { toHexString } from '../utils/Color';
-import { LedState as AppState, p } from '../App';
+import { LedState as AppState, s } from '../App';
 
 export interface LedState {
   height: number;
@@ -38,6 +38,13 @@ class Led extends Component<LedProps, LedState> {
 
   componentDidUpdate(prevProps, prevState) {
     let shouldUpdateDimensions = false;
+
+    if (this.props.pendingCharacter != prevProps.pendingCharacter) {
+      this.ledMatrix.addCharacter(this.props.pendingCharacter);
+      this.props.updateState([s.led, s.pendingCharacter], null);
+      this.props.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    }
+
 
     if (this.props.panelType != prevProps.panelType) {
       this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.props.panelType)[0].id;
@@ -72,14 +79,15 @@ class Led extends Component<LedProps, LedState> {
     if (this.props.input != prevProps.input) {
       try {
         this.ledMatrix.input = this.props.input;
+        this.props.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
         if (this.props.error.input.isError == true) {
-          this.props.onError([p.input], {
+          this.props.onError([s.input], {
             isError: false,
             message: ''
           })
         }
       } catch(e) {
-        this.props.onError([p.input], {
+        this.props.onError([s.input], {
           isError: true,
           message: e
         })
@@ -124,7 +132,7 @@ class Led extends Component<LedProps, LedState> {
 
     if (this.props.rendererType == RendererType.ASCII) {
       if (this.props.asciiParameters.characterOn != prevProps.characterOn || this.props.rendererType != prevProps.rendererType) {
-        (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.asciiParameters.characterOn;
+       (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.props.asciiParameters.characterOn;
       }
 
       if (this.props.asciiParameters.characterOff != prevProps.characterOff || this.props.rendererType != prevProps.rendererType) {
@@ -148,10 +156,7 @@ class Led extends Component<LedProps, LedState> {
       }
     }
 
-    if (this.props.pendingCharacter != null) {
-      this.ledMatrix.addCharacter(this.props.pendingCharacter);
-      this.props.onChange([p.led, p.pendingCharacter], null);
-    }
+
 
 
     if (shouldUpdateDimensions && prevState.height == this.state.height) {
@@ -185,6 +190,8 @@ class Led extends Component<LedProps, LedState> {
     }
 
     this.ledMatrix.init(this.props.size, () => {
+      this.props.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
+      this.props.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
       window.addEventListener("resize", this.updateDimensions);
     });
 

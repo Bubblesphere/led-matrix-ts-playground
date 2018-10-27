@@ -11,7 +11,7 @@ import SelectCustom from '../Inputs/Select';
 import SwitchCustom from '../Inputs/Switch';
 import ColorPickerDialog from '../Inputs/ColorPickerDialog';
 import InputCustom from '../Inputs/InputCustom';
-import { p, LedState } from '../App';
+import { s, LedState } from '../App';
 
 interface ProfileState {
 
@@ -56,9 +56,9 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         <LedConfigurationFormItem label="Scrolling">
           <SelectCustom
             id="panelType"
-            statePath={[p.led, p.panelType]}
+            statePath={[s.led, s.panelType]}
             menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
             value={this.props.panelType}
             
           />
@@ -67,42 +67,42 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         <LedConfigurationFormItem label="Reverse">
           <SwitchCustom
             checked={this.props.reverse}
-            statePath={[p.led, p.reverse]}
+            statePath={[s.led, s.reverse]}
             id="reverse"
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
           />
         </LedConfigurationFormItem>
 
         <LedConfigurationFormItem label="Increment">
           <TooltipSlider 
             id="increment"
-            statePath={[p.led, p.increment]}
+            statePath={[s.led, s.increment]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.increment} 
-            onInputCaptured={this.props.onChange} 
+            onInputCaptured={this.props.updateState} 
           />
         </LedConfigurationFormItem>
 
         <LedConfigurationFormItem label="FPS">
           <TooltipSlider 
             id="fps"
-            statePath={[p.led, p.fps]}
+            statePath={[s.led, s.fps]}
             min={0} 
             max={60} 
             lastCapturedValue={this.props.fps} 
-            onInputCaptured={this.props.onChange} 
+            onInputCaptured={this.props.updateState} 
           />
         </LedConfigurationFormItem>
 
         <LedConfigurationFormItem label="Viewport width">
           <TooltipSlider 
             id="width"
-            statePath={[p.led, p.viewportWidth]}
+            statePath={[s.led, s.viewportWidth]}
             min={1} 
             max={200} 
             lastCapturedValue={this.props.viewportWidth} 
-            onInputCaptured={this.props.onChange} 
+            onInputCaptured={this.props.updateState} 
           />
         </LedConfigurationFormItem>
       </LedConfigurationPanel>
@@ -111,9 +111,9 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         <LedConfigurationFormItem label="Renderer">
           <SelectCustom
             id="rendererType"
-            statePath={[p.led, p.rendererType]}
+            statePath={[s.led, s.rendererType]}
             menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
             value={this.props.rendererType}
           />
         </LedConfigurationFormItem>
@@ -124,18 +124,18 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
             <LedConfigurationFormItem label="Character on">
               <InputCustom
                 id="characterOn"
-                statePath={[p.led, p.asciiParameters, p.characterOn]}
+                statePath={[s.led, s.asciiParameters, s.characterOn]}
                 value={this.props.asciiParameters.characterOn}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
 
             <LedConfigurationFormItem label="Character off">
               <InputCustom
                 id="characterOff"
-                statePath={[p.led, p.asciiParameters, p.characterOff]}
+                statePath={[s.led, s.asciiParameters, s.characterOff]}
                 value={this.props.asciiParameters.characterOff}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
           </Grid>
@@ -144,36 +144,36 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
             <LedConfigurationFormItem label="Color on">
               <ColorPickerDialog 
                 id="colorOn"
-                statePath={[p.led, p.canvaParameters, p.colorOn]}
+                statePath={[s.led, s.canvaParameters, s.colorOn]}
                 defaultValue={this.props.canvaParameters.colorOn}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
 
             <LedConfigurationFormItem label="Color off">
               <ColorPickerDialog 
                 id="colorOff"
-                statePath={[p.led, p.canvaParameters, p.colorOff]}
+                statePath={[s.led, s.canvaParameters, s.colorOff]}
                 defaultValue={this.props.canvaParameters.colorOff}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
 
             <LedConfigurationFormItem label="Stroke on">
               <ColorPickerDialog 
                 id="strokeOn"
-                statePath={[p.led, p.canvaParameters, p.strokeOn]}
+                statePath={[s.led, s.canvaParameters, s.strokeOn]}
                 defaultValue={this.props.canvaParameters.strokeOn}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
 
             <LedConfigurationFormItem label="Stroke off">
               <ColorPickerDialog 
                 id="strokeOff"
-                statePath={[p.led, p.canvaParameters, p.strokeOff]}
+                statePath={[s.led, s.canvaParameters, s.strokeOff]}
                 defaultValue={this.props.canvaParameters.strokeOff}
-                onInputCaptured={this.props.onChange}
+                onInputCaptured={this.props.updateState}
               />
             </LedConfigurationFormItem>
           </Grid>
@@ -185,57 +185,57 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         <LedConfigurationFormItem label="Letter spacing">
           <TooltipSlider 
             id="letterSpacing"
-            statePath={[p.led, p.letterSpacing]}
+            statePath={[s.led, s.letterSpacing]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.letterSpacing} 
-            onInputCaptured={this.props.onChange} 
+            onInputCaptured={this.props.updateState} 
           />
         </LedConfigurationFormItem>
 
         <LedConfigurationFormItem label="Size">
           <TooltipSlider 
             id="size"
-            statePath={[p.led, p.size]}
+            statePath={[s.led, s.size]}
             min={1} 
             max={5} 
             lastCapturedValue={this.props.size} 
-            onInputCaptured={this.props.onChange} 
+            onInputCaptured={this.props.updateState} 
           />
         </LedConfigurationFormItem>
 
         <LedConfigurationFormItem label="Padding" centerLabel={false}>
           <TooltipSlider 
             id="paddingTop"
-            statePath={[p.led, p.padding, p.top]}
+            statePath={[s.led, s.padding, s.top]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.top}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
           />
           <TooltipSlider 
             id="paddingRight"
-            statePath={[p.led, p.padding, p.right]}
+            statePath={[s.led, s.padding, s.right]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.right}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
           />
           <TooltipSlider 
             id="paddingBottom"
-            statePath={[p.led, p.padding, p.bottom]}
+            statePath={[s.led, s.padding, s.bottom]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.bottom}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
           />
           <TooltipSlider 
             id="paddingLeft"
-            statePath={[p.led, p.padding, p.left]}
+            statePath={[s.led, s.padding, s.left]}
             min={0} 
             max={20} 
             lastCapturedValue={this.props.padding.left}
-            onInputCaptured={this.props.onChange}
+            onInputCaptured={this.props.updateState}
           />
         </LedConfigurationFormItem>
       </LedConfigurationPanel>

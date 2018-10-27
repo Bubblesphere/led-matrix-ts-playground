@@ -5,7 +5,7 @@ import Stop from '@material-ui/icons/StopRounded'
 import Pause from '@material-ui/icons/PauseRounded';
 import IconButtonCustom from '../Inputs/IconButton';
 import { LedMovementState } from '../utils/led-map';
-import { p, LedMovement, LedChangeable } from '../App';
+import { s, LedMovement, CanUpdateState } from '../App';
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
   icons: {
@@ -20,7 +20,7 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
   }
 });
 
-interface DisplaySectionProps extends LedMovement, LedChangeable {
+interface DisplaySectionProps extends LedMovement, CanUpdateState {
 
 }
 
@@ -30,27 +30,27 @@ const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof them
         {props.movementState == LedMovementState.play || props.movementState == LedMovementState.resume ? (
             <IconButtonCustom  
                 id="state" 
-                statePath={[p.led, p.movementState]} 
+                statePath={[s.led, s.movementState]} 
                 value={LedMovementState.pause} 
-                onInputCaptured={props.onChange}
+                onInputCaptured={props.updateState}
             >
                 <Pause className={[props.classes.icons].join(' ')} />
             </IconButtonCustom> 
         ) : (
             <IconButtonCustom 
                 id="state" 
-                statePath={[p.led, p.movementState]} 
+                statePath={[s.led, s.movementState]} 
                 value={LedMovementState.resume} 
-                onInputCaptured={props.onChange}
+                onInputCaptured={props.updateState}
             >
                 <Resume className={[props.classes.icons].join(' ')} />
             </IconButtonCustom>
         )}
         <IconButtonCustom
             id="state" 
-            statePath={[p.led, p.movementState]} 
+            statePath={[s.led, s.movementState]} 
             value={LedMovementState.stop} 
-            onInputCaptured={props.onChange}
+            onInputCaptured={props.updateState}
         >
             <Stop className={props.classes.icons} />
         </IconButtonCustom>

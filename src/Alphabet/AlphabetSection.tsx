@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { Slider } from '@material-ui/lab';
-import { SliderProps } from '@material-ui/lab/Slider';
-import { withStyles, WithStyles, createStyles } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, CanvaRenderer, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
+import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
+import { CanUpdateState } from '../App';
 
 interface AlphabetSectionState {
   character: {
@@ -18,11 +17,8 @@ interface AlphabetSectionState {
   isMouseDown: boolean
 }
 
-interface AlphabetSectionPropsOpt {
-}
-
-interface AlphabetSectionProps extends AlphabetSectionPropsOpt, SliderProps {
-  onSave: (character: Character) => void
+interface AlphabetSectionProps extends CanUpdateState {
+  loadedCharacters: Character[]
 }
 
 const styles = StyleSheet.create({
@@ -58,8 +54,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     },
     isMouseDown: false
   }
-  
-  static defaultProps: AlphabetSectionPropsOpt;
 
   constructor(props) {
     super(props);
@@ -153,20 +147,30 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
-    this.props.onSave(new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+    this.props.updateState([], new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
   }
 
   render() {
     return (
-      <div>
-        <canvas id="character" width="400" height="400" />
-        <input type="button" value="Save" onClick={this.onSave}/>
-      </div>
+      <Grid container item>
+        <Grid item container md={3}>
+          <li>
+            {
+              this.props.loadedCharacters ? 
+                this.props.loadedCharacters.map((c) => (
+                  <ul>{c.patterns.join(',')}</ul>
+                ))
+              : 'No character loaded'
+            }
+          </li>
+        </Grid>
+        <Grid item container md={9}>
+          <canvas id="character" width="400" height="400" />
+          <input type="button" value="Save" onClick={this.onSave}/>
+        </Grid>
+      </Grid>
     )
   }
-}
-
-AlphabetSection.defaultProps = {
 }
 
 export default withStyles(themeDependantStyles)(AlphabetSection);
