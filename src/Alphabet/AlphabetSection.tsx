@@ -68,7 +68,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     const el = document.getElementById("character");
 
     this.renderer = new CanvaRenderers.Rect({
-      element: el
+      elementId: 'character'
     })
 
     this.renderer.render(this.state.character.data);
