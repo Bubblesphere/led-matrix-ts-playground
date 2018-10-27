@@ -3,6 +3,7 @@ import { withStyles, WithStyles, createStyles, Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState } from '../App';
+import { Redirect } from 'react-router-dom';
 
 interface AlphabetSectionState {
   character: {
@@ -151,6 +152,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   render() {
+
     return (
       <Grid container item>
         <Grid item container md={3}>
@@ -160,7 +162,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                 this.props.loadedCharacters.map((c) => (
                   <ul>{c.patterns.join(',')}</ul>
                 ))
-              : 'No character loaded'
+              : ''
             }
           </li>
         </Grid>
