@@ -5,13 +5,13 @@ import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './utils/led-map';
 import { RGBColor } from 'react-color';
-import { HashRouter as Router, Link, Route } from 'react-router-dom';
 import LedSection from './Led/LedSection';
 import AlphabetSection from './Alphabet/AlphabetSection';
 import Menu from './Menu/Menu';
 import Led from './Led/Led';
 import { Character } from 'led-matrix-ts';
 import { AppState } from './App';
+import { HashRouter as Router, Link, Route } from 'react-router-dom';
 
 interface StrutureProps extends AppState { }
 interface StructureState {}
@@ -54,7 +54,7 @@ class Structure extends Component<StrutureProps, StructureState> {
 
   renderAlphabet() {
     return (
-      <AlphabetSection loadedCharacters={this.props.led.loadedCharacters} />
+      <AlphabetSection updateState={this.props.led.updateState} loadedCharacters={this.props.led.loadedCharacters} />
     );
   }
 

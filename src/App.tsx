@@ -4,7 +4,7 @@ import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { LedMovementState, panelTypes } from './utils/led-map';
 import { RGBColor } from 'react-color';
-import { HashRouter as Router, Link, Route } from 'react-router-dom';
+import { HashRouter as Router, Link, Route, withRouter, RouteComponentProps } from 'react-router-dom';
 import LedSection from './Led/LedSection';
 import AlphabetSection from './Alphabet/AlphabetSection';
 import Menu from './Menu/Menu';
@@ -13,7 +13,7 @@ import Structure from './Structure';
 import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType } from 'led-matrix-ts';
 import { toHexString } from './utils/Color';
 
-interface AppProps {}
+interface AppProps extends RouteComponentProps {}
 
 export enum s {
   led = 'led',
@@ -57,7 +57,7 @@ export type Error = {
 }
 
 export interface CanUpdateState {
-  updateState: (keys: s[], value: any) => void
+  updateState: (keys: s[], value: any, callback?: () => void) => void
 }
 
 export interface LedMovement {
@@ -217,6 +217,44 @@ class App extends Component<AppProps, AppState> {
   componentDidUpdate(prevProps, prevState) {
     // let shouldUpdateDimensions = false;
 
+
+    if (this.props.location.pathname != prevProps.location.pathname) {
+      if (this.props.location.pathname = '/') {
+        switch(Number(this.state.led.movementState) as LedMovementState) {
+          case LedMovementState.play:
+            this.ledMatrix.play();
+            break;
+          case LedMovementState.stop:
+            this.ledMatrix.stop();
+            break;
+          case LedMovementState.resume:
+            this.ledMatrix.resume();
+            break;
+          case LedMovementState.pause:
+            this.ledMatrix.pause();
+            break;
+        }
+
+        this.ledMatrix.setRendererFromBuilder({
+          elementId: this.state.led.rendererType == RendererType.ASCII ? this.ledMatrixIdAscii : this.ledMatrixIdCanvas,
+          rendererType: this.state.led.rendererType
+        });
+
+        if (this.state.led.rendererType == RendererType.ASCII) {
+          (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.state.led.asciiParameters.characterOn;
+          (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.state.led.asciiParameters.characterOff;
+        } else {
+          (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = toHexString(this.state.led.canvaParameters.colorOn);
+          (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = toHexString(this.state.led.canvaParameters.colorOff);
+          (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = toHexString(this.state.led.canvaParameters.strokeOn);
+          (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.state.led.canvaParameters.strokeOff);
+        }
+        
+      } else {
+        this.ledMatrix.pause();
+      }
+    }
+
     if (this.state.led.pendingCharacter != prevState.led.pendingCharacter) {
       this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
       this.state.led.updateState([s.led, s.pendingCharacter], null);
@@ -354,6 +392,7 @@ class App extends Component<AppProps, AppState> {
         // shouldUpdateDimensions = true;
       })
     }
+
       
     /*if (shouldUpdateDimensions && prevState.led.height == this.state.height) {
       this.updateDimensions();
@@ -396,11 +435,9 @@ class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <Router>
-        <Structure {...this.state} />
-      </Router>
+      <Structure {...this.state} />
     );
   }
 }
 
-export default App;
+export default withRouter(App);

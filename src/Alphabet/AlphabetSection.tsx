@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withStyles, WithStyles, createStyles, Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
-import { CanUpdateState } from '../App';
+import { s, CanUpdateState } from '../App';
 
 interface AlphabetSectionState {
   character: {
@@ -147,7 +147,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
-    this.props.updateState([], new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+    this.props.updateState([s.led, s.pendingCharacter], new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
   }
 
   render() {
