@@ -54,7 +54,11 @@ class Structure extends Component<StrutureProps, StructureState> {
 
   renderAlphabet() {
     return (
-      <AlphabetSection updateState={this.props.led.updateState} loadedCharacters={this.props.led.loadedCharacters} />
+      <AlphabetSection 
+        updateState={this.props.led.updateState} 
+        loadedCharacters={this.props.led.loadedCharacters} 
+        errorPendingCharacter={this.props.led.error.pendingCharacter} 
+      />
     );
   }
 

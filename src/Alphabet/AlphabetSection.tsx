@@ -1,14 +1,14 @@
 import * as React from 'react'
-import { withStyles, WithStyles, createStyles, Grid } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Grid, TextField } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
-import { s, CanUpdateState } from '../App';
-import { Redirect } from 'react-router-dom';
+import { s, CanUpdateState, Error } from '../App';
 
 interface AlphabetSectionState {
   character: {
     width: number,
     height: number,
+    pattern: string,
     data: bit[][]
   },
   lastMouseIndex: {
@@ -20,6 +20,7 @@ interface AlphabetSectionState {
 
 interface AlphabetSectionProps extends CanUpdateState {
   loadedCharacters: Character[]
+  errorPendingCharacter: Error
 }
 
 const styles = StyleSheet.create({
@@ -35,7 +36,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   state = {
     character: {
       width: 10,
-      height: 5,
+      height: 8,
+      pattern: '',
       data: [
         [0,0,0,0,0,0,0,0,0,0] as bit[],
         [0,1,0,0,0,0,0,0,0,0] as bit[],
@@ -45,8 +47,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         [0,0,0,0,0,0,0,0,0,0] as bit[],
         [0,0,0,0,0,0,0,0,0,0] as bit[],
         [0,0,0,0,0,0,0,0,0,0] as bit[],
-        [0,0,0,0,0,0,0,0,0,0] as bit[],
-        [0,0,0,0,0,0,0,0,0,0] as bit[]
       ] as bit[][]
     },
     lastMouseIndex: { 
@@ -63,6 +63,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onSave = this.onSave.bind(this);
+    this.handlePatternChanged = this.handlePatternChanged.bind(this);
   }
 
   componentDidMount() {
@@ -148,7 +149,18 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
-    this.props.updateState([s.led, s.pendingCharacter], new Character(['[pattern]'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+    this.props.updateState([s.led, s.pendingCharacter], new Character([`[${this.state.character.pattern}]`], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+  }
+
+  private handlePatternChanged(e) {
+    const target = e.target.value;
+    this.setState((prevState) => ({
+      ...prevState,
+      character: {
+        ...prevState.character,
+        pattern: target
+      }
+    }))
   }
 
   render() {
@@ -167,6 +179,17 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
           </li>
         </Grid>
         <Grid item container md={9}>
+          {
+            this.props.errorPendingCharacter.isError ?
+            <p>{this.props.errorPendingCharacter.message}</p> :
+            ''
+          }
+          <TextField
+            id="input"
+            label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
+            error={this.props.errorPendingCharacter.isError}
+            onChange={this.handlePatternChanged}
+          />
           <canvas id="character" width="400" height="400" />
           <input type="button" value="Save" onClick={this.onSave}/>
         </Grid>

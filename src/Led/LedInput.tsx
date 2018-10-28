@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
-import { s, CanUpdateState, CanUpdateStateErrors, LedInput } from '../App';
+import { s, CanUpdateState, CanUpdateStateErrors, LedInput, CanViewErrors } from '../App';
 import TextFieldCustom from '../Inputs/TextField';
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
@@ -16,7 +16,7 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
   }
 });
 
-interface LedInputProps extends CanUpdateState, LedInput, CanUpdateStateErrors {}
+interface LedInputProps extends CanUpdateState, LedInput, CanUpdateStateErrors, CanViewErrors {}
 
 const LedInput: React.SFC<LedInputProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (

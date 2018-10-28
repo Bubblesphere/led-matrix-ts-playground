@@ -65,9 +65,13 @@ export interface LedMovement {
 }
 
 export interface CanUpdateStateErrors {
-  onError: (keys: s[], value: any) => void,
+  updateStateError: (keys: s[], value: any) => void,
+}
+
+export interface CanViewErrors {
   error: {
-    input: Error
+    input: Error,
+    pendingCharacter: Error
   }
 }
 
@@ -75,7 +79,7 @@ export interface LedInput {
   input: string
 }
 
-export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovement, LedInput, LedInput {
+export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovement, LedInput, LedInput, CanViewErrors {
   asciiParameters: {
     characterOff: string,
     characterOn: string,
@@ -165,9 +169,13 @@ class App extends Component<AppProps, AppState> {
       movementState: LedMovementState.play,
       viewportWidth: 50,
       updateState: this.updateState.bind(this),
-      onError: this.updateStateError.bind(this),
+      updateStateError: this.updateStateError.bind(this),
       error: {
         input: {
+          isError: false,
+          message: ''
+        },
+        pendingCharacter: {
           isError: false,
           message: ''
         }
@@ -383,9 +391,23 @@ class App extends Component<AppProps, AppState> {
   }
 
   private setPendingCharacter() {
-    this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
-    this.state.led.updateState([s.led, s.pendingCharacter], null);
-    this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    try {
+      this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
+      if (this.state.led.error.input.isError == true) {
+        this.state.led.updateStateError([s.pendingCharacter], {
+          isError: false,
+          message: ''
+        });
+      }
+      this.state.led.updateState([s.led, s.pendingCharacter], null);
+      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    } catch (e) {
+      this.state.led.updateStateError([s.pendingCharacter], {
+        isError: true,
+        message: e
+      });
+    }
+
   }
 
   private setPanelType() {
@@ -413,16 +435,16 @@ class App extends Component<AppProps, AppState> {
       this.ledMatrix.input = this.state.led.input;
       this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
       if (this.state.led.error.input.isError == true) {
-        this.state.led.onError([s.input], {
+        this.state.led.updateStateError([s.input], {
           isError: false,
           message: ''
-        })
+        });
       }
     } catch (e) {
-      this.state.led.onError([s.input], {
+      this.state.led.updateStateError([s.input], {
         isError: true,
         message: e
-      })
+      });
     }
   }
 
