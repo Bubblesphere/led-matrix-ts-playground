@@ -3,6 +3,21 @@ import { withStyles, WithStyles, createStyles, Grid, TextField } from '@material
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
+import TooltipSlider from '../Inputs/TooltipSlider';
+import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
+
+export enum a {
+  character = 'character',
+  width = 'width',
+  height = 'height',
+  pattern = 'pattern',
+  data = 'data',
+  lastMouseIndex = 'lastMouseIndex',
+  x = 'x',
+  y = 'y',
+  isMouseDown = 'isMouseDown',
+  sizePerBit = 'sizePerBit'
+}
 
 interface AlphabetSectionState {
   character: {
@@ -70,6 +85,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onSave = this.onSave.bind(this);
     this.handlePatternChanged = this.handlePatternChanged.bind(this);
+    this.updateState = this.updateState.bind(this);
     this.setCanvasContainerSize = this.setCanvasContainerSize.bind(this);
     this.setCanvasContainerBitToSize = this.setCanvasContainerBitToSize.bind(this);
   }
@@ -103,6 +119,67 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     if (prevState.character.data != this.state.character.data
       || prevState.sizePerBit != this.state.sizePerBit) {
       this.renderer.render(this.state.character.data);
+    }
+
+    if (prevState.character.width != this.state.character.width) {
+      if (prevState.character.width < this.state.character.width) {
+        // now bigger
+        const arrToAppend = new Array(this.state.character.width - prevState.character.width - 1).fill(0);
+        var newArr = this.state.character.data.map((arr) => {
+          return arr.concat(0, arrToAppend);
+        });
+
+        this.setState((prevState) => ({
+          ...prevState,
+          character: {
+            ...prevState.character,
+            data: newArr
+          }
+        }));
+      } else if (prevState.character.width > this.state.character.width) {
+        // now smaller
+        var newArr = this.state.character.data.map((arr) => {
+          return arr.slice(0, this.state.character.width);
+        });
+
+        this.setState((prevState) => ({
+          ...prevState,
+          character: {
+            ...prevState.character,
+            data: newArr
+          }
+        }));
+      }
+
+    }
+
+    if (prevState.character.height != this.state.character.height) {
+      if (prevState.character.height < this.state.character.height) {
+        // now bigger
+        const arrToAppend = this.arrayOfZeros(this.state.character.height - prevState.character.height, this.state.character.width);
+
+        var newArr = this.state.character.data.concat(arrToAppend);
+
+        this.setState((prevState) => ({
+          ...prevState,
+          character: {
+            ...prevState.character,
+            data: newArr
+          }
+        }));
+      } else if (prevState.character.height > this.state.character.height) {
+        // now smaller
+        var newArr = this.state.character.data.slice(0, this.state.character.height);
+
+        this.setState((prevState) => ({
+          ...prevState,
+          character: {
+            ...prevState.character,
+            data: newArr
+          }
+        }));
+      }
+
     }
   }
 
@@ -146,7 +223,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private toggleBitAtLastMouseIndex(event) {
-    var newArr = this.state.character.data.map(function (arr) {
+    var newArr = this.state.character.data.map((arr) => {
       return arr.slice();
     });
 
@@ -162,7 +239,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
-    this.props.updateState([s.led, s.pendingCharacter], new Character(['[' + this.state.character.pattern + ']'], new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width));
+    this.props.updateState([s.led, s.pendingCharacter], new Character(['[' + this.state.character.pattern + ']'], new BitArray([].concat.apply([], this.state.character.data)), Number(this.state.character.width)));
   }
 
   private handlePatternChanged(e) {
@@ -212,6 +289,26 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     canvas.style.height = this.state.character.height * size + 'px';
   }
 
+  private arrayOfZeros(m, n) {
+    return [...Array(m)].map(e => Array(n).fill(0));
+  }
+
+  private updateState(keys: s[], value, callback?: () => void) {
+    let newState = Object.assign({}, this.state);
+    keys.reduce(function (acc, cur, index) {
+      // Make sure the key is a property that exists on prevState.led
+      if (!acc.hasOwnProperty(cur)) {
+        throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
+      }
+
+      return acc[cur] = keys.length - 1 == index ?
+        value : // We reached the end, modify the property to our value
+        { ...acc[cur] }; // Continue spreading
+    }, newState);
+
+    this.setState(newState, callback);
+  }
+
   render() {
 
     return (
@@ -234,6 +331,29 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
             error={this.props.errorPendingCharacter.isError}
             onChange={this.handlePatternChanged}
           />
+
+          <LedConfigurationFormItem label="Width">
+            <TooltipSlider
+              id="width"
+              statePath={[a.character, a.width]}
+              min={1}
+              max={100}
+              lastCapturedValue={this.state.character.width}
+              onInputCaptured={this.updateState}
+            />
+          </LedConfigurationFormItem>
+
+          <LedConfigurationFormItem label="Height">
+            <TooltipSlider
+              id="height"
+              statePath={[a.character, a.height]}
+              min={1}
+              max={100}
+              lastCapturedValue={this.state.character.height}
+              onInputCaptured={this.updateState}
+            />
+          </LedConfigurationFormItem>
+
 
           <input type="button" value="Save" onClick={this.onSave} />
         </Grid>
