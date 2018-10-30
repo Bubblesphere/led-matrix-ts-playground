@@ -1,10 +1,11 @@
 import * as React from 'react'
-import { withStyles, WithStyles, createStyles, Grid, TextField } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Grid, TextField, Theme } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
+import LedConfigurationPanel from '../Led/LedConfigurationPanel';
 
 export enum a {
   character = 'character',
@@ -41,12 +42,22 @@ interface AlphabetSectionProps extends CanUpdateState {
 
 const styles = StyleSheet.create({
   characterCanvasContainer: {
-    width: '80vw',
+    width: '100%',
     height: '80vh'
   }
 });
 
-const themeDependantStyles = () => createStyles({
+const themeDependantStyles = ({ spacing }: Theme) => createStyles({
+  container: {
+    margin: spacing.unit * 4
+  },
+  common: {
+    background: 'rgb(240, 240, 240)'
+  },
+  configuration: {
+    maxHeight: '100vh',
+    overflowY: "auto"
+  }
 });
 
 class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<typeof themeDependantStyles>, AlphabetSectionState> {
@@ -121,7 +132,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       this.renderer.render(this.state.character.data);
     }
 
+    if (prevState.character.data.length != this.state.character.data.length
+      || prevState.character.data[0].length != this.state.character.data[0].length) {
+      this.setCanvasContainerSize();
+    }
+
     if (prevState.character.width != this.state.character.width) {
+      this.setCanvasContainerBitToSize(document.getElementById("characterCanvas"), this.state.sizePerBit);
       if (prevState.character.width < this.state.character.width) {
         // now bigger
         const arrToAppend = new Array(this.state.character.width - prevState.character.width - 1).fill(0);
@@ -154,6 +171,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }
 
     if (prevState.character.height != this.state.character.height) {
+      this.setCanvasContainerBitToSize(document.getElementById("characterCanvas"), this.state.sizePerBit);
       if (prevState.character.height < this.state.character.height) {
         // now bigger
         const arrToAppend = this.arrayOfZeros(this.state.character.height - prevState.character.height, this.state.character.width);
@@ -314,50 +332,63 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     return (
       <Grid container item>
         <Grid item container sm={3}>
-          <li>
-            {
-              this.props.loadedCharacters ?
-                this.props.loadedCharacters.map((c) => (
-                  <ul>{c.patterns.join(',')}</ul>
-                ))
-                : ''
-            }
-          </li>
+          <Grid
+            item
+            container
+            direction={"column"}
+            spacing={16}
+            classes={{
+              container: this.props.classes.container
+            }}
+            wrap="nowrap"
+          >
+            <LedConfigurationPanel label="Character list">
+              <li>
+                {
+                  this.props.loadedCharacters ?
+                    this.props.loadedCharacters.map((c) => (
+                      <ul>{c.patterns.join(',')}</ul>
+                    ))
+                    : ''
+                }
+              </li>
+            </LedConfigurationPanel>
+            <LedConfigurationPanel label="Character creation">
+              <TextField
+                id="input"
+                label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
+                error={this.props.errorPendingCharacter.isError}
+                onChange={this.handlePatternChanged}
+              />
+
+              <LedConfigurationFormItem label="Width">
+                <TooltipSlider
+                  id="width"
+                  statePath={[a.character, a.width]}
+                  min={1}
+                  max={100}
+                  lastCapturedValue={this.state.character.width}
+                  onInputCaptured={this.updateState}
+                />
+              </LedConfigurationFormItem>
+
+              <LedConfigurationFormItem label="Height">
+                <TooltipSlider
+                  id="height"
+                  statePath={[a.character, a.height]}
+                  min={1}
+                  max={100}
+                  lastCapturedValue={this.state.character.height}
+                  onInputCaptured={this.updateState}
+                />
+              </LedConfigurationFormItem>
+
+
+              <input type="button" value="Save" onClick={this.onSave} />
+            </LedConfigurationPanel>
+          </Grid>
         </Grid>
-        <Grid item container sm={2}>
-          <TextField
-            id="input"
-            label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
-            error={this.props.errorPendingCharacter.isError}
-            onChange={this.handlePatternChanged}
-          />
-
-          <LedConfigurationFormItem label="Width">
-            <TooltipSlider
-              id="width"
-              statePath={[a.character, a.width]}
-              min={1}
-              max={100}
-              lastCapturedValue={this.state.character.width}
-              onInputCaptured={this.updateState}
-            />
-          </LedConfigurationFormItem>
-
-          <LedConfigurationFormItem label="Height">
-            <TooltipSlider
-              id="height"
-              statePath={[a.character, a.height]}
-              min={1}
-              max={100}
-              lastCapturedValue={this.state.character.height}
-              onInputCaptured={this.updateState}
-            />
-          </LedConfigurationFormItem>
-
-
-          <input type="button" value="Save" onClick={this.onSave} />
-        </Grid>
-        <Grid item container sm={7} justify="center" alignContent="center" alignItems="center">
+        <Grid item container sm={9} justify="center" alignContent="center" alignItems="center">
           <Grid item container id="characterCanvasContainer" className={css(styles.characterCanvasContainer)} justify="center" alignContent="center" alignItems="center">
             <canvas id="characterCanvas" />
           </Grid>
