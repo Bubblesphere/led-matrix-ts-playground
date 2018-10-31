@@ -41,7 +41,7 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
         <LedConfiguration {...propsWithoutClasses} />
       </Grid>
 
-      <Grid item container justify="center"  direction="column" alignItems="center" xs={9} className={css(styles.common)}>
+      <Grid item container justify="center"  direction="column" alignItems="center" md={9} className={css(styles.common)}>
         
         <Grid item container justify="flex-end">
           <Link to={'/fullscreen'}>
