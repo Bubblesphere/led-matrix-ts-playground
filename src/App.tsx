@@ -45,6 +45,8 @@ export enum s {
   isError = 'isError',
   message = 'message',
   pendingCharacter = 'pendingCharacter',
+  pendingEditCharacter = 'pendingEditCharacter',
+  pendingDeleteCharacter = 'pendingDeleteCharacter',
   usedCharacters = 'usedCharacters',
   loadedCharacters = 'loadedCharacters',
   ledElement = 'ledElement',
@@ -72,6 +74,8 @@ export interface CanViewErrors {
   error: {
     input: Error,
     pendingCharacter: Error
+    pendingEditCharacter: Error,
+    pendingDeleteCharacter: Error
   }
 }
 
@@ -106,6 +110,8 @@ export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovem
   letterSpacing: number,
   viewportWidth: number,
   pendingCharacter: Character,
+  pendingEditCharacter: Character,
+  pendingDeleteCharacter: Character,
   usedCharacters: Character[],
   loadedCharacters: Character[],
   ledElement: JSX.Element,
@@ -153,7 +159,7 @@ class App extends Component<AppProps, AppState> {
       },
       fps: 25,
       increment: 1,
-      input: 'Test',
+      input: 'test',
       padding: {
         bottom: 1,
         left: 1,
@@ -178,9 +184,19 @@ class App extends Component<AppProps, AppState> {
         pendingCharacter: {
           isError: false,
           message: ''
+        },
+        pendingEditCharacter: {
+          isError: false,
+          message: ''
+        },
+        pendingDeleteCharacter: {
+          isError: false,
+          message: ''
         }
       },
       pendingCharacter: null,
+      pendingEditCharacter: null,
+      pendingDeleteCharacter: null,
       usedCharacters: null,
       loadedCharacters: null,
       ledElement: <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} style={{ height: 256 }} />,
@@ -203,6 +219,8 @@ class App extends Component<AppProps, AppState> {
     this.setPadding = this.setPadding.bind(this);
     this.setPanelType = this.setPanelType.bind(this);
     this.setPendingCharacter = this.setPendingCharacter.bind(this);
+    this.setPendingEditCharacter = this.setPendingEditCharacter.bind(this);
+    this.setPendingDeleteCharacter = this.setPendingDeleteCharacter.bind(this);
     this.setRenderer = this.setRenderer.bind(this);
     this.setRendererParameters = this.setRendererParameters.bind(this);
     this.setReverse = this.setReverse.bind(this);
@@ -267,6 +285,14 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.pendingCharacter != prevState.led.pendingCharacter) {
         this.setPendingCharacter();
+      }
+
+      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter) {
+        this.setPendingEditCharacter();
+      }
+
+      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter) {
+        this.setPendingDeleteCharacter();
       }
 
       if (this.state.led.panelType != prevState.led.panelType) {
@@ -393,7 +419,7 @@ class App extends Component<AppProps, AppState> {
   private setPendingCharacter() {
     try {
       this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
-      if (this.state.led.error.input.isError == true) {
+      if (this.state.led.error.pendingCharacter.isError == true) {
         this.state.led.updateStateError([s.pendingCharacter], {
           isError: false,
           message: ''
@@ -408,6 +434,44 @@ class App extends Component<AppProps, AppState> {
       });
     }
 
+  }
+
+  private setPendingEditCharacter() {
+    try {
+      this.ledMatrix.editCharacter(this.state.led.pendingEditCharacter);
+      if (this.state.led.error.pendingEditCharacter.isError == true) {
+        this.state.led.updateStateError([s.pendingEditCharacter], {
+          isError: false,
+          message: ''
+        });
+      }
+      this.state.led.updateState([s.led, s.pendingEditCharacter], null);
+      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    } catch (e) {
+      this.state.led.updateStateError([s.pendingEditCharacter], {
+        isError: true,
+        message: e
+      });
+    }
+  }
+
+  private setPendingDeleteCharacter() {
+    try {
+      this.ledMatrix.deleteCharacter(this.state.led.pendingDeleteCharacter);
+      if (this.state.led.error.pendingDeleteCharacter.isError == true) {
+        this.state.led.updateStateError([s.pendingDeleteCharacter], {
+          isError: false,
+          message: ''
+        });
+      }
+      this.state.led.updateState([s.led, s.pendingDeleteCharacter], null);
+      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    } catch (e) {
+      this.state.led.updateStateError([s.pendingDeleteCharacter], {
+        isError: true,
+        message: e
+      });
+    }
   }
 
   private setPanelType() {

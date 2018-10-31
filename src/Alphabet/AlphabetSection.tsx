@@ -8,6 +8,7 @@ import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
 import LedConfigurationPanel from '../Led/LedConfigurationPanel';
 
 export enum a {
+  mode = 'mode',
   character = 'character',
   width = 'width',
   height = 'height',
@@ -20,7 +21,13 @@ export enum a {
   sizePerBit = 'sizePerBit'
 }
 
+enum alphabetMode {
+  create,
+  edit
+}
+
 interface AlphabetSectionState {
+  mode: alphabetMode,
   character: {
     width: number,
     height: number,
@@ -37,19 +44,15 @@ interface AlphabetSectionState {
 
 interface AlphabetSectionProps extends CanUpdateState {
   loadedCharacters: Character[]
-  errorPendingCharacter: Error
+  errorPendingCharacter: Error,
+  errorPendingEditCharacter: Error,
+  errorPendingDeleteCharacter: Error
 }
 
 const styles = StyleSheet.create({
   characterCanvasContainer: {
     width: '100%',
     height: '80vh'
-  }
-});
-
-const themeDependantStyles = ({ spacing }: Theme) => createStyles({
-  container: {
-    margin: spacing.unit * 4
   },
   common: {
     background: 'rgb(240, 240, 240)'
@@ -60,26 +63,34 @@ const themeDependantStyles = ({ spacing }: Theme) => createStyles({
   }
 });
 
+const themeDependantStyles = ({ spacing }: Theme) => createStyles({
+  container: {
+    margin: spacing.unit * 4
+  }
+});
+
 class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<typeof themeDependantStyles>, AlphabetSectionState> {
   renderer: CanvaRenderers.Rect
+  defaultCharacter = {
+    width: 10,
+    height: 8,
+    pattern: '',
+    data: [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 1, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
+    ] as bit[][]
+  }
 
   // Set the default state
   state = {
-    character: {
-      width: 10,
-      height: 8,
-      pattern: '',
-      data: [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      ] as bit[][]
-    },
+    mode: alphabetMode.create,
+    character: Object.assign({}, this.defaultCharacter),
     lastMouseIndex: {
       x: -1,
       y: -1
@@ -95,10 +106,14 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onSave = this.onSave.bind(this);
+    this.onDelete = this.onDelete.bind(this);
     this.handlePatternChanged = this.handlePatternChanged.bind(this);
     this.updateState = this.updateState.bind(this);
     this.setCanvasContainerSize = this.setCanvasContainerSize.bind(this);
     this.setCanvasContainerBitToSize = this.setCanvasContainerBitToSize.bind(this);
+    this.onModeEdit = this.onModeEdit.bind(this);
+    this.onModeAdd = this.onModeAdd.bind(this);
+    this.getCharacterFromState = this.getCharacterFromState.bind(this);
   }
 
   componentDidMount() {
@@ -257,7 +272,11 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
-    this.props.updateState([s.led, s.pendingCharacter], new Character(['[' + this.state.character.pattern + ']'], new BitArray([].concat.apply([], this.state.character.data)), Number(this.state.character.width)));
+    if (this.state.mode == alphabetMode.create) {
+      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState('[' + this.state.character.pattern + ']'));
+    } else {
+      this.props.updateState([s.led, s.pendingEditCharacter], this.getCharacterFromState(this.state.character.pattern));
+    }
   }
 
   private handlePatternChanged(e) {
@@ -327,11 +346,47 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.setState(newState, callback);
   }
 
+  private onDelete() {
+    this.props.updateState([s.led, s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
+  }
+
+  private onModeAdd(e) {
+    this.setState((prevState) => ({
+      ...prevState,
+      character: Object.assign({}, this.defaultCharacter),
+      mode: alphabetMode.create
+    }));
+  }
+
+  private onModeEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const character = this.props.loadedCharacters.filter(x => x.pattern == id)[0];
+
+    let data: bit[][] = [];
+    for (let i = 0; i < character.height; i++) {
+      data.push(character.output.atIndexRange(i * character.width, character.width));
+    }
+    this.setState((prevState) => ({
+      ...prevState,
+      character: {
+        data: data,
+        height: character.height,
+        width: character.width,
+        pattern: character.pattern
+      },
+      mode: alphabetMode.edit
+    }));
+  }
+
+  private getCharacterFromState(pattern: string) {
+    return new Character(pattern, new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width);
+  }
+
   render() {
 
     return (
       <Grid container item>
-        <Grid item container sm={3}>
+        <Grid item container sm={3} className={css(styles.common, styles.configuration)}>
           <Grid
             item
             container
@@ -343,11 +398,12 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
             wrap="nowrap"
           >
             <LedConfigurationPanel label="Character list">
+              <input type="button" value="Add new" onClick={this.onModeAdd} />
               <li>
                 {
                   this.props.loadedCharacters ?
                     this.props.loadedCharacters.map((c) => (
-                      <ul>{c.patterns.join(',')}</ul>
+                      <ul onClick={this.onModeEdit} data-id={c.pattern} key={c.pattern}>{c.pattern}</ul>
                     ))
                     : ''
                 }
@@ -384,11 +440,16 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
               </LedConfigurationFormItem>
 
 
+              {
+                this.state.mode == alphabetMode.edit ?
+                  <input type="button" value="Delete" onClick={this.onDelete} /> :
+                  ''
+              }
               <input type="button" value="Save" onClick={this.onSave} />
             </LedConfigurationPanel>
           </Grid>
         </Grid>
-        <Grid item container sm={9} justify="center" alignContent="center" alignItems="center">
+        <Grid item container sm={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
           <Grid item container id="characterCanvasContainer" className={css(styles.characterCanvasContainer)} justify="center" alignContent="center" alignItems="center">
             <canvas id="characterCanvas" />
           </Grid>

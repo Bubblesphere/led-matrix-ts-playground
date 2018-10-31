@@ -57,7 +57,9 @@ class Structure extends Component<StrutureProps, StructureState> {
       <AlphabetSection 
         updateState={this.props.led.updateState} 
         loadedCharacters={this.props.led.loadedCharacters} 
-        errorPendingCharacter={this.props.led.error.pendingCharacter} 
+        errorPendingCharacter={this.props.led.error.pendingCharacter}
+        errorPendingEditCharacter={this.props.led.error.pendingEditCharacter}
+        errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
       />
     );
   }
