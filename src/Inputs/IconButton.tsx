@@ -11,9 +11,10 @@ const IconButtonCustom: React.SFC<IconButtonCustomProps & IconButtonProps> = (pr
     props.onInputCaptured(props.statePath, e.currentTarget.value);
   }
     
+  const { statePath, onInputCaptured, ...iconButtonProps} = props;
   return (
     <IconButton
-      {...props}
+      {...iconButtonProps}
       onClick={handleChanges}
     />
   )

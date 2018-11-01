@@ -11,9 +11,10 @@ const TextFieldCustom: React.SFC<TextFieldCustomProps & TextFieldProps> = (props
     props.onInputCaptured(props.statePath, e.target.value == "" ? " " : e.target.value);
   }
     
+  const { statePath, onInputCaptured, ...textFieldProps} = props;
   return (
     <TextField
-      {...props}
+      {...textFieldProps}
       onChange={handleChanges}
     />
   )

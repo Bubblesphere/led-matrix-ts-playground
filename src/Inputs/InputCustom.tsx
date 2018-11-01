@@ -27,9 +27,11 @@ const InputCustom: React.SFC<InputCustomProps & MaterialInputProps> = (props) =>
     }
   };
 
+
+  const {statePath, onInputCaptured, ...inputProps} = props;
   return (
    <Input
-    {...props}
+    {...inputProps}
     type="text"
     defaultValue={validate(props.value)}
     onChange={onChange}

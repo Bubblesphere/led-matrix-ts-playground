@@ -2,9 +2,10 @@ import * as React from 'react'
 import { InputProps } from './Inputs';
 import { Select } from '@material-ui/core';
 import { SelectProps } from '@material-ui/core/Select';
+import { MenuItem } from 'material-ui';
 
 interface SelectCustomProps extends InputProps {
-  menuItems: JSX.Element[],
+  menuItems: React.ReactElement<MenuItem>[],
 };
 
 const SelectCustom: React.SFC<SelectCustomProps & SelectProps> = (props) => {
@@ -12,9 +13,10 @@ const SelectCustom: React.SFC<SelectCustomProps & SelectProps> = (props) => {
     return props.onInputCaptured(props.statePath, e.target.value);
   }
   
+  const {menuItems, statePath, onInputCaptured, ...selectProps} = props;
   return (
     <Select
-      {...props}
+      {...selectProps}
       onChange={handleChanges}
     >
       {props.menuItems}

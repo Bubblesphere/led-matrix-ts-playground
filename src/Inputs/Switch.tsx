@@ -10,10 +10,11 @@ const SwitchCustom: React.SFC<SwitchCustomProps & SwitchProps> = (props) => {
   const handleChanges = (e) => {
     props.onInputCaptured(props.statePath, e.target.checked);
   }
-    
+   
+  const { statePath, onInputCaptured, ...switchProps} = props;
   return (
     <Switch
-      {...props}
+      {...switchProps}
       onChange={handleChanges}
     />
   )
