@@ -4,8 +4,9 @@ import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../Inputs/TooltipSlider';
+import ToggleExpansionPanel from '../Led/ToggleExpansionPanel';
+import ToggleExpansionPanelItem from '../Led/ToggleExpansionPanelItem';
 import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
-import LedConfigurationPanel from '../Led/LedConfigurationPanel';
 
 export enum a {
   mode = 'mode',
@@ -387,17 +388,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     return (
       <Grid container item>
         <Grid item container sm={3} className={css(styles.common, styles.configuration)}>
-          <Grid
-            item
-            container
-            direction={"column"}
-            spacing={16}
-            classes={{
-              container: this.props.classes.container
-            }}
-            wrap="nowrap"
-          >
-            <LedConfigurationPanel label="Character list">
+          <ToggleExpansionPanel>
+            <ToggleExpansionPanelItem title="Characters">
               <input type="button" value="Add new" onClick={this.onModeAdd} />
               <li>
                 {
@@ -408,8 +400,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                     : ''
                 }
               </li>
-            </LedConfigurationPanel>
-            <LedConfigurationPanel label="Character creation">
+            </ToggleExpansionPanelItem>
+            <ToggleExpansionPanelItem title="Configuration">
               <TextField
                 id="input"
                 label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
@@ -446,8 +438,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                   ''
               }
               <input type="button" value="Save" onClick={this.onSave} />
-            </LedConfigurationPanel>
-          </Grid>
+            </ToggleExpansionPanelItem>
+          </ToggleExpansionPanel>
         </Grid>
         <Grid item container sm={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
           <Grid item container id="characterCanvasContainer" className={css(styles.characterCanvasContainer)} justify="center" alignContent="center" alignItems="center">
