@@ -24,7 +24,7 @@ const appStyles = StyleSheet.create({
     width: '100%'
   },
   menu: {
-    flex: '0 1 64px',
+    flex: '0 1 80px',
     background: '#444',
     color: '#bbb',
   },
@@ -46,6 +46,9 @@ class Structure extends Component<StrutureProps, StructureState> {
     this.renderNotFullscreen = this.renderNotFullscreen.bind(this);
   }
 
+  onRouteChange() {
+  }
+
   renderLed() {
     return (
       <LedSection {...this.props.led} />
@@ -62,6 +65,12 @@ class Structure extends Component<StrutureProps, StructureState> {
         errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
       />
     );
+  }
+
+  renderMenu() {
+    return (
+      <Menu />
+    )
   }
 
   renderFullscreen() {
@@ -84,7 +93,7 @@ class Structure extends Component<StrutureProps, StructureState> {
     return (
       <Grid item container direction="column" className={css(appStyles.app)}>
         <Grid container item xs={12} className={css(appStyles.menu)}>
-          <Menu />
+          <Route path="/" render={this.renderMenu} />
         </Grid>
         <Grid container item xs={12}>
           <Route exact path="/" render={this.renderLed} />
