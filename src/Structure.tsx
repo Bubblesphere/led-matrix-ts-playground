@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid, WithStyles, createStyles, withStyles, Theme  } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
 import { LedMovementState } from './utils/led-map';
@@ -16,7 +16,7 @@ import { HashRouter as Router, Link, Route } from 'react-router-dom';
 interface StrutureProps extends AppState { }
 interface StructureState {}
 
-const appStyles = StyleSheet.create({
+const themeDependantStyles = ({palette}: Theme) => createStyles({
   app: {
     margin: 0,
     flexFlow: "column",
@@ -25,18 +25,15 @@ const appStyles = StyleSheet.create({
   },
   menu: {
     flex: '0 1 80px',
-    background: '#444',
-    color: '#bbb',
-  },
-  centeredVertical: {
-    alignSelf: 'center'
+    background: palette.grey["800"],
+    color: palette.getContrastText(palette.grey["800"]),
   },
   fullScreen: {
-    background: '#000'
+    background: palette.grey["900"]
   }
 });
 
-class Structure extends Component<StrutureProps, StructureState> {
+class Structure extends Component<StrutureProps & WithStyles<typeof themeDependantStyles>, StructureState> {
 
   constructor(props) {
     super(props);
@@ -79,7 +76,7 @@ class Structure extends Component<StrutureProps, StructureState> {
         item 
         container 
         direction="column" 
-        className={css(appStyles.app, appStyles.fullScreen)} 
+        className={[this.props.classes.app, this.props.classes.fullScreen].join(' ')} 
         alignItems="center" 
         justify="center" 
         alignContent="center"
@@ -91,8 +88,8 @@ class Structure extends Component<StrutureProps, StructureState> {
 
   renderNotFullscreen() {
     return (
-      <Grid item container direction="column" className={css(appStyles.app)}>
-        <Grid container item xs={12} className={css(appStyles.menu)}>
+      <Grid item container direction="column" className={this.props.classes.app}>
+        <Grid container item xs={12} className={this.props.classes.menu}>
           <Route path="/" render={this.renderMenu} />
         </Grid>
         <Grid container item xs={12}>
@@ -113,4 +110,4 @@ class Structure extends Component<StrutureProps, StructureState> {
   }
 }
 
-export default Structure;
+export default withStyles(themeDependantStyles)(Structure);
