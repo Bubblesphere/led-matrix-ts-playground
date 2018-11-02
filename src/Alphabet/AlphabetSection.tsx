@@ -18,8 +18,7 @@ export enum a {
   lastMouseIndex = 'lastMouseIndex',
   x = 'x',
   y = 'y',
-  isMouseDown = 'isMouseDown',
-  sizePerBit = 'sizePerBit'
+  isMouseDown = 'isMouseDown'
 }
 
 enum alphabetMode {
@@ -39,8 +38,7 @@ interface AlphabetSectionState {
     x: number,
     y: number
   },
-  isMouseDown: boolean,
-  sizePerBit: number
+  isMouseDown: boolean
 }
 
 interface AlphabetSectionProps extends CanUpdateState {
@@ -92,8 +90,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       x: -1,
       y: -1
     },
-    isMouseDown: false,
-    sizePerBit: 0
+    isMouseDown: false
   }
 
   constructor(props) {
@@ -120,13 +117,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       elementId: 'characterCanvas'
     })
 
+    this.setCanvasContainerSize();
     this.renderer.render(this.state.character.data);
 
     el.addEventListener('mousemove', this.onMouseMove);
     el.addEventListener('mousedown', this.onMouseDown);
     el.addEventListener('mouseup', this.onMouseUp);
 
-    this.setCanvasContainerSize();
     window.addEventListener('resize', this.setCanvasContainerSize);
   }
 
@@ -139,18 +136,17 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.character.data != this.state.character.data
-      || prevState.sizePerBit != this.state.sizePerBit) {
-      this.renderer.render(this.state.character.data);
-    }
-
     if (prevState.character.data.length != this.state.character.data.length
       || prevState.character.data[0].length != this.state.character.data[0].length) {
       this.setCanvasContainerSize();
     }
 
-    if (prevState.character.width != this.state.character.width) {
-      this.setCanvasContainerBitToSize(document.getElementById("characterCanvas"), this.state.sizePerBit);
+    if (prevState.character.data != this.state.character.data) {
+      this.renderer.render(this.state.character.data);
+    }
+
+    if (prevState.character.width != this.state.character.width &&
+      prevState.character.pattern == this.state.character.pattern) {
       if (prevState.character.width < this.state.character.width) {
         // now bigger
         const arrToAppend = new Array(this.state.character.width - prevState.character.width - 1).fill(0);
@@ -182,8 +178,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
     }
 
-    if (prevState.character.height != this.state.character.height) {
-      this.setCanvasContainerBitToSize(document.getElementById("characterCanvas"), this.state.sizePerBit);
+    if (prevState.character.height != this.state.character.height &&
+        prevState.character.pattern == this.state.character.pattern) {
       if (prevState.character.height < this.state.character.height) {
         // now bigger
         const arrToAppend = this.arrayOfZeros(this.state.character.height - prevState.character.height, this.state.character.width);
@@ -307,15 +303,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       sizePerBit = optimalHeightPerBit
     }
 
-    // Reduce the number of times the work is done depending on the buffer
-    if (sizePerBit != this.state.sizePerBit) {
-      console.log(sizePerBit);
-      this.setCanvasContainerBitToSize(canvas, sizePerBit);
-      this.setState((prevState) => ({
-        ...prevState,
-        sizePerBit: sizePerBit
-      }));
-    }
+    this.setCanvasContainerBitToSize(canvas, sizePerBit);
   }
 
   private setCanvasContainerBitToSize(canvas: HTMLElement, size: number) {
@@ -387,7 +375,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
           <ToggleExpansionPanel>
             <ToggleExpansionPanelItem title="Characters">
               <input type="button" value="Add new" onClick={this.onModeAdd} />
-              <li>
+              <li style={{maxHeight: '50vh', overflowY: 'auto'}}>
                 {
                   this.props.loadedCharacters ?
                     this.props.loadedCharacters.map((c) => (
