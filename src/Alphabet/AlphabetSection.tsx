@@ -54,13 +54,22 @@ const styles = StyleSheet.create({
   },
   configuration: {
     maxHeight: '100vh',
-    overflowY: "auto"
+    overflowY: "auto",
+  },
+  characterCanvasContainer: {
+    height: '80vh',
+    '@media (max-width: 600px)': {
+      height: '100%'
+    }
   }
 });
 
 const themeDependantStyles = ({ spacing }: Theme) => createStyles({
   container: {
     margin: spacing.unit * 4
+  },
+  characterCanvasContainer: {
+    margin: `${spacing.unit * 4}px ${spacing.unit * 2}px`
   }
 });
 
@@ -136,13 +145,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevState.character.data != this.state.character.data) {
+      this.renderer.render(this.state.character.data);
+    }
+
     if (prevState.character.data.length != this.state.character.data.length
       || prevState.character.data[0].length != this.state.character.data[0].length) {
       this.setCanvasContainerSize();
-    }
-
-    if (prevState.character.data != this.state.character.data) {
-      this.renderer.render(this.state.character.data);
     }
 
     if (prevState.character.width != this.state.character.width &&
@@ -179,7 +188,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }
 
     if (prevState.character.height != this.state.character.height &&
-        prevState.character.pattern == this.state.character.pattern) {
+      prevState.character.pattern == this.state.character.pattern) {
       if (prevState.character.height < this.state.character.height) {
         // now bigger
         const arrToAppend = this.arrayOfZeros(this.state.character.height - prevState.character.height, this.state.character.width);
@@ -370,21 +379,25 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   render() {
 
     return (
-      <Grid container item>
-        <Grid item container sm={3} className={css(styles.common, styles.configuration)}>
+      <Grid container item direction="row-reverse">
+
+        <Grid item container md={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
+          <Grid
+            item
+            container
+            id="characterCanvasContainer"
+            className={[this.props.classes.characterCanvasContainer, css(styles.characterCanvasContainer)].join(" ")}
+            style={{ width: '100%' }}
+            justify="center"
+            alignContent="center"
+            alignItems="center"
+          >
+            <canvas id="characterCanvas" />
+          </Grid>
+        </Grid>
+
+        <Grid item container md={3} className={css(styles.common, styles.configuration)}>
           <ToggleExpansionPanel>
-            <ToggleExpansionPanelItem title="Characters">
-              <input type="button" value="Add new" onClick={this.onModeAdd} />
-              <li style={{maxHeight: '50vh', overflowY: 'auto'}}>
-                {
-                  this.props.loadedCharacters ?
-                    this.props.loadedCharacters.map((c) => (
-                      <ul onClick={this.onModeEdit} data-id={c.pattern} key={c.pattern}>{c.pattern}</ul>
-                    ))
-                    : ''
-                }
-              </li>
-            </ToggleExpansionPanelItem>
             <ToggleExpansionPanelItem title="Configuration">
               <TextField
                 id="input"
@@ -423,12 +436,19 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
               }
               <input type="button" value="Save" onClick={this.onSave} />
             </ToggleExpansionPanelItem>
+            <ToggleExpansionPanelItem title="Characters">
+              <input type="button" value="Add new" onClick={this.onModeAdd} />
+              <li style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+                {
+                  this.props.loadedCharacters ?
+                    this.props.loadedCharacters.map((c) => (
+                      <ul onClick={this.onModeEdit} data-id={c.pattern} key={c.pattern}>{c.pattern}</ul>
+                    ))
+                    : ''
+                }
+              </li>
+            </ToggleExpansionPanelItem>
           </ToggleExpansionPanel>
-        </Grid>
-        <Grid item container sm={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
-          <Grid item container id="characterCanvasContainer" style={{ width: '100%', height: '80vh' }} justify="center" alignContent="center" alignItems="center">
-            <canvas id="characterCanvas" />
-          </Grid>
         </Grid>
       </Grid>
     )
