@@ -7,7 +7,9 @@ export interface LedState {
   height: number;
 }
 
-export interface LedProps extends AppState {}
+export interface LedProps extends AppState {
+  ledElement: JSX.Element
+}
 
 
 class Led extends Component<LedProps, LedState> {
