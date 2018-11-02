@@ -8,7 +8,14 @@ export interface ToggleExpansionPanelState {
   expanded: number
 }
 
-export interface ToggleExpansionPanelProps {
+
+
+export interface ToggleExpansionPanelPropsOpt {
+  expanded: number
+  onChange: (number) => void
+}
+
+export interface ToggleExpansionPanelProps extends ToggleExpansionPanelPropsOpt {
 }
 
 const styles = StyleSheet.create({
@@ -26,7 +33,9 @@ class ToggleExpansionPanel extends Component<ToggleExpansionPanelProps & WithSty
   state = {
     expanded: 0
   };
-  
+
+  static defaultProps: ToggleExpansionPanelPropsOpt;
+
   constructor(props) {
     super(props);
     this.handleExpanded = this.handleExpanded.bind(this);
@@ -39,9 +48,21 @@ class ToggleExpansionPanel extends Component<ToggleExpansionPanelProps & WithSty
     }));
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.expanded != this.props.expanded) {
+      this.setState((prevState) => ({
+        ...prevState,
+        expanded: this.props.expanded
+      }));
+    }
+  }
+
   render() {
     const childrenWithProps = React.Children.toArray(this.props.children).map((child, index) => (
-      React.cloneElement(child as React.ReactElement<any>, { expanded: this.state.expanded == index, index: index, handleExpanded: this.handleExpanded})
+      React.cloneElement(child as React.ReactElement<any>, { 
+        expanded: this.props.expanded == -1 ? this.state.expanded == index : this.props.expanded == index, 
+        index: index, 
+        handleExpanded: this.props.expanded == -1 ? this.handleExpanded : this.props.onChange})
     ))
     return (
       <Grid 
@@ -61,5 +82,11 @@ class ToggleExpansionPanel extends Component<ToggleExpansionPanelProps & WithSty
     )
   }
 }
+
+ToggleExpansionPanel.defaultProps = {
+  expanded: -1,
+  onChange: () => {}
+}
+
 
 export default withStyles(themeDependantStyles)(ToggleExpansionPanel);

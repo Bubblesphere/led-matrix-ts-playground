@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, WithStyles, createStyles, Grid, TextField, Theme } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
@@ -7,6 +7,9 @@ import TooltipSlider from '../Inputs/TooltipSlider';
 import ToggleExpansionPanel from '../Led/ToggleExpansionPanel';
 import ToggleExpansionPanelItem from '../Led/ToggleExpansionPanelItem';
 import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
+import AddIcon from '@material-ui/icons/Add';
+import SaveIcon from '@material-ui/icons/Save';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 export enum a {
   mode = 'mode',
@@ -18,7 +21,8 @@ export enum a {
   lastMouseIndex = 'lastMouseIndex',
   x = 'x',
   y = 'y',
-  isMouseDown = 'isMouseDown'
+  isMouseDown = 'isMouseDown',
+  expansionPanelIndex = 'expansionPanelIndex'
 }
 
 enum alphabetMode {
@@ -38,14 +42,17 @@ interface AlphabetSectionState {
     x: number,
     y: number
   },
-  isMouseDown: boolean
+  isMouseDown: boolean,
+  expansionPanelIndex: number,
+  pendingSave: boolean
 }
 
 interface AlphabetSectionProps extends CanUpdateState {
   loadedCharacters: Character[]
   errorPendingCharacter: Error,
   errorPendingEditCharacter: Error,
-  errorPendingDeleteCharacter: Error
+  errorPendingDeleteCharacter: Error,
+  pendingCharacter: boolean
 }
 
 const styles = StyleSheet.create({
@@ -78,6 +85,12 @@ const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
     margin: 0,
     padding: spacing.unit,
     cursor: "pointer"
+  },
+  rightIcon: {
+    marginLeft: spacing.unit,
+  },
+  button: {
+    margin: spacing.unit
   }
 });
 
@@ -107,7 +120,9 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       x: -1,
       y: -1
     },
-    isMouseDown: false
+    isMouseDown: false,
+    expansionPanelIndex: 0,
+    pendingSave: true
   }
 
   constructor(props) {
@@ -125,6 +140,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onModeEdit = this.onModeEdit.bind(this);
     this.onModeAdd = this.onModeAdd.bind(this);
     this.getCharacterFromState = this.getCharacterFromState.bind(this);
+    this.handleExpansionPanelIndexChanged = this.handleExpansionPanelIndexChanged.bind(this);
   }
 
   componentDidMount() {
@@ -160,6 +176,27 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
     if (prevState.character.data != this.state.character.data) {
       this.renderer.render(this.state.character.data);
+    }
+
+    if (prevProps.pendingCharacter == true && this.props.pendingCharacter == false) {
+      // Successful add
+      this.setState((prevState) => ({
+        ...prevState,
+        character: {
+          ...prevState.character,
+          pattern: '[' + prevState.character.pattern + ']'
+        },
+        mode: alphabetMode.edit
+      }));
+    }
+
+    if ((prevState.character.pattern == this.state.character.pattern && prevState.character.data != this.state.character.data) 
+    || (prevProps.errorPendingCharacter.isError == false && this.props.errorPendingCharacter.isError == true)) {
+      // data changed or there's an error? show save
+      this.setState((prevState) => ({
+        ...prevState,
+        pendingSave: true
+      }));
     }
 
     if (prevState.character.width != this.state.character.width &&
@@ -282,6 +319,10 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onSave() {
+    this.setState((prevState) => ({
+      ...prevState,
+      pendingSave: false
+    }))
     if (this.state.mode == alphabetMode.create) {
       this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState('[' + this.state.character.pattern + ']'));
     } else {
@@ -332,31 +373,41 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     return [...Array(m)].map(e => Array(n).fill(0));
   }
 
-  private updateState(keys: s[], value, callback?: () => void) {
-    let newState = Object.assign({}, this.state);
-    keys.reduce(function (acc, cur, index) {
-      // Make sure the key is a property that exists on prevState.led
-      if (!acc.hasOwnProperty(cur)) {
-        throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-      }
+  updateState(keys: s[], value, callback?: () => void) {
+    this.setState((prevState) => {
+      let newState = Object.assign({}, prevState);
+      keys.reduce((acc, cur: any, index) => {
+        // Make sure the key is a property that exists on prevState.led
+        if (!acc.hasOwnProperty(cur)) {
+          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
+        }
 
-      return acc[cur] = keys.length - 1 == index ?
-        value : // We reached the end, modify the property to our value
-        { ...acc[cur] }; // Continue spreading
-    }, newState);
+        return acc[cur] = keys.length - 1 == index ?
+          value : // We reached the end, modify the property to our value
+          { ...acc[cur] }; // Continue spreading
+      }, newState);
 
-    this.setState(newState, callback);
+      return newState;
+    }, callback);
   }
-
   private onDelete() {
     this.props.updateState([s.led, s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
+    this.setState((prevState) => ({
+      ...prevState,
+      character: Object.assign({}, this.defaultCharacter),
+      mode: alphabetMode.create,
+      expansionPanelIndex: 1, 
+      pendingSave: true
+    }));
   }
 
   private onModeAdd(e) {
     this.setState((prevState) => ({
       ...prevState,
       character: Object.assign({}, this.defaultCharacter),
-      mode: alphabetMode.create
+      mode: alphabetMode.create,
+      expansionPanelIndex: 0,
+      pendingSave: true
     }));
   }
 
@@ -376,7 +427,9 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         width: character.width,
         pattern: character.pattern
       },
-      mode: alphabetMode.edit
+      mode: alphabetMode.edit,
+      expansionPanelIndex: 0,
+      pendingSave: false
     }));
   }
 
@@ -384,8 +437,14 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     return new Character(pattern, new BitArray([].concat.apply([], this.state.character.data)), this.state.character.width);
   }
 
-  render() {
+  private handleExpansionPanelIndexChanged(index: number) {
+    this.setState((prevState) => ({
+      ...prevState,
+      expansionPanelIndex: index
+    }));
+  }
 
+  render() {
     return (
       <Grid container item direction="row-reverse">
 
@@ -405,13 +464,15 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         </Grid>
 
         <Grid item container md={3} className={css(styles.common, styles.configuration)}>
-          <ToggleExpansionPanel>
+          <ToggleExpansionPanel expanded={this.state.expansionPanelIndex} onChange={this.handleExpansionPanelIndexChanged}>
             <ToggleExpansionPanelItem title="Configuration">
               <TextField
                 id="input"
                 label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
                 error={this.props.errorPendingCharacter.isError}
                 onChange={this.handlePatternChanged}
+                disabled={this.state.mode == alphabetMode.edit}
+                value={this.state.character.pattern}
               />
 
               <LedConfigurationFormItem label="Width">
@@ -436,33 +497,52 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                 />
               </LedConfigurationFormItem>
 
+              <Grid item container justify="flex-end">
 
-              {
-                this.state.mode == alphabetMode.edit ?
-                  <input type="button" value="Delete" onClick={this.onDelete} /> :
-                  ''
-              }
-              <input type="button" value="Save" onClick={this.onSave} />
+                {
+                  this.state.pendingSave == true ?
+                    <Button variant="contained" color="primary" aria-label="Save" onClick={this.onSave} size="large" className={this.props.classes.button}>
+                      Save
+                      <SaveIcon className={this.props.classes.rightIcon} />
+                    </Button> :
+                    ''
+                }
+               {
+                  this.state.mode == alphabetMode.edit ?
+                    <Button variant="contained" type="button" aria-label="Delete" onClick={this.onDelete} color="secondary" size="small" className={this.props.classes.button}>
+                      Delete
+                      <DeleteIcon className={this.props.classes.rightIcon} />
+                    </Button> :
+                    ''
+                }
+
+              </Grid>
+
             </ToggleExpansionPanelItem>
             <ToggleExpansionPanelItem title="Characters">
-              <input type="button" value="Add new" onClick={this.onModeAdd} />
-              <li style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+              <li style={{ maxHeight: '50vh', overflowY: 'auto', listStyle: 'none' }}>
                 {
-                  
+
                   this.props.loadedCharacters ?
                     this.props.loadedCharacters.map((c) => (
-                      <ul 
-                        onClick={this.onModeEdit} 
+                      <ul
+                        onClick={this.onModeEdit}
                         data-id={c.pattern}
-                        key={c.pattern} 
-                        className={[this.props.classes.character,  c.pattern == this.state.character.pattern ? this.props.classes.characterSelected : ""]. join(" ")}
+                        key={c.pattern}
+                        className={[this.props.classes.character, c.pattern == this.state.character.pattern ? this.props.classes.characterSelected : ""].join(" ")}
                       >
-                      {c.pattern}
+                        {c.pattern}
                       </ul>
                     ))
                     : ''
                 }
               </li>
+              <Grid item container justify="flex-end">
+                <Button variant="contained" color="primary" aria-label="Add" onClick={this.onModeAdd} className={this.props.classes.button}>
+                  New
+                  <AddIcon />
+                </Button>
+              </Grid>
             </ToggleExpansionPanelItem>
           </ToggleExpansionPanel>
         </Grid>

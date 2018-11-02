@@ -60,6 +60,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         errorPendingCharacter={this.props.led.error.pendingCharacter}
         errorPendingEditCharacter={this.props.led.error.pendingEditCharacter}
         errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
+        pendingCharacter={this.props.led.pendingCharacter != null}
       />
     );
   }

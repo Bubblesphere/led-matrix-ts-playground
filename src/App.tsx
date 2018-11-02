@@ -283,15 +283,15 @@ class App extends Component<AppProps, AppState> {
 
       // let shouldUpdateDimensions = false;
 
-      if (this.state.led.pendingCharacter != prevState.led.pendingCharacter) {
+      if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
         this.setPendingCharacter();
       }
 
-      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter) {
+      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter && this.state.led.pendingEditCharacter != null) {
         this.setPendingEditCharacter();
       }
 
-      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter) {
+      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter && this.state.led.pendingDeleteCharacter != null) {
         this.setPendingDeleteCharacter();
       }
 
@@ -379,6 +379,7 @@ class App extends Component<AppProps, AppState> {
       /*if (shouldUpdateDimensions && prevState.led.height == this.state.height) {
         this.updateDimensions();
       }*/
+      console.log(this.state);
     }
   }
 
@@ -401,19 +402,21 @@ class App extends Component<AppProps, AppState> {
   }
 
   updateState(keys: s[], value, callback?: () => void) {
-    let newState = Object.assign({}, this.state);
-    keys.reduce(function (acc, cur, index) {
-      // Make sure the key is a property that exists on prevState.led
-      if (!acc.hasOwnProperty(cur)) {
-        throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-      }
+    this.setState((prevState) => {
+      let newState = Object.assign({}, prevState);
+      keys.reduce((acc, cur: any, index) => {
+        // Make sure the key is a property that exists on prevState.led
+        if (!acc.hasOwnProperty(cur)) {
+          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
+        }
+  
+        return acc[cur] = keys.length - 1 == index ?
+          value : // We reached the end, modify the property to our value
+          { ...acc[cur] }; // Continue spreading
+      }, newState);
 
-      return acc[cur] = keys.length - 1 == index ?
-        value : // We reached the end, modify the property to our value
-        { ...acc[cur] }; // Continue spreading
-    }, newState);
-
-    this.setState(newState, callback);
+      return newState;
+    }, callback);
   }
 
   private setPendingCharacter() {
