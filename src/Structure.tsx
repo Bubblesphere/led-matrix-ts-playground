@@ -11,7 +11,7 @@ import Menu from './Menu/Menu';
 import Led from './Led/Led';
 import { Character } from 'led-matrix-ts';
 import { AppState } from './App';
-import { HashRouter as Router, Link, Route } from 'react-router-dom';
+import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
 interface StrutureProps extends AppState { }
 interface StructureState {}
@@ -104,8 +104,10 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
   render() {
     return (
       <Grid container>
-        <Route exact path="/fullscreen" render={this.renderFullscreen} />
-        <Route path="/" render={this.renderNotFullscreen} />
+        <Switch>
+          <Route exact path="/fullscreen" render={this.renderFullscreen} />
+          <Route path="/" render={this.renderNotFullscreen} />
+        </Switch>
       </Grid>
     );
   }
