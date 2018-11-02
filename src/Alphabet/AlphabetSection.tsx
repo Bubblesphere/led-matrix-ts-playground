@@ -57,19 +57,27 @@ const styles = StyleSheet.create({
     overflowY: "auto",
   },
   characterCanvasContainer: {
-    height: '80vh',
     '@media (max-width: 600px)': {
       height: '100%'
     }
   }
 });
 
-const themeDependantStyles = ({ spacing }: Theme) => createStyles({
+const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
   container: {
     margin: spacing.unit * 4
   },
   characterCanvasContainer: {
     margin: `${spacing.unit * 4}px ${spacing.unit * 2}px`
+  },
+  characterSelected: {
+    background: palette.primary.main,
+    color: palette.primary.contrastText
+  },
+  character: {
+    margin: 0,
+    padding: spacing.unit,
+    cursor: "pointer"
   }
 });
 
@@ -145,13 +153,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.character.data != this.state.character.data) {
-      this.renderer.render(this.state.character.data);
-    }
-
     if (prevState.character.data.length != this.state.character.data.length
       || prevState.character.data[0].length != this.state.character.data[0].length) {
       this.setCanvasContainerSize();
+    }
+
+    if (prevState.character.data != this.state.character.data) {
+      this.renderer.render(this.state.character.data);
     }
 
     if (prevState.character.width != this.state.character.width &&
@@ -387,7 +395,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
             container
             id="characterCanvasContainer"
             className={[this.props.classes.characterCanvasContainer, css(styles.characterCanvasContainer)].join(" ")}
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: '80vh' }} // need this here to draw the right size onComponentMount
             justify="center"
             alignContent="center"
             alignItems="center"
@@ -440,9 +448,17 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
               <input type="button" value="Add new" onClick={this.onModeAdd} />
               <li style={{ maxHeight: '50vh', overflowY: 'auto' }}>
                 {
+                  
                   this.props.loadedCharacters ?
                     this.props.loadedCharacters.map((c) => (
-                      <ul onClick={this.onModeEdit} data-id={c.pattern} key={c.pattern}>{c.pattern}</ul>
+                      <ul 
+                        onClick={this.onModeEdit} 
+                        data-id={c.pattern}
+                        key={c.pattern} 
+                        className={[this.props.classes.character,  c.pattern == this.state.character.pattern ? this.props.classes.characterSelected : ""]. join(" ")}
+                      >
+                      {c.pattern}
+                      </ul>
                     ))
                     : ''
                 }
