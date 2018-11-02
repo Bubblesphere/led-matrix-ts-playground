@@ -51,10 +51,6 @@ interface AlphabetSectionProps extends CanUpdateState {
 }
 
 const styles = StyleSheet.create({
-  characterCanvasContainer: {
-    width: '100%',
-    height: '80vh'
-  },
   common: {
     background: 'rgb(240, 240, 240)'
   },
@@ -442,7 +438,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
           </ToggleExpansionPanel>
         </Grid>
         <Grid item container sm={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
-          <Grid item container id="characterCanvasContainer" className={css(styles.characterCanvasContainer)} justify="center" alignContent="center" alignItems="center">
+          <Grid item container id="characterCanvasContainer" style={{ width: '100%', height: '80vh' }} justify="center" alignContent="center" alignItems="center">
             <canvas id="characterCanvas" />
           </Grid>
         </Grid>
