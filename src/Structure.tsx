@@ -81,8 +81,9 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         alignItems="center" 
         justify="center" 
         alignContent="center"
+        id="canvas-container"
       >
-        <Led {...this.props.led} />
+        <Led width={this.props.led.viewportWidth} height={this.props.led.height} ledElement={this.props.led.ledElement} />
       </Grid>
     );
   }

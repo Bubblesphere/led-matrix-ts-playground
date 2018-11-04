@@ -45,8 +45,8 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
         </Grid>
 
         <Grid item container justify="center">
-          <Grid item container>
-            <Led {...propsWithoutClasses} />
+          <Grid item container id="canvas-container">
+            <Led width={props.viewportWidth} height={props.height} ledElement={props.ledElement} />
           </Grid>
         </Grid>
 

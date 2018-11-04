@@ -50,7 +50,7 @@ export enum s {
   usedCharacters = 'usedCharacters',
   loadedCharacters = 'loadedCharacters',
   ledElement = 'ledElement',
-  pixelHeight = 'pixelHeight'
+  height = 'height'
 }
 
 export type Error = {
@@ -115,22 +115,12 @@ export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovem
   usedCharacters: Character[],
   loadedCharacters: Character[],
   ledElement: JSX.Element,
-  pixelHeight: number
+  height: number
 }
 
 export interface AppState {
   led: LedState
 }
-
-const styles = StyleSheet.create({
-  ascii: {
-    fontFamily: 'monospace',
-    whiteSpace: 'pre'
-  },
-  canvas: {
-    width: '100%'
-  }
-});
 
 enum LedMatrixLoadingState {
   NotLoaded,
@@ -199,8 +189,7 @@ class App extends Component<AppProps, AppState> {
       pendingDeleteCharacter: null,
       usedCharacters: null,
       loadedCharacters: null,
-      ledElement: <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} style={{ height: 256 }} />,
-      pixelHeight: 256
+      height: 8
     },
   }
 
@@ -238,7 +227,7 @@ class App extends Component<AppProps, AppState> {
       panelType: this.state.led.panelType,
       panelWidth: this.state.led.viewportWidth,
       letterSpacing: this.state.led.letterSpacing,
-      elementId: 'led-matrix-canvas',
+      elementId: this.ledMatrixIdCanvas,
       rendererType: this.state.led.rendererType,
       reverse: this.state.led.reverse,
       padding: [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left]
@@ -269,7 +258,7 @@ class App extends Component<AppProps, AppState> {
       // window.addEventListener("resize", this.updateDimensions);
     });
 
-
+    
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -281,7 +270,7 @@ class App extends Component<AppProps, AppState> {
 
     if (this.init == LedMatrixLoadingState.Loaded) {
 
-      // let shouldUpdateDimensions = false;
+      let shouldUpdateDimensions = false;
 
       if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
         this.setPendingCharacter();
@@ -297,7 +286,7 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.panelType != prevState.led.panelType) {
         this.setPanelType();
-        // shouldUpdateDimensions = true;
+        shouldUpdateDimensions = true;
       }
 
       if (this.state.led.fps != prevState.led.fps) {
@@ -310,7 +299,7 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.viewportWidth != prevState.led.viewportWidth) {
         this.setViewportWidth();
-        // shouldUpdateDimensions = true;
+        shouldUpdateDimensions = true;
       }
 
       if (this.state.led.letterSpacing != prevState.led.letterSpacing) {
@@ -319,12 +308,12 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.input != prevState.led.input) {
         this.setInput();
-        // shouldUpdateDimensions = true;
+        shouldUpdateDimensions = true;
       }
 
       if (this.state.led.size != prevState.led.size) {
         this.setSize();
-        // shouldUpdateDimensions = true;
+        shouldUpdateDimensions = true;
       }
 
       if (this.state.led.reverse != prevState.led.reverse) {
@@ -336,7 +325,7 @@ class App extends Component<AppProps, AppState> {
         this.state.led.padding.bottom != prevState.led.padding.bottom ||
         this.state.led.padding.left != prevState.led.padding.left) {
         this.setPadding();
-        // shouldUpdateDimensions = true;
+        shouldUpdateDimensions = true;
       }
 
       if (this.state.led.movementState != prevState.led.movementState) {
@@ -369,16 +358,17 @@ class App extends Component<AppProps, AppState> {
         }
       }
 
-      if (this.state.led.rendererType != prevState.led.rendererType || this.state.led.pixelHeight != prevState.led.pixelHeight) {
+      if (this.state.led.rendererType != prevState.led.rendererType) {
         this.setElement(() => {
-          // shouldUpdateDimensions = true;
+          shouldUpdateDimensions = true;
         });
       }
 
 
-      /*if (shouldUpdateDimensions && prevState.led.height == this.state.height) {
-        this.updateDimensions();
-      }*/
+      if (shouldUpdateDimensions && prevState.led.height == this.state.led.height) {
+        this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
+      }
+
       console.log(this.state);
     }
   }
@@ -520,6 +510,7 @@ class App extends Component<AppProps, AppState> {
     this.ledMatrix.init(this.state.led.size, () => {
       this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
       this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+      this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
       this.ledMatrix.play();
       this.init = LedMatrixLoadingState.Loaded;
     });
@@ -540,10 +531,10 @@ class App extends Component<AppProps, AppState> {
   private setElement(callback: () => void) {
     let element;
     if (this.state.led.rendererType == RendererType.ASCII) {
-      element = <div id={this.ledMatrixIdAscii} className={css(styles.ascii)} style={{ height: this.state.led.pixelHeight }} />
+      element = <div id={this.ledMatrixIdAscii} className={css(styles.ascii)} />
     }
     else {
-      element = <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} style={{ height: this.state.led.pixelHeight }} />
+      element = <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} />
     }
 
     this.state.led.updateState([s.led, s.ledElement], element, () => {
