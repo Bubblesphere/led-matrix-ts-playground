@@ -62,7 +62,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
           </IconButton>
           { this.state.displayColorPicker ?
             (
-              <div className={css(styles.closer)}>
+              <div className={css(styles.popup)}>
                 <div 
                   className={css(styles.closer)} 
                   onClick={this.handleClose} 
