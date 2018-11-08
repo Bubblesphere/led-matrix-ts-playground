@@ -120,7 +120,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
     ] as bit[][]
   }
-  ledRef = React.createRef() as React.RefObject<any>;
 
   // Set the default state
   state = {
@@ -153,8 +152,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidMount() {
-
-    console.log('componentDidMount Alphabet');
     const el = document.getElementById("led-matrix");
 
     this.renderer = new CanvaRenderers.Rect({
@@ -182,11 +179,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.character.data.length != this.state.character.data.length
-      || prevState.character.data[0].length != this.state.character.data[0].length) {
-      this.ledRef.current.setCanvasContainerSize();
-    }
-
     if (prevState.character.data != this.state.character.data) {
       this.renderer.render(this.state.character.data);
     }
@@ -435,7 +427,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
         <Grid item container md={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
           <Led 
-            ref={this.ledRef} 
             width={this.state.character.width} 
             height={this.state.character.height} 
             maxHeightPixel={'80vh'}
