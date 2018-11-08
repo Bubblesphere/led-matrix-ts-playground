@@ -126,6 +126,7 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<type
     const activeTooltipClass = this.state.active ? styles.styleActiveStart : styles.styleActiveEnd;
     const dragTooltipClass = this.state.dragging ? styles.styleDragStart : styles.styleDragEnd;
 
+    const {lastCapturedValue, statePath, onInputCaptured, ...sliderProps} = this.props;
     return (
       <div 
         id={`container-${this.props.id}`} 
@@ -139,11 +140,8 @@ class TooltipSlider extends React.Component<TooltipSliderProps & WithStyles<type
           {this.state.value}
         </span>
         <Slider
-          {...this.props}
+          {...sliderProps}
           value={this.state.value}
-          min={this.props.min}
-          max={this.props.max}
-          step={this.props.step}
           onChange={this.onChange}
           classes={{ ...this.props.classes }}
           onDragStart={this.onDragStart}

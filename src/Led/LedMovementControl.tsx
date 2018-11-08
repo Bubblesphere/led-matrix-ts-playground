@@ -12,12 +12,6 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
     color: palette.primary.main,
     fontSize: typography.fontSize * 4
   },
-  controlsPadding: {
-    paddingLeft: spacing.unit * 10,
-    paddingRight: spacing.unit * 10,
-    paddingBottom: spacing.unit * 5,
-    paddingTop: spacing.unit * 5,
-  }
 });
 
 interface DisplaySectionProps extends LedMovement, CanUpdateState {
@@ -26,7 +20,7 @@ interface DisplaySectionProps extends LedMovement, CanUpdateState {
 
 const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
-    <Grid item style={{alignSelf: "flex-end"}} className={props.classes.controlsPadding} >
+    <Grid item style={{alignSelf: "flex-end"}} >
         {props.movementState == LedMovementState.play || props.movementState == LedMovementState.resume ? (
             <IconButtonCustom  
                 id="state" 

@@ -37,9 +37,10 @@ const NumberPicker: React.SFC<NumberPickerProps & TextFieldProps> = (props) => {
     }
   };
 
+  const {statePath, onInputCaptured, ...textFieldProps} = this.props;
   return (
    <TextField
-    {...props}
+    {...textFieldProps}
     label={props.label}
     helperText={`Value must be between ${props.min} and ${props.max}`}
     type="number"

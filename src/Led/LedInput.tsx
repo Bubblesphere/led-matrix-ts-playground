@@ -8,11 +8,6 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
     fontSize: typography.fontSize * 3,
     marginBottom: spacing.unit * 4,
     paddingRight: spacing.unit * 10
-  },
-  controlsPadding: {
-    paddingLeft: spacing.unit * 10,
-    paddingRight: spacing.unit * 10,
-    paddingBottom: spacing.unit * 5,
   }
 });
 
@@ -20,7 +15,7 @@ interface LedInputProps extends CanUpdateState, LedInput, CanUpdateStateErrors, 
 
 const LedInput: React.SFC<LedInputProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
-    <Grid item={true} className={props.classes.controlsPadding}>
+    <Grid item={true} >
         <TextFieldCustom
             id="input"
             statePath={[s.led, s.input]}

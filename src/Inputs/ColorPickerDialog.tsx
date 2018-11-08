@@ -54,6 +54,7 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
   };
 
   render() {
+    const {id, defaultValue, statePath, onInputCaptured, ...colorPickerDialogProps} = this.props;
     return (
       <div id={this.props.id}>
           <IconButton onClick={this.handleClick}>
@@ -61,13 +62,13 @@ class ColorPickerButton extends React.Component<ColorPickerButtonProps, ColorPic
           </IconButton>
           { this.state.displayColorPicker ?
             (
-              <div className={css(styles.closer)}>
+              <div className={css(styles.popup)}>
                 <div 
                   className={css(styles.closer)} 
                   onClick={this.handleClose} 
                 />
                 <TwitterPicker  
-                  {...this.props}
+                  {...colorPickerDialogProps}
                   width={`${15 + 9 + (36 * this.props.columns)}px`} 
                   color={this.state.color} 
                   onChange={this.handleChange} 

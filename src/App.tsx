@@ -49,8 +49,8 @@ export enum s {
   pendingDeleteCharacter = 'pendingDeleteCharacter',
   usedCharacters = 'usedCharacters',
   loadedCharacters = 'loadedCharacters',
-  ledElement = 'ledElement',
-  pixelHeight = 'pixelHeight'
+  height = 'height',
+  onRendererElementReady = 'onRendererElementReady'
 }
 
 export type Error = {
@@ -114,23 +114,13 @@ export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovem
   pendingDeleteCharacter: Character,
   usedCharacters: Character[],
   loadedCharacters: Character[],
-  ledElement: JSX.Element,
-  pixelHeight: number
+  height: number,
+  onRendererChanged: () => void
 }
 
 export interface AppState {
   led: LedState
 }
-
-const styles = StyleSheet.create({
-  ascii: {
-    fontFamily: 'monospace',
-    whiteSpace: 'pre'
-  },
-  canvas: {
-    width: '100%'
-  }
-});
 
 enum LedMatrixLoadingState {
   NotLoaded,
@@ -140,8 +130,8 @@ enum LedMatrixLoadingState {
 
 class App extends Component<AppProps, AppState> {
   private ledMatrix: LedMatrix;
-  private ledMatrixIdCanvas = 'led-matrix-canvas';
-  private ledMatrixIdAscii = 'led-matrix-ascii';
+  private ledMatrixIdCanvas = 'led-matrix';
+  private ledMatrixIdAscii = 'led-matrix';
 
   private init = LedMatrixLoadingState.NotLoaded;
 
@@ -199,8 +189,8 @@ class App extends Component<AppProps, AppState> {
       pendingDeleteCharacter: null,
       usedCharacters: null,
       loadedCharacters: null,
-      ledElement: <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} style={{ height: 256 }} />,
-      pixelHeight: 256
+      height: 8,
+      onRendererChanged: this.onRendererChanged.bind(this)
     },
   }
 
@@ -211,7 +201,6 @@ class App extends Component<AppProps, AppState> {
     this.setColorBitOff = this.setColorBitOff.bind(this);
     this.setColorStrokeOff = this.setColorStrokeOff.bind(this);
     this.setColorStrokeOn = this.setColorStrokeOn.bind(this);
-    this.setElement = this.setElement.bind(this);
     this.setFps = this.setFps.bind(this);
     this.setIncrement = this.setIncrement.bind(this);
     this.setInput = this.setInput.bind(this);
@@ -230,6 +219,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
+    console.log('componentDidMount App');
     this.ledMatrix = new LedMatrix({
       pathCharacters: this.state.led.pathCharacters,
       fps: this.state.led.fps,
@@ -238,7 +228,7 @@ class App extends Component<AppProps, AppState> {
       panelType: this.state.led.panelType,
       panelWidth: this.state.led.viewportWidth,
       letterSpacing: this.state.led.letterSpacing,
-      elementId: 'led-matrix-canvas',
+      elementId: this.ledMatrixIdCanvas,
       rendererType: this.state.led.rendererType,
       reverse: this.state.led.reverse,
       padding: [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left]
@@ -269,7 +259,7 @@ class App extends Component<AppProps, AppState> {
       // window.addEventListener("resize", this.updateDimensions);
     });
 
-
+    
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -281,23 +271,24 @@ class App extends Component<AppProps, AppState> {
 
     if (this.init == LedMatrixLoadingState.Loaded) {
 
-      // let shouldUpdateDimensions = false;
+      if (this.props.location.pathname == '/fullscreen') {
+        this.ledMatrix.play();
+      }
 
-      if (this.state.led.pendingCharacter != prevState.led.pendingCharacter) {
+      if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
         this.setPendingCharacter();
       }
 
-      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter) {
+      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter && this.state.led.pendingEditCharacter != null) {
         this.setPendingEditCharacter();
       }
 
-      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter) {
+      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter && this.state.led.pendingDeleteCharacter != null) {
         this.setPendingDeleteCharacter();
       }
 
       if (this.state.led.panelType != prevState.led.panelType) {
         this.setPanelType();
-        // shouldUpdateDimensions = true;
       }
 
       if (this.state.led.fps != prevState.led.fps) {
@@ -310,7 +301,6 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.viewportWidth != prevState.led.viewportWidth) {
         this.setViewportWidth();
-        // shouldUpdateDimensions = true;
       }
 
       if (this.state.led.letterSpacing != prevState.led.letterSpacing) {
@@ -319,12 +309,10 @@ class App extends Component<AppProps, AppState> {
 
       if (this.state.led.input != prevState.led.input) {
         this.setInput();
-        // shouldUpdateDimensions = true;
       }
 
       if (this.state.led.size != prevState.led.size) {
         this.setSize();
-        // shouldUpdateDimensions = true;
       }
 
       if (this.state.led.reverse != prevState.led.reverse) {
@@ -336,7 +324,6 @@ class App extends Component<AppProps, AppState> {
         this.state.led.padding.bottom != prevState.led.padding.bottom ||
         this.state.led.padding.left != prevState.led.padding.left) {
         this.setPadding();
-        // shouldUpdateDimensions = true;
       }
 
       if (this.state.led.movementState != prevState.led.movementState) {
@@ -369,16 +356,14 @@ class App extends Component<AppProps, AppState> {
         }
       }
 
-      if (this.state.led.rendererType != prevState.led.rendererType || this.state.led.pixelHeight != prevState.led.pixelHeight) {
-        this.setElement(() => {
-          // shouldUpdateDimensions = true;
-        });
+      if (prevState.led.rendererType != this.state.led.rendererType) {
+        this.setRenderer();
+        this.setRendererParameters();
       }
 
-
-      /*if (shouldUpdateDimensions && prevState.led.height == this.state.height) {
-        this.updateDimensions();
-      }*/
+      if (prevState.led.height != this.ledMatrix.height) {
+        this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
+      }
     }
   }
 
@@ -401,19 +386,21 @@ class App extends Component<AppProps, AppState> {
   }
 
   updateState(keys: s[], value, callback?: () => void) {
-    let newState = Object.assign({}, this.state);
-    keys.reduce(function (acc, cur, index) {
-      // Make sure the key is a property that exists on prevState.led
-      if (!acc.hasOwnProperty(cur)) {
-        throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-      }
+    this.setState((prevState) => {
+      let newState = Object.assign({}, prevState);
+      keys.reduce((acc, cur: any, index) => {
+        // Make sure the key is a property that exists on prevState.led
+        if (!acc.hasOwnProperty(cur)) {
+          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
+        }
+  
+        return acc[cur] = keys.length - 1 == index ?
+          value : // We reached the end, modify the property to our value
+          { ...acc[cur] }; // Continue spreading
+      }, newState);
 
-      return acc[cur] = keys.length - 1 == index ?
-        value : // We reached the end, modify the property to our value
-        { ...acc[cur] }; // Continue spreading
-    }, newState);
-
-    this.setState(newState, callback);
+      return newState;
+    }, callback);
   }
 
   private setPendingCharacter() {
@@ -517,9 +504,15 @@ class App extends Component<AppProps, AppState> {
     this.ledMatrix.init(this.state.led.size, () => {
       this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
       this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+      this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
       this.ledMatrix.play();
       this.init = LedMatrixLoadingState.Loaded;
     });
+  }
+
+  private onRendererChanged() {
+    this.setRenderer();
+    this.setRendererParameters();
   }
 
   private setReverse() {
@@ -532,23 +525,6 @@ class App extends Component<AppProps, AppState> {
 
   private setPadding() {
     this.ledMatrix.padding = [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left];
-  }
-
-  private setElement(callback: () => void) {
-    let element;
-    if (this.state.led.rendererType == RendererType.ASCII) {
-      element = <div id={this.ledMatrixIdAscii} className={css(styles.ascii)} style={{ height: this.state.led.pixelHeight }} />
-    }
-    else {
-      element = <canvas id={this.ledMatrixIdCanvas} className={css(styles.canvas)} style={{ height: this.state.led.pixelHeight }} />
-    }
-
-    this.state.led.updateState([s.led, s.ledElement], element, () => {
-      this.setRenderer();
-      this.setRendererParameters();
-
-      callback();
-    });
   }
 
   private setRenderer() {
