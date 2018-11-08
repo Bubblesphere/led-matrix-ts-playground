@@ -70,8 +70,8 @@ class Led extends Component<LedProps & WithStyles<typeof themeDependantStyles>, 
       const totalWidth = Math.floor(canvasContainer.offsetWidth / buffer) * buffer;
       const totalHeight = Math.floor(canvasContainer.offsetHeight / buffer) * buffer;
   
-      const optimalWidthPerBit = totalWidth / this.props.width;
-      const optimalHeightPerBit = totalHeight / this.props.height;
+      const optimalWidthPerBit = (totalWidth == 0 ? canvasContainer.offsetWidth : totalWidth)  / this.props.width;
+      const optimalHeightPerBit = (totalHeight == 0 ? canvasContainer.offsetHeight : totalHeight) / this.props.height;
   
       // scale using the lowest optimal
       let sizePerBit: number;
