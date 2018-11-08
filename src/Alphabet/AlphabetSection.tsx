@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, CanvaRenderers, Character, BitArray } from 'led-matrix-ts';
+import { bit, CanvaRenderers, Character, BitArray, RendererType } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../Inputs/TooltipSlider';
 import ToggleExpansionPanel from '../Led/ToggleExpansionPanel';
@@ -10,6 +10,9 @@ import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
 import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Led from '../Led/Led';
+import { RGBColor } from 'react-color';
+import { toHexString } from '../utils/Color';
 
 export enum a {
   mode = 'mode',
@@ -52,7 +55,13 @@ interface AlphabetSectionProps extends CanUpdateState {
   errorPendingCharacter: Error,
   errorPendingEditCharacter: Error,
   errorPendingDeleteCharacter: Error,
-  pendingCharacter: boolean
+  pendingCharacter: boolean,
+  canvaParameters: {
+    colorOff: RGBColor,
+    colorOn: RGBColor,
+    strokeOff: RGBColor,
+    strokeOn: RGBColor
+  },
 }
 
 const styles = StyleSheet.create({
@@ -111,6 +120,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
     ] as bit[][]
   }
+  ledRef = React.createRef() as React.RefObject<any>;
 
   // Set the default state
   state = {
@@ -135,43 +145,46 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onDelete = this.onDelete.bind(this);
     this.handlePatternChanged = this.handlePatternChanged.bind(this);
     this.updateState = this.updateState.bind(this);
-    this.setCanvasContainerSize = this.setCanvasContainerSize.bind(this);
-    this.setCanvasContainerBitToSize = this.setCanvasContainerBitToSize.bind(this);
     this.onModeEdit = this.onModeEdit.bind(this);
     this.onModeAdd = this.onModeAdd.bind(this);
     this.getCharacterFromState = this.getCharacterFromState.bind(this);
     this.handleExpansionPanelIndexChanged = this.handleExpansionPanelIndexChanged.bind(this);
+
   }
 
   componentDidMount() {
-    const el = document.getElementById("characterCanvas");
+
+    console.log('componentDidMount Alphabet');
+    const el = document.getElementById("led-matrix");
 
     this.renderer = new CanvaRenderers.Rect({
-      elementId: 'characterCanvas'
+      elementId: 'led-matrix',
+      colorBitOff: toHexString(this.props.canvaParameters.colorOff),
+      colorBitOn: toHexString(this.props.canvaParameters.colorOn),
+      colorStrokeOff: toHexString(this.props.canvaParameters.strokeOff),
+      colorStrokeOn: toHexString(this.props.canvaParameters.strokeOn)
     })
 
-    this.setCanvasContainerSize();
+
     this.renderer.render(this.state.character.data);
 
     el.addEventListener('mousemove', this.onMouseMove);
     el.addEventListener('mousedown', this.onMouseDown);
     el.addEventListener('mouseup', this.onMouseUp);
 
-    window.addEventListener('resize', this.setCanvasContainerSize);
   }
 
   componentWillUnmount() {
-    const el = document.getElementById("characterCanvas");
+    const el = document.getElementById("led-matrix");
     el.removeEventListener('mousemove', this.onMouseMove);
     el.removeEventListener('mousedown', this.onMouseDown);
     el.removeEventListener('mouseup', this.onMouseUp);
-    window.removeEventListener('resize', this.setCanvasContainerSize);
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.character.data.length != this.state.character.data.length
       || prevState.character.data[0].length != this.state.character.data[0].length) {
-      this.setCanvasContainerSize();
+      this.ledRef.current.setCanvasContainerSize();
     }
 
     if (prevState.character.data != this.state.character.data) {
@@ -184,7 +197,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         ...prevState,
         character: {
           ...prevState.character,
-          pattern: '[' + prevState.character.pattern + ']'
+          pattern: '(' + prevState.character.pattern + ')'
         },
         mode: alphabetMode.edit
       }));
@@ -288,7 +301,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private getMouseIndexOnCanvas(event) {
-    const el = document.getElementById("characterCanvas");
+    const el = document.getElementById("led-matrix");
     var rect = el.getBoundingClientRect();
     var x = event.clientX - rect.left;
     var y = event.clientY - rect.top;
@@ -324,7 +337,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       pendingSave: false
     }))
     if (this.state.mode == alphabetMode.create) {
-      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState('[' + this.state.character.pattern + ']'));
+      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState(this.state.character.pattern));
     } else {
       this.props.updateState([s.led, s.pendingEditCharacter], this.getCharacterFromState(this.state.character.pattern));
     }
@@ -339,34 +352,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         pattern: target
       }
     }))
-  }
-
-  private setCanvasContainerSize() {
-    const canvasContainer = document.getElementById('characterCanvasContainer') as HTMLCanvasElement;
-    const canvas = document.getElementById('characterCanvas') as HTMLCanvasElement;
-
-    // Round to lowest {buffer} to optimize window resize event
-    const buffer = 100;
-    const totalWidth = Math.floor(canvasContainer.offsetWidth / buffer) * buffer;
-    const totalHeight = Math.floor(canvasContainer.offsetHeight / buffer) * buffer;
-
-    const optimalWidthPerBit = totalWidth / this.state.character.width;
-    const optimalHeightPerBit = totalHeight / this.state.character.height;
-
-    // scale using the lowest optimal
-    let sizePerBit: number;
-    if (optimalWidthPerBit < optimalHeightPerBit) {
-      sizePerBit = optimalWidthPerBit
-    } else {
-      sizePerBit = optimalHeightPerBit
-    }
-
-    this.setCanvasContainerBitToSize(canvas, sizePerBit);
-  }
-
-  private setCanvasContainerBitToSize(canvas: HTMLElement, size: number) {
-    canvas.style.width = this.state.character.width * size + 'px';
-    canvas.style.height = this.state.character.height * size + 'px';
   }
 
   private arrayOfZeros(m, n) {
@@ -449,18 +434,14 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       <Grid container item direction="row-reverse">
 
         <Grid item container md={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
-          <Grid
-            item
-            container
-            id="characterCanvasContainer"
-            className={[this.props.classes.characterCanvasContainer, css(styles.characterCanvasContainer)].join(" ")}
-            style={{ width: '100%', height: '80vh' }} // need this here to draw the right size onComponentMount
-            justify="center"
-            alignContent="center"
-            alignItems="center"
-          >
-            <canvas id="characterCanvas" />
-          </Grid>
+          <Led 
+            ref={this.ledRef} 
+            width={this.state.character.width} 
+            height={this.state.character.height} 
+            maxHeightPixel={'80vh'}
+            rendererType={RendererType.CanvasSquare}
+            onRendererElementChanged={null}
+          />
         </Grid>
 
         <Grid item container md={3} className={css(styles.common, styles.configuration)}>
