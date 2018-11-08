@@ -61,6 +61,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         errorPendingEditCharacter={this.props.led.error.pendingEditCharacter}
         errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
         pendingCharacter={this.props.led.pendingCharacter != null}
+        canvaParameters={this.props.led.canvaParameters}
       />
     );
   }
@@ -83,7 +84,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         alignContent="center"
         id="canvas-container"
       >
-        <Led width={this.props.led.viewportWidth} height={this.props.led.height} ledElement={this.props.led.ledElement} />
+        <Led width={this.props.led.viewportWidth} height={this.props.led.height}  maxHeightPixel="100vh" rendererType={this.props.led.rendererType} />
       </Grid>
     );
   }

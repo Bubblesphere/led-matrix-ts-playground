@@ -11,6 +11,8 @@ import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Led from '../Led/Led';
+import { RGBColor } from 'react-color';
+import { toHexString } from '../utils/Color';
 
 export enum a {
   mode = 'mode',
@@ -53,7 +55,13 @@ interface AlphabetSectionProps extends CanUpdateState {
   errorPendingCharacter: Error,
   errorPendingEditCharacter: Error,
   errorPendingDeleteCharacter: Error,
-  pendingCharacter: boolean
+  pendingCharacter: boolean,
+  canvaParameters: {
+    colorOff: RGBColor,
+    colorOn: RGBColor,
+    strokeOff: RGBColor,
+    strokeOn: RGBColor
+  },
 }
 
 const styles = StyleSheet.create({
@@ -145,11 +153,18 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentDidMount() {
-    const el = document.getElementById("characterCanvas");
+
+    console.log('componentDidMount Alphabet');
+    const el = document.getElementById("led-matrix");
 
     this.renderer = new CanvaRenderers.Rect({
-      elementId: 'characterCanvas'
+      elementId: 'led-matrix',
+      colorBitOff: toHexString(this.props.canvaParameters.colorOff),
+      colorBitOn: toHexString(this.props.canvaParameters.colorOn),
+      colorStrokeOff: toHexString(this.props.canvaParameters.strokeOff),
+      colorStrokeOn: toHexString(this.props.canvaParameters.strokeOn)
     })
+
 
     this.renderer.render(this.state.character.data);
 
@@ -160,7 +175,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   componentWillUnmount() {
-    const el = document.getElementById("characterCanvas");
+    const el = document.getElementById("led-matrix");
     el.removeEventListener('mousemove', this.onMouseMove);
     el.removeEventListener('mousedown', this.onMouseDown);
     el.removeEventListener('mouseup', this.onMouseUp);
@@ -182,7 +197,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         ...prevState,
         character: {
           ...prevState.character,
-          pattern: '[' + prevState.character.pattern + ']'
+          pattern: '(' + prevState.character.pattern + ')'
         },
         mode: alphabetMode.edit
       }));
@@ -286,7 +301,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private getMouseIndexOnCanvas(event) {
-    const el = document.getElementById("led-matrix-container");
+    const el = document.getElementById("led-matrix");
     var rect = el.getBoundingClientRect();
     var x = event.clientX - rect.left;
     var y = event.clientY - rect.top;
@@ -322,7 +337,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       pendingSave: false
     }))
     if (this.state.mode == alphabetMode.create) {
-      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState('[' + this.state.character.pattern + ']'));
+      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState(this.state.character.pattern));
     } else {
       this.props.updateState([s.led, s.pendingEditCharacter], this.getCharacterFromState(this.state.character.pattern));
     }
