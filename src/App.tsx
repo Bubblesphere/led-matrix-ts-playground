@@ -255,11 +255,7 @@ class App extends Component<AppProps, AppState> {
           this.ledMatrix.pause();
         }
       } 
-  
-      // window.addEventListener("resize", this.updateDimensions);
-    });
-
-    
+    });  
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -274,7 +270,7 @@ class App extends Component<AppProps, AppState> {
       if (this.props.location.pathname == '/fullscreen') {
         this.ledMatrix.play();
       }
-      
+
       if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
         this.setPendingCharacter();
       }

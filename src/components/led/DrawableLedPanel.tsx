@@ -1,22 +1,11 @@
 import * as React from 'react'
-import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
-import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, RendererType } from 'led-matrix-ts';
-import { s, CanUpdateState } from '../../App';
+import { CanUpdateState } from '../../App';
 import LedPanel from './LedPanel';
 import { RGBColor } from 'react-color';
 import { toHexString } from '../../utils/color';
 import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../../utils/array';
-
-
-enum a {
-  lastMouseIndex = 'lastMouseIndex',
-  x = 'x',
-  y = 'y',
-  isMouseDown = 'isMouseDown',
-  character = 'character',
-  data = 'data'
-}
+import { updateState } from '../../utils/state';
 
 export enum DrawableLedPanelMode {
   create,
@@ -30,6 +19,13 @@ export interface DrawableLedPanelCharacter {
   data: bit[][]
 }
 
+enum a {
+  lastMouseIndex = 'lastMouseIndex',
+  x = 'x',
+  y = 'y',
+  isMouseDown = 'isMouseDown'
+}
+
 interface DrawableLedPanelState {
   lastMouseIndex: {
     x: number,
@@ -38,7 +34,7 @@ interface DrawableLedPanelState {
   isMouseDown: boolean
 }
 
-interface DrawableLedPanelProps extends CanUpdateState {
+interface DrawableLedPanelProps {
   canvasParameters: {
     colorOff: RGBColor,
     colorOn: RGBColor,
@@ -53,39 +49,7 @@ interface DrawableLedPanelPropsOpt {
   mode: DrawableLedPanelMode
 }
 
-const styles = StyleSheet.create({
-  characterCanvasContainer: {
-    '@media (max-width: 600px)': {
-      height: '100%'
-    }
-  }
-});
-
-const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
-  container: {
-    margin: spacing.unit * 4
-  },
-  characterCanvasContainer: {
-    margin: `${spacing.unit * 4}px ${spacing.unit * 2}px`
-  },
-  characterSelected: {
-    background: palette.primary.main,
-    color: palette.primary.contrastText
-  },
-  character: {
-    margin: 0,
-    padding: spacing.unit,
-    cursor: "pointer"
-  },
-  rightIcon: {
-    marginLeft: spacing.unit,
-  },
-  button: {
-    margin: spacing.unit
-  }
-});
-
-class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableLedPanelPropsOpt & WithStyles<typeof themeDependantStyles>, DrawableLedPanelState> {
+class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableLedPanelPropsOpt, DrawableLedPanelState> {
   renderer: CanvaRenderers.Rect
 
   static defaultProps: DrawableLedPanelPropsOpt;
@@ -106,7 +70,6 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
-
   }
 
   componentDidMount() {
@@ -248,19 +211,7 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
 
   private updateState(keys: a[], value, callback?: () => void) {
     this.setState((prevState) => {
-      let newState = Object.assign({}, prevState);
-      keys.reduce((acc, cur: any, index) => {
-        // Make sure the key is a property that exists on prevState.led
-        if (!acc.hasOwnProperty(cur)) {
-          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-        }
-
-        return acc[cur] = keys.length - 1 == index ?
-          value : // We reached the end, modify the property to our value
-          { ...acc[cur] }; // Continue spreading
-      }, newState);
-
-      return newState;
+      return updateState(keys as string[], value, prevState);
     }, callback);
   }
 
@@ -283,4 +234,4 @@ DrawableLedPanel.defaultProps = {
 
 export const DrawableLedPanelDefaultProps = DrawableLedPanel.defaultProps
 
-export default withStyles(themeDependantStyles)(DrawableLedPanel);
+export default DrawableLedPanel;

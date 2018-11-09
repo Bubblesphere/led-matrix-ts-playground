@@ -54,6 +54,7 @@ class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyl
     if (prevProps.rendererType != this.props.rendererType) {
       this.props.onRendererChanged();
     }
+    
     if (prevProps.width != this.props.width || prevProps.height != this.props.height) {
       this.setCanvasContainerSize();
     }

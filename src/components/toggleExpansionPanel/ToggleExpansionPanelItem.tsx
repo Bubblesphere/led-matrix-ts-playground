@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
+const themeDependantStyles = ({palette}: Theme) => createStyles({
   title: {
     color: palette.primary.main
   }

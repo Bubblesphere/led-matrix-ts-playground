@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, CanvaRenderers, Character, BitArray, RendererType } from 'led-matrix-ts';
+import { bit, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../components/inputs/TooltipSlider';
 import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
@@ -10,15 +10,12 @@ import LedConfigurationFormItem from './LedConfigurationFormItem';
 import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Led from '../components/led/LedPanel';
-import { toHexString } from '../utils/color';
-import { generate2dArrayOfOffBits } from '../utils/array';
+import { updateState } from '../utils/state';
 import { RGBColor } from 'react-color';
 import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from '../components/led/DrawableLedPanel';
 
 export enum a {
   mode = 'mode',
-  isMouseDown = 'isMouseDown',
   expansionPanelIndex = 'expansionPanelIndex',
   character = 'character',
   width = 'width',
@@ -46,8 +43,7 @@ interface AlphabetSectionProps extends CanUpdateState {
     colorOn: RGBColor,
     strokeOff: RGBColor,
     strokeOn: RGBColor
-  },
-
+  }
 }
 
 const styles = StyleSheet.create({
@@ -57,20 +53,12 @@ const styles = StyleSheet.create({
   configuration: {
     maxHeight: '100vh',
     overflowY: "auto",
-  },
-  characterCanvasContainer: {
-    '@media (max-width: 600px)': {
-      height: '100%'
-    }
   }
 });
 
 const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
   container: {
     margin: spacing.unit * 4
-  },
-  characterCanvasContainer: {
-    margin: `${spacing.unit * 4}px ${spacing.unit * 2}px`
   },
   characterSelected: {
     background: palette.primary.main,
@@ -152,7 +140,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }
   }
 
-
   private onSave() {
     this.updateState([a.pendingSave], false);
 
@@ -165,43 +152,19 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
   private handlePatternChanged(e) {
     const target = e.target.value;
-    this.setState((prevState) => ({
-      ...prevState,
-      character: {
-        ...prevState.character,
-        pattern: target
-      }
-    }))
-  }
-
-  updateState(keys: a[], value, callback?: () => void) {
-    this.setState((prevState) => {
-      let newState = Object.assign({}, prevState);
-      keys.reduce((acc, cur: any, index) => {
-        // Make sure the key is a property that exists on prevState.led
-        if (!acc.hasOwnProperty(cur)) {
-          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-        }
-  
-        return acc[cur] = keys.length - 1 == index ?
-          value : // We reached the end, modify the property to our value
-          { ...acc[cur] }; // Continue spreading
-      }, newState);
-
-      return newState;
-    }, callback);
+    this.updateState([a.character, a.pattern], target);
   }
 
   private onDelete() {
     this.props.updateState([s.led, s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
-    this.updateState([a.character], Object.assign({}, this.defaultCharacter))
+    this.updateState([a.character], Object.assign({}, this.defaultCharacter));
     this.updateState([a.mode], DrawableLedPanelMode.create);
     this.updateState([a.expansionPanelIndex], 1);
     this.updateState([a.pendingSave], true);
   }
 
   private onModeAdd(e) {
-    this.updateState([a.character], Object.assign({}, this.defaultCharacter))
+    this.updateState([a.character], Object.assign({}, this.defaultCharacter));
     this.updateState([a.mode], DrawableLedPanelMode.create);
     this.updateState([a.expansionPanelIndex], 0);
     this.updateState([a.pendingSave], true);
@@ -237,6 +200,12 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
   private onCharacterDataChangedHandle(data: bit[][]) {
     this.updateState([a.character, a.data], data); 
+  }
+
+  private updateState(keys: a[], value, callback?: () => void) {
+    this.setState((prevState) => {
+      return updateState(keys as string[], value, prevState);
+    }, callback);
   }
 
   render() {

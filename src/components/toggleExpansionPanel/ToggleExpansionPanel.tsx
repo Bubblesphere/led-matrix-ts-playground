@@ -1,14 +1,10 @@
 import * as React from 'react'
 import { Component } from 'react';
-import { ExpansionPanel, ExpansionPanelSummary, Typography, ExpansionPanelDetails, Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { StyleSheet, css } from 'aphrodite';
+import { Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 
 export interface ToggleExpansionPanelState {
   expanded: number
 }
-
-
 
 export interface ToggleExpansionPanelPropsOpt {
   expanded: number
@@ -17,10 +13,6 @@ export interface ToggleExpansionPanelPropsOpt {
 
 export interface ToggleExpansionPanelProps extends ToggleExpansionPanelPropsOpt {
 }
-
-const styles = StyleSheet.create({
-
-});
 
 const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
   container: {
