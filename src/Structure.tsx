@@ -61,7 +61,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         errorPendingEditCharacter={this.props.led.error.pendingEditCharacter}
         errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
         pendingCharacter={this.props.led.pendingCharacter != null}
-        canvaParameters={this.props.led.canvaParameters}
+        canvasParameters={this.props.led.canvaParameters}
       />
     );
   }

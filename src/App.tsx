@@ -11,7 +11,7 @@ import Menu from './Menu/Menu';
 import Led from './Led/Led';
 import Structure from './Structure';
 import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType } from 'led-matrix-ts';
-import { toHexString } from './utils/Color';
+import { toHexString } from './utils/color';
 
 interface AppProps extends RouteComponentProps { }
 
@@ -356,29 +356,11 @@ class App extends Component<AppProps, AppState> {
         }
       }
 
-      if (prevState.led.rendererType != this.state.led.rendererType) {
-        this.setRenderer();
-        this.setRendererParameters();
-      }
-
       if (prevState.led.height != this.ledMatrix.height) {
         this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
       }
     }
   }
-
-  componentWillUnmount() {
-    //window.removeEventListener("resize", this.updateDimensions);
-  }
-
-  /*updateDimensions() {
-    const widthPerBit = document.getElementById(this.ledMatrixId).offsetWidth / this.props.viewportWidth;
-    let preferableHeight = this.ledMatrix.height * widthPerBit;
-    if (preferableHeight > window.innerHeight / 2) {
-      preferableHeight = window.innerHeight / 2
-    }
-    this.setState((prevState.led) => ({ ...prevState.led, height: preferableHeight}));
-  }*/
 
   updateStateError(keys: s[], value) {
     keys.unshift(s.led, s.error);

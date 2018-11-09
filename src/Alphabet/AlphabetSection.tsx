@@ -11,41 +11,26 @@ import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Led from '../Led/Led';
+import { toHexString } from '../utils/color';
+import { generate2dArrayOfOffBits } from '../utils/array';
 import { RGBColor } from 'react-color';
-import { toHexString } from '../utils/Color';
+import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from './DrawableLedPanel';
 
 export enum a {
   mode = 'mode',
+  isMouseDown = 'isMouseDown',
+  expansionPanelIndex = 'expansionPanelIndex',
   character = 'character',
   width = 'width',
   height = 'height',
   pattern = 'pattern',
   data = 'data',
-  lastMouseIndex = 'lastMouseIndex',
-  x = 'x',
-  y = 'y',
-  isMouseDown = 'isMouseDown',
-  expansionPanelIndex = 'expansionPanelIndex'
-}
-
-enum alphabetMode {
-  create,
-  edit
+  pendingSave = 'pendingSave'
 }
 
 interface AlphabetSectionState {
-  mode: alphabetMode,
-  character: {
-    width: number,
-    height: number,
-    pattern: string,
-    data: bit[][]
-  },
-  lastMouseIndex: {
-    x: number,
-    y: number
-  },
-  isMouseDown: boolean,
+  character: DrawableLedPanelCharacter
+  mode: DrawableLedPanelMode,
   expansionPanelIndex: number,
   pendingSave: boolean
 }
@@ -56,12 +41,13 @@ interface AlphabetSectionProps extends CanUpdateState {
   errorPendingEditCharacter: Error,
   errorPendingDeleteCharacter: Error,
   pendingCharacter: boolean,
-  canvaParameters: {
+  canvasParameters: {
     colorOff: RGBColor,
     colorOn: RGBColor,
     strokeOff: RGBColor,
     strokeOn: RGBColor
   },
+
 }
 
 const styles = StyleSheet.create({
@@ -104,42 +90,40 @@ const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
 });
 
 class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<typeof themeDependantStyles>, AlphabetSectionState> {
-  renderer: CanvaRenderers.Rect
+  // Set the default state
   defaultCharacter = {
-    width: 10,
-    height: 8,
-    pattern: '',
-    data: [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 1, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] as bit[],
-    ] as bit[][]
+      pattern: '',
+      width: 7,
+      height: 16,
+      data: [
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+        [0, 0, 0, 0, 0, 0, 0] as bit[],
+      ] as bit[][]
   }
 
-  // Set the default state
   state = {
-    mode: alphabetMode.create,
-    character: Object.assign({}, this.defaultCharacter),
-    lastMouseIndex: {
-      x: -1,
-      y: -1
-    },
-    isMouseDown: false,
+    character: this.defaultCharacter,
     expansionPanelIndex: 0,
-    pendingSave: true
+    pendingSave: true,
+    mode: DrawableLedPanelDefaultProps.mode
   }
 
   constructor(props) {
     super(props);
-    this.toggleBitAtLastMouseIndex = this.toggleBitAtLastMouseIndex.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseDown = this.onMouseDown.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.handlePatternChanged = this.handlePatternChanged.bind(this);
@@ -148,187 +132,31 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.onModeAdd = this.onModeAdd.bind(this);
     this.getCharacterFromState = this.getCharacterFromState.bind(this);
     this.handleExpansionPanelIndexChanged = this.handleExpansionPanelIndexChanged.bind(this);
-
-  }
-
-  componentDidMount() {
-    const el = document.getElementById("led-matrix");
-
-    this.renderer = new CanvaRenderers.Rect({
-      elementId: 'led-matrix',
-      colorBitOff: toHexString(this.props.canvaParameters.colorOff),
-      colorBitOn: toHexString(this.props.canvaParameters.colorOn),
-      colorStrokeOff: toHexString(this.props.canvaParameters.strokeOff),
-      colorStrokeOn: toHexString(this.props.canvaParameters.strokeOn)
-    })
-
-
-    this.renderer.render(this.state.character.data);
-
-    el.addEventListener('mousemove', this.onMouseMove);
-    el.addEventListener('mousedown', this.onMouseDown);
-    el.addEventListener('mouseup', this.onMouseUp);
-
-  }
-
-  componentWillUnmount() {
-    const el = document.getElementById("led-matrix");
-    el.removeEventListener('mousemove', this.onMouseMove);
-    el.removeEventListener('mousedown', this.onMouseDown);
-    el.removeEventListener('mouseup', this.onMouseUp);
+    this.onCharacterDataChangedHandle = this.onCharacterDataChangedHandle.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.character.data != this.state.character.data) {
-      this.renderer.render(this.state.character.data);
-    }
 
+    // Character was added successfully?
     if (prevProps.pendingCharacter == true && this.props.pendingCharacter == false) {
-      // Successful add
-      this.setState((prevState) => ({
-        ...prevState,
-        character: {
-          ...prevState.character,
-          pattern: '(' + prevState.character.pattern + ')'
-        },
-        mode: alphabetMode.edit
-      }));
+      this.updateState([a.pattern], prevState.character.pattern);
+      this.updateState([a.mode], DrawableLedPanelMode.edit);
     }
 
-    if ((prevState.character.pattern == this.state.character.pattern && prevState.character.data != this.state.character.data) 
-    || (prevProps.errorPendingCharacter.isError == false && this.props.errorPendingCharacter.isError == true)) {
-      // data changed or there's an error? show save
-      this.setState((prevState) => ({
-        ...prevState,
-        pendingSave: true
-      }));
-    }
+    // If the character data changed or there's an error, show the save button
+    if ((prevState.character.pattern == this.state.character.pattern 
+      && prevState.character.data != this.state.character.data) 
+      || (prevProps.errorPendingCharacter.isError == false && this.props.errorPendingCharacter.isError == true)) {
 
-    if (prevState.character.width != this.state.character.width &&
-      prevState.character.pattern == this.state.character.pattern) {
-      if (prevState.character.width < this.state.character.width) {
-        // now bigger
-        const arrToAppend = new Array(this.state.character.width - prevState.character.width - 1).fill(0);
-        var newArr = this.state.character.data.map((arr) => {
-          return arr.concat(0, arrToAppend);
-        });
-
-        this.setState((prevState) => ({
-          ...prevState,
-          character: {
-            ...prevState.character,
-            data: newArr
-          }
-        }));
-      } else if (prevState.character.width > this.state.character.width) {
-        // now smaller
-        var newArr = this.state.character.data.map((arr) => {
-          return arr.slice(0, this.state.character.width);
-        });
-
-        this.setState((prevState) => ({
-          ...prevState,
-          character: {
-            ...prevState.character,
-            data: newArr
-          }
-        }));
-      }
-
-    }
-
-    if (prevState.character.height != this.state.character.height &&
-      prevState.character.pattern == this.state.character.pattern) {
-      if (prevState.character.height < this.state.character.height) {
-        // now bigger
-        const arrToAppend = this.arrayOfZeros(this.state.character.height - prevState.character.height, this.state.character.width);
-
-        var newArr = this.state.character.data.concat(arrToAppend);
-
-        this.setState((prevState) => ({
-          ...prevState,
-          character: {
-            ...prevState.character,
-            data: newArr
-          }
-        }));
-      } else if (prevState.character.height > this.state.character.height) {
-        // now smaller
-        var newArr = this.state.character.data.slice(0, this.state.character.height);
-
-        this.setState((prevState) => ({
-          ...prevState,
-          character: {
-            ...prevState.character,
-            data: newArr
-          }
-        }));
-      }
-
+      this.updateState([a.pendingSave], true);
     }
   }
 
-  private onMouseMove(e) {
-    const mouseIndex = this.getMouseIndexOnCanvas(e);
-    if (mouseIndex.y != this.state.lastMouseIndex.y
-      || mouseIndex.x != this.state.lastMouseIndex.x) {
-      this.setState({ ...this.state, lastMouseIndex: mouseIndex });
-      if (this.state.isMouseDown) {
-        this.toggleBitAtLastMouseIndex(e)
-      }
-    }
-  }
-
-  private onMouseDown(e) {
-    this.toggleBitAtLastMouseIndex(e);
-    if (!this.state.isMouseDown) {
-      this.setState({ ...this.state, isMouseDown: true });
-    }
-  }
-
-  private onMouseUp(e) {
-    if (this.state.isMouseDown) {
-      this.setState({ ...this.state, isMouseDown: false });
-    }
-  }
-
-  private getMouseIndexOnCanvas(event) {
-    const el = document.getElementById("led-matrix");
-    var rect = el.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
-
-    const xPos = Math.floor(x / (el.offsetWidth / this.state.character.data[0].length));
-    const yPos = Math.floor(y / (el.offsetHeight / this.state.character.data.length));
-
-    return {
-      x: xPos,
-      y: yPos
-    }
-  }
-
-  private toggleBitAtLastMouseIndex(event) {
-    var newArr = this.state.character.data.map((arr) => {
-      return arr.slice();
-    });
-
-    newArr[this.state.lastMouseIndex.y][this.state.lastMouseIndex.x] = newArr[this.state.lastMouseIndex.y][this.state.lastMouseIndex.x] == 0 ? 1 : 0;
-
-    this.setState((prevState) => ({
-      ...prevState,
-      character: {
-        ...prevState.character,
-        data: newArr
-      }
-    }));
-  }
 
   private onSave() {
-    this.setState((prevState) => ({
-      ...prevState,
-      pendingSave: false
-    }))
-    if (this.state.mode == alphabetMode.create) {
+    this.updateState([a.pendingSave], false);
+
+    if (this.state.mode == DrawableLedPanelMode.create) {
       this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState(this.state.character.pattern));
     } else {
       this.props.updateState([s.led, s.pendingEditCharacter], this.getCharacterFromState(this.state.character.pattern));
@@ -346,11 +174,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     }))
   }
 
-  private arrayOfZeros(m, n) {
-    return [...Array(m)].map(e => Array(n).fill(0));
-  }
-
-  updateState(keys: s[], value, callback?: () => void) {
+  updateState(keys: a[], value, callback?: () => void) {
     this.setState((prevState) => {
       let newState = Object.assign({}, prevState);
       keys.reduce((acc, cur: any, index) => {
@@ -358,7 +182,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
         if (!acc.hasOwnProperty(cur)) {
           throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
         }
-
+  
         return acc[cur] = keys.length - 1 == index ?
           value : // We reached the end, modify the property to our value
           { ...acc[cur] }; // Continue spreading
@@ -367,25 +191,20 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       return newState;
     }, callback);
   }
+
   private onDelete() {
     this.props.updateState([s.led, s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
-    this.setState((prevState) => ({
-      ...prevState,
-      character: Object.assign({}, this.defaultCharacter),
-      mode: alphabetMode.create,
-      expansionPanelIndex: 1, 
-      pendingSave: true
-    }));
+    this.updateState([a.character], Object.assign({}, this.defaultCharacter))
+    this.updateState([a.mode], DrawableLedPanelMode.create);
+    this.updateState([a.expansionPanelIndex], 1);
+    this.updateState([a.pendingSave], true);
   }
 
   private onModeAdd(e) {
-    this.setState((prevState) => ({
-      ...prevState,
-      character: Object.assign({}, this.defaultCharacter),
-      mode: alphabetMode.create,
-      expansionPanelIndex: 0,
-      pendingSave: true
-    }));
+    this.updateState([a.character], Object.assign({}, this.defaultCharacter))
+    this.updateState([a.mode], DrawableLedPanelMode.create);
+    this.updateState([a.expansionPanelIndex], 0);
+    this.updateState([a.pendingSave], true);
   }
 
   private onModeEdit(e) {
@@ -396,18 +215,16 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     for (let i = 0; i < character.height; i++) {
       data.push(character.output.atIndexRange(i * character.width, character.width));
     }
-    this.setState((prevState) => ({
-      ...prevState,
-      character: {
-        data: data,
-        height: character.height,
-        width: character.width,
-        pattern: character.pattern
-      },
-      mode: alphabetMode.edit,
-      expansionPanelIndex: 0,
-      pendingSave: false
-    }));
+
+    this.updateState([a.character], {
+      data: data,
+      height: character.height,
+      width: character.width,
+      pattern: character.pattern
+    });
+    this.updateState([a.mode], DrawableLedPanelMode.edit);
+    this.updateState([a.expansionPanelIndex], 0);
+    this.updateState([a.pendingSave], false);
   }
 
   private getCharacterFromState(pattern: string) {
@@ -415,10 +232,11 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private handleExpansionPanelIndexChanged(index: number) {
-    this.setState((prevState) => ({
-      ...prevState,
-      expansionPanelIndex: index
-    }));
+    this.updateState([a.expansionPanelIndex], index);
+  }
+
+  private onCharacterDataChangedHandle(data: bit[][]) {
+    this.updateState([a.character, a.data], data); 
   }
 
   render() {
@@ -426,12 +244,10 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       <Grid container item direction="row-reverse">
 
         <Grid item container md={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
-          <Led 
-            width={this.state.character.width} 
-            height={this.state.character.height} 
-            maxHeightPixel={'80vh'}
-            rendererType={RendererType.CanvasSquare}
-            onRendererElementChanged={null}
+          <DrawableLedPanel
+            canvasParameters={this.props.canvasParameters}
+            onCharacterDataChangedHandle={this.onCharacterDataChangedHandle}
+            character={this.state.character}
           />
         </Grid>
 
@@ -443,7 +259,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                 label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
                 error={this.props.errorPendingCharacter.isError}
                 onChange={this.handlePatternChanged}
-                disabled={this.state.mode == alphabetMode.edit}
+                disabled={this.state.mode == DrawableLedPanelMode.edit}
                 value={this.state.character.pattern}
               />
 
@@ -480,7 +296,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                     ''
                 }
                {
-                  this.state.mode == alphabetMode.edit ?
+                  this.state.mode == DrawableLedPanelMode.edit ?
                     <Button variant="contained" type="button" aria-label="Delete" onClick={this.onDelete} color="secondary" size="small" className={this.props.classes.button}>
                       Delete
                       <DeleteIcon className={this.props.classes.rightIcon} />
