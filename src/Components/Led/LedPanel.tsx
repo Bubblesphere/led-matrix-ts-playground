@@ -35,7 +35,7 @@ const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
   },
 });
 
-class Led extends Component<LedProps & WithStyles<typeof themeDependantStyles>, LedState> {
+class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyles>, LedState> {
   constructor(props) {
     super(props);
     this.setCanvasContainerSize = this.setCanvasContainerSize.bind(this);
@@ -112,4 +112,4 @@ class Led extends Component<LedProps & WithStyles<typeof themeDependantStyles>, 
   }
 }
 
-export default withStyles(themeDependantStyles)(Led);
+export default withStyles(themeDependantStyles)(LedPanel);

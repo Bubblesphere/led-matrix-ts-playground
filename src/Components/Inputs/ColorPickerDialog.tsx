@@ -3,7 +3,7 @@ import { IconButton } from '@material-ui/core';
 import Lens from '@material-ui/icons/Lens';
 import { InputProps } from './Inputs';
 import {TwitterPicker, RGBColor, TwitterPickerProps} from 'react-color';
-import { toHexString, toRgbString } from '../utils/color';
+import { toHexString, toRgbString } from '../../utils/color';
 import { StyleSheet, css } from 'aphrodite';
 
 const styles = StyleSheet.create({

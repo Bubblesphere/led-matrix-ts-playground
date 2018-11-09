@@ -5,11 +5,11 @@ import { StyleSheet, css } from 'aphrodite';
 import { LedMovementState, panelTypes } from './utils/led-map';
 import { RGBColor } from 'react-color';
 import { HashRouter as Router, Link, Route, withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
-import LedSection from './Led/LedSection';
+import LedSection from './Sections/LedSection';
 import AlphabetSection from './Alphabet/AlphabetSection';
-import Menu from './Menu/Menu';
-import Led from './Led/Led';
-import Structure from './Structure';
+import Menu from './Sections/Menu';
+import Led from './Components/Led/LedPanel';
+import Structure from './Sections/Structure';
 import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType } from 'led-matrix-ts';
 import { toHexString } from './utils/color';
 

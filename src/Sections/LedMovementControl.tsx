@@ -3,7 +3,7 @@ import { Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/
 import Resume from '@material-ui/icons/PlayArrowRounded'
 import Stop from '@material-ui/icons/StopRounded'
 import Pause from '@material-ui/icons/PauseRounded';
-import IconButtonCustom from '../Inputs/IconButton';
+import IconButtonCustom from '../Components/Inputs/IconButton';
 import { LedMovementState } from '../utils/led-map';
 import { s, LedMovement, CanUpdateState } from '../App';
 

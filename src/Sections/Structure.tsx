@@ -3,14 +3,14 @@ import { Component } from 'react';
 import { Grid, WithStyles, createStyles, withStyles, Theme  } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 import { PanelType, RendererType } from 'led-matrix-ts';
-import { LedMovementState } from './utils/led-map';
+import { LedMovementState } from '../utils/led-map';
 import { RGBColor } from 'react-color';
-import LedSection from './Led/LedSection';
-import AlphabetSection from './Alphabet/AlphabetSection';
-import Menu from './Menu/Menu';
-import Led from './Led/Led';
+import LedSection from './LedSection';
+import AlphabetSection from '../Alphabet/AlphabetSection';
+import Menu from './Menu';
+import LedPanel from '../Components/Led/LedPanel';
 import { Character } from 'led-matrix-ts';
-import { AppState } from './App';
+import { AppState } from '../App';
 import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
 interface StrutureProps extends AppState { }
@@ -84,7 +84,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         alignContent="center"
         id="canvas-container"
       >
-        <Led width={this.props.led.viewportWidth} height={this.props.led.height}  maxHeightPixel="100vh" rendererType={this.props.led.rendererType} />
+        <LedPanel width={this.props.led.viewportWidth} height={this.props.led.height}  maxHeightPixel="100vh" rendererType={this.props.led.rendererType} />
       </Grid>
     );
   }

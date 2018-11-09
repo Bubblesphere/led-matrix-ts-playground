@@ -1,4 +1,4 @@
-import { s } from "../App";
+import { s } from "../../App";
 
 export interface InputProps {
   statePath: s[],

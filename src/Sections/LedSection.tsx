@@ -6,8 +6,8 @@ import { StyleSheet, css } from 'aphrodite';
 import { Link } from 'react-router-dom';
 
 import LedMovementControl from './LedMovementControl';
-import LedInput from './LedInput';
-import Led from './Led';
+import LedInput from '../Components/Led/LedInput';
+import LedPanel from '../Components/Led/LedPanel';
 import LedConfiguration from './LedConfiguration';
 
 const styles = StyleSheet.create({
@@ -46,7 +46,7 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
 
         <Grid item container justify="center">
           <Grid item container id="canvas-container">
-            <Led width={props.viewportWidth} height={props.height} onRendererChanged={props.onRendererChanged} maxHeightPixel="50vh" rendererType={props.rendererType} />
+            <LedPanel width={props.viewportWidth} height={props.height} onRendererChanged={props.onRendererChanged} maxHeightPixel="50vh" rendererType={props.rendererType} />
           </Grid>
         </Grid>
 

@@ -1,19 +1,12 @@
 import * as React from 'react'
-import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, CanvaRenderers, Character, BitArray, RendererType } from 'led-matrix-ts';
-import { s, CanUpdateState, Error } from '../App';
-import TooltipSlider from '../Inputs/TooltipSlider';
-import ToggleExpansionPanel from '../Led/ToggleExpansionPanel';
-import ToggleExpansionPanelItem from '../Led/ToggleExpansionPanelItem';
-import LedConfigurationFormItem from '../Led/LedConfigurationFormItem';
-import AddIcon from '@material-ui/icons/Add';
-import SaveIcon from '@material-ui/icons/Save';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Led from '../Led/Led';
+import { bit, CanvaRenderers, RendererType } from 'led-matrix-ts';
+import { s, CanUpdateState } from '../../App';
+import LedPanel from './LedPanel';
 import { RGBColor } from 'react-color';
-import { toHexString } from '../utils/color';
-import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../utils/array';
+import { toHexString } from '../../utils/color';
+import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../../utils/array';
 
 
 enum a {
@@ -273,7 +266,7 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
 
   render() {
     return (
-      <Led 
+      <LedPanel 
         width={this.props.character.width} 
         height={this.props.character.height} 
         maxHeightPixel={'80vh'}

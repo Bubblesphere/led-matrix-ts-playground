@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { Component } from 'react';
-import TooltipSlider from '../Inputs/TooltipSlider';
+import TooltipSlider from '../Components/Inputs/TooltipSlider';
 import LedConfigurationFormItem from './LedConfigurationFormItem';
-import ToggleExpansionPanel from './ToggleExpansionPanel';
-import ToggleExpansionPanelItem from './ToggleExpansionPanelItem';
+import ToggleExpansionPanel from '../Components/ToggleExpansionPanel/ToggleExpansionPanel';
+import ToggleExpansionPanelItem from '../Components/ToggleExpansionPanel/ToggleExpansionPanelItem';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
 import { LedMatrix, RendererType } from 'led-matrix-ts';
 import { panelTypes, renderers } from '../utils/led-map';
-import SelectCustom from '../Inputs/Select';
-import SwitchCustom from '../Inputs/Switch';
-import ColorPickerDialog from '../Inputs/ColorPickerDialog';
-import InputCustom from '../Inputs/InputCustom';
+import SelectCustom from '../Components/Inputs/Select';
+import SwitchCustom from '../Components/Inputs/Switch';
+import ColorPickerDialog from '../Components/Inputs/ColorPickerDialog';
+import InputCustom from '../Components/Inputs/InputCustom';
 import { s, LedState } from '../App';
 
 interface ProfileState {
