@@ -250,7 +250,7 @@ class App extends Component<AppProps, AppState> {
         if (location.pathname == '/') {
           this.setMovement();
           this.setRenderer();
-          this.setRendererParameters
+          this.setRendererParameters();
         } else {
           this.ledMatrix.pause();
         }
