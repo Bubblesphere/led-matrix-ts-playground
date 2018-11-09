@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { s, CanUpdateState, CanUpdateStateErrors, LedInput, CanViewErrors } from '../../App';
-import TextFieldCustom from '../Inputs/TextField';
+import TextFieldCustom from '../inputs/TextField';
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
   inputRoot: {

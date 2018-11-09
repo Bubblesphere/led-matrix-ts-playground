@@ -3,18 +3,18 @@ import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } 
 import { StyleSheet, css } from 'aphrodite';
 import { bit, CanvaRenderers, Character, BitArray, RendererType } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
-import TooltipSlider from '../Components/Inputs/TooltipSlider';
-import ToggleExpansionPanel from '../Components/ToggleExpansionPanel/ToggleExpansionPanel';
-import ToggleExpansionPanelItem from '../Components/ToggleExpansionPanel/ToggleExpansionPanelItem';
-import LedConfigurationFormItem from '../Sections/LedConfigurationFormItem';
+import TooltipSlider from '../components/inputs/TooltipSlider';
+import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
+import ToggleExpansionPanelItem from '../components/toggleExpansionPanel/ToggleExpansionPanelItem';
+import LedConfigurationFormItem from './LedConfigurationFormItem';
 import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Led from '../Components/Led/LedPanel';
+import Led from '../components/led/LedPanel';
 import { toHexString } from '../utils/color';
 import { generate2dArrayOfOffBits } from '../utils/array';
 import { RGBColor } from 'react-color';
-import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from '../Components/Led/DrawableLedPanel';
+import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from '../components/led/DrawableLedPanel';
 
 export enum a {
   mode = 'mode',

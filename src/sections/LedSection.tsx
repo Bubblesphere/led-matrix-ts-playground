@@ -6,8 +6,8 @@ import { StyleSheet, css } from 'aphrodite';
 import { Link } from 'react-router-dom';
 
 import LedMovementControl from './LedMovementControl';
-import LedInput from '../Components/Led/LedInput';
-import LedPanel from '../Components/Led/LedPanel';
+import LedInput from '../components/led/LedInput';
+import LedPanel from '../components/led/LedPanel';
 import LedConfiguration from './LedConfiguration';
 
 const styles = StyleSheet.create({

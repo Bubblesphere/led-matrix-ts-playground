@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { Component } from 'react';
-import TooltipSlider from '../Components/Inputs/TooltipSlider';
+import TooltipSlider from '../components/inputs/TooltipSlider';
 import LedConfigurationFormItem from './LedConfigurationFormItem';
-import ToggleExpansionPanel from '../Components/ToggleExpansionPanel/ToggleExpansionPanel';
-import ToggleExpansionPanelItem from '../Components/ToggleExpansionPanel/ToggleExpansionPanelItem';
+import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
+import ToggleExpansionPanelItem from '../components/toggleExpansionPanel/ToggleExpansionPanelItem';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
 import { LedMatrix, RendererType } from 'led-matrix-ts';
 import { panelTypes, renderers } from '../utils/led-map';
-import SelectCustom from '../Components/Inputs/Select';
-import SwitchCustom from '../Components/Inputs/Switch';
-import ColorPickerDialog from '../Components/Inputs/ColorPickerDialog';
-import InputCustom from '../Components/Inputs/InputCustom';
+import SelectCustom from '../components/inputs/Select';
+import SwitchCustom from '../components/inputs/Switch';
+import ColorPickerDialog from '../components/inputs/ColorPickerDialog';
+import InputCustom from '../components/inputs/InputCustom';
 import { s, LedState } from '../App';
 
 interface ProfileState {

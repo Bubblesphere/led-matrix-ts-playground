@@ -5,11 +5,11 @@ import { StyleSheet, css } from 'aphrodite';
 import { LedMovementState, panelTypes } from './utils/led-map';
 import { RGBColor } from 'react-color';
 import { HashRouter as Router, Link, Route, withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
-import LedSection from './Sections/LedSection';
-import AlphabetSection from './Alphabet/AlphabetSection';
-import Menu from './Sections/Menu';
-import Led from './Components/Led/LedPanel';
-import Structure from './Sections/Structure';
+import LedSection from './sections/LedSection';
+import AlphabetSection from './sections/AlphabetSection';
+import Menu from './sections/Menu';
+import Led from './components/led/LedPanel';
+import Structure from './sections/Structure';
 import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType } from 'led-matrix-ts';
 import { toHexString } from './utils/color';
 
@@ -274,7 +274,7 @@ class App extends Component<AppProps, AppState> {
       if (this.props.location.pathname == '/fullscreen') {
         this.ledMatrix.play();
       }
-
+      
       if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
         this.setPendingCharacter();
       }
