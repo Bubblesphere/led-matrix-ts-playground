@@ -7,11 +7,12 @@ import { RGBColor } from 'react-color';
 import { HashRouter as Router, Link, Route, withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 import LedSection from './sections/LedSection';
 import AlphabetSection from './sections/AlphabetSection';
-import Menu from './sections/Menu';
+import Menu from './sections/MenuSection';
 import Led from './components/led/LedPanel';
 import Structure from './sections/Structure';
-import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType } from 'led-matrix-ts';
+import { Character, LedMatrix, RendererType, CanvaRendererParameter, AsciiRendererParameter, BitArray, PanelType, CharactersJSON } from 'led-matrix-ts';
 import { toHexString } from './utils/color';
+import { updateState } from './utils/state';
 
 interface AppProps extends RouteComponentProps { }
 
@@ -34,7 +35,6 @@ export enum s {
   right = 'right',
   top = 'top',
   panelType = 'panelType',
-  pathCharacters = 'pathCharacters',
   rendererType = 'rendererType',
   reverse = 'reverse',
   size = 'size',
@@ -103,7 +103,6 @@ export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovem
     top: number,
   },
   panelType: PanelType,
-  pathCharacters: string,
   rendererType: RendererType,
   reverse: boolean,
   size: number,
@@ -157,7 +156,6 @@ class App extends Component<AppProps, AppState> {
         top: 1
       },
       panelType: PanelType.SideScrollingPanel,
-      pathCharacters: `${process.env.PUBLIC_URL}/alphabet.json`,
       rendererType: RendererType.CanvasSquare,
       reverse: false,
       size: 1,
@@ -219,17 +217,16 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    console.log('componentDidMount App');
     this.ledMatrix = new LedMatrix({
-      pathCharacters: this.state.led.pathCharacters,
       fps: this.state.led.fps,
       increment: this.state.led.increment,
-      input: this.state.led.input,
       panelType: this.state.led.panelType,
       panelWidth: this.state.led.viewportWidth,
       letterSpacing: this.state.led.letterSpacing,
-      elementId: this.ledMatrixIdCanvas,
-      rendererType: this.state.led.rendererType,
+      renderer: {
+        elementId: this.ledMatrixIdCanvas,
+        rendererType: this.state.led.rendererType,
+      },
       reverse: this.state.led.reverse,
       padding: [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left]
     });
@@ -358,29 +355,6 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  updateStateError(keys: s[], value) {
-    keys.unshift(s.led, s.error);
-    this.updateState(keys, value);
-  }
-
-  updateState(keys: s[], value, callback?: () => void) {
-    this.setState((prevState) => {
-      let newState = Object.assign({}, prevState);
-      keys.reduce((acc, cur: any, index) => {
-        // Make sure the key is a property that exists on prevState.led
-        if (!acc.hasOwnProperty(cur)) {
-          throw `Property ${cur} does not exist ${keys.length > 1 ? `at ${keys.slice(0, index).join('.')}` : ""}`
-        }
-  
-        return acc[cur] = keys.length - 1 == index ?
-          value : // We reached the end, modify the property to our value
-          { ...acc[cur] }; // Continue spreading
-      }, newState);
-
-      return newState;
-    }, callback);
-  }
-
   private setPendingCharacter() {
     try {
       this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
@@ -479,11 +453,13 @@ class App extends Component<AppProps, AppState> {
 
   private loadLedMatrix() {
     this.init = LedMatrixLoadingState.Loading;
-    this.ledMatrix.init(this.state.led.size, () => {
+    CharactersJSON.import(`${process.env.PUBLIC_URL}/alphabet.json`, (characters) => {
+      this.ledMatrix.addCharacters(characters);
+      this.setInput();
+      this.ledMatrix.play();
       this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
       this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
       this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
-      this.ledMatrix.play();
       this.init = LedMatrixLoadingState.Loaded;
     });
   }
@@ -563,6 +539,17 @@ class App extends Component<AppProps, AppState> {
         this.ledMatrix.pause();
         break;
     }
+  }
+
+  updateStateError(keys: s[], value) {
+    keys.unshift(s.led, s.error);
+    this.updateState(keys, value);
+  }
+
+  updateState(keys: s[], value, callback?: () => void) {
+    this.setState((prevState) => {
+      return updateState(keys as string[], value, prevState);
+    }, callback);
   }
 
   render() {

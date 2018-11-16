@@ -5,8 +5,8 @@ import { bit, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../components/inputs/TooltipSlider';
 import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
+import ToggleExpansionPanelSection from '../components/toggleExpansionPanel/ToggleExpansionPanelSection';
 import ToggleExpansionPanelItem from '../components/toggleExpansionPanel/ToggleExpansionPanelItem';
-import LedConfigurationFormItem from './LedConfigurationFormItem';
 import AddIcon from '@material-ui/icons/Add';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -67,7 +67,13 @@ const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
   character: {
     margin: 0,
     padding: spacing.unit,
-    cursor: "pointer"
+    cursor: "pointer",
+    display: 'inline-block',
+    borderRadius: spacing.unit,
+    '&:hover': {
+      background: palette.primary.light,
+      color: palette.primary.contrastText
+    }
   },
   rightIcon: {
     marginLeft: spacing.unit,
@@ -80,27 +86,27 @@ const themeDependantStyles = ({ spacing, palette }: Theme) => createStyles({
 class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<typeof themeDependantStyles>, AlphabetSectionState> {
   // Set the default state
   defaultCharacter = {
-      pattern: '',
-      width: 7,
-      height: 16,
-      data: [
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-        [0, 0, 0, 0, 0, 0, 0] as bit[],
-      ] as bit[][]
+    pattern: '',
+    width: 7,
+    height: 16,
+    data: [
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+      [0, 0, 0, 0, 0, 0, 0] as bit[],
+    ] as bit[][]
   }
 
   state = {
@@ -127,13 +133,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
     // Character was added successfully?
     if (prevProps.pendingCharacter == true && this.props.pendingCharacter == false) {
-      this.updateState([a.pattern], prevState.character.pattern);
+      this.updateState([a.character, a.pattern], prevState.character.pattern);
       this.updateState([a.mode], DrawableLedPanelMode.edit);
     }
 
     // If the character data changed or there's an error, show the save button
-    if ((prevState.character.pattern == this.state.character.pattern 
-      && prevState.character.data != this.state.character.data) 
+    if ((prevState.character.pattern == this.state.character.pattern
+      && prevState.character.data != this.state.character.data)
       || (prevProps.errorPendingCharacter.isError == false && this.props.errorPendingCharacter.isError == true)) {
 
       this.updateState([a.pendingSave], true);
@@ -143,10 +149,13 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   private onSave() {
     this.updateState([a.pendingSave], false);
 
+    const char = this.getCharacterFromState(this.state.character.pattern);
+    console.log(char.output.atIndexRange(0, char.output.size));
+
     if (this.state.mode == DrawableLedPanelMode.create) {
-      this.props.updateState([s.led, s.pendingCharacter], this.getCharacterFromState(this.state.character.pattern));
+      this.props.updateState([s.led, s.pendingCharacter], char);
     } else {
-      this.props.updateState([s.led, s.pendingEditCharacter], this.getCharacterFromState(this.state.character.pattern));
+      this.props.updateState([s.led, s.pendingEditCharacter], char);
     }
   }
 
@@ -186,7 +195,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       pattern: character.pattern
     });
     this.updateState([a.mode], DrawableLedPanelMode.edit);
-    this.updateState([a.expansionPanelIndex], 0);
     this.updateState([a.pendingSave], false);
   }
 
@@ -199,7 +207,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onCharacterDataChangedHandle(data: bit[][]) {
-    this.updateState([a.character, a.data], data); 
+    this.updateState([a.character, a.data], data);
   }
 
   private updateState(keys: a[], value, callback?: () => void) {
@@ -222,17 +230,20 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
         <Grid item container md={3} className={css(styles.common, styles.configuration)}>
           <ToggleExpansionPanel expanded={this.state.expansionPanelIndex} onChange={this.handleExpansionPanelIndexChanged}>
-            <ToggleExpansionPanelItem title="Configuration">
-              <TextField
-                id="input"
-                label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
-                error={this.props.errorPendingCharacter.isError}
-                onChange={this.handlePatternChanged}
-                disabled={this.state.mode == DrawableLedPanelMode.edit}
-                value={this.state.character.pattern}
-              />
+            <ToggleExpansionPanelSection title="Configuration">
+              <ToggleExpansionPanelItem label="Pattern">
+                <TextField
+                  id="input"
+                  label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
+                  error={this.props.errorPendingCharacter.isError}
+                  onChange={this.handlePatternChanged}
+                  disabled={this.state.mode == DrawableLedPanelMode.edit}
+                  value={this.state.character.pattern}
+                />
 
-              <LedConfigurationFormItem label="Width">
+              </ToggleExpansionPanelItem>
+
+              <ToggleExpansionPanelItem label="Width">
                 <TooltipSlider
                   id="width"
                   statePath={[a.character, a.width]}
@@ -241,9 +252,9 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                   lastCapturedValue={this.state.character.width}
                   onInputCaptured={this.updateState}
                 />
-              </LedConfigurationFormItem>
+              </ToggleExpansionPanelItem>
 
-              <LedConfigurationFormItem label="Height">
+              <ToggleExpansionPanelItem label="Height">
                 <TooltipSlider
                   id="height"
                   statePath={[a.character, a.height]}
@@ -252,7 +263,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                   lastCapturedValue={this.state.character.height}
                   onInputCaptured={this.updateState}
                 />
-              </LedConfigurationFormItem>
+              </ToggleExpansionPanelItem>
 
               <Grid item container justify="flex-end">
 
@@ -264,7 +275,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                     </Button> :
                     ''
                 }
-               {
+                {
                   this.state.mode == DrawableLedPanelMode.edit ?
                     <Button variant="contained" type="button" aria-label="Delete" onClick={this.onDelete} color="secondary" size="small" className={this.props.classes.button}>
                       Delete
@@ -275,8 +286,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
 
               </Grid>
 
-            </ToggleExpansionPanelItem>
-            <ToggleExpansionPanelItem title="Characters">
+            </ToggleExpansionPanelSection>
+            <ToggleExpansionPanelSection title="Characters">
               <li style={{ maxHeight: '50vh', overflowY: 'auto', listStyle: 'none' }}>
                 {
 
@@ -300,7 +311,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                   <AddIcon />
                 </Button>
               </Grid>
-            </ToggleExpansionPanelItem>
+            </ToggleExpansionPanelSection>
           </ToggleExpansionPanel>
         </Grid>
       </Grid>

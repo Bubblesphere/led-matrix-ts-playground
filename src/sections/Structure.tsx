@@ -1,15 +1,10 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { Grid, WithStyles, createStyles, withStyles, Theme  } from '@material-ui/core';
-import { StyleSheet, css } from 'aphrodite';
-import { PanelType, RendererType } from 'led-matrix-ts';
-import { LedMovementState } from '../utils/led-map';
-import { RGBColor } from 'react-color';
 import LedSection from './LedSection';
 import AlphabetSection from './AlphabetSection';
-import Menu from './Menu';
+import MenuSection from './MenuSection';
 import LedPanel from '../components/led/LedPanel';
-import { Character } from 'led-matrix-ts';
 import { AppState } from '../App';
 import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
@@ -68,7 +63,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
 
   renderMenu() {
     return (
-      <Menu />
+      <MenuSection />
     )
   }
 

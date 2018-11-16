@@ -27,7 +27,8 @@ const themeDependantStyles = ({spacing, palette}: Theme) => {
       textDecoration: 'none',
       '&:hover': {
         color:  palette.primary.main
-      }
+      },
+      outline: 'none'
     },
     icon: {
       fontSize: 32,

@@ -1,57 +1,48 @@
-import * as React from 'react'
-import { ExpansionPanel, ExpansionPanelSummary, Typography, ExpansionPanelDetails, Grid, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import * as React from 'react';
+import { ReactNode } from 'react';
+import { Grid, Typography, withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
 
-export interface ToggleExpansionPanelItemProps {
-  title: string,
-  expanded?: boolean,
-  index?: number,
-  handleExpanded?: (index: number) => void
+const styles = StyleSheet.create({
+  typoAlignStart: {
+    alignSelf: 'flex-start'
+  },
+  typoAlignCenter: {
+    alignSelf: 'center'
+  }
+});
+
+const themeDependantStyles = ({typography, palette}: Theme) => createStyles({
+  typography: {
+    fontSize: typography.fontSize,
+    color: palette.text.secondary,
+    letterSpacing: 1
+  }
+});
+
+interface ToggleExpansionPanelItemProps {
+  label: string,
+  children: ReactNode,
+  centerLabel?: boolean
 }
 
-const styles = StyleSheet.create({
-  panel: {
-    background: '#fafafa'
-  }
-});
-
-const themeDependantStyles = ({palette}: Theme) => createStyles({
-  title: {
-    color: palette.primary.main
-  }
-});
-
-
 const ToggleExpansionPanelItem: React.SFC<ToggleExpansionPanelItemProps & WithStyles<typeof themeDependantStyles>> = (props) => {
-  const onChange = (e) => {
-    // Close if already opened
-    props.handleExpanded(props.expanded ? -1 : props.index);
-  }
-
   return (
-    <ExpansionPanel className={css(styles.panel)} expanded={props.expanded} data-index={props.index} onChange={onChange}>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography 
-          variant={"headline"} 
-          classes={{root: props.classes.title}}
-        >
-          {props.title}
-        </Typography>
-      </ExpansionPanelSummary>
-
-      <ExpansionPanelDetails>
-        <Grid 
-          item 
-          container 
-          direction={"column"} 
-          spacing={16}
-        >
-          {props.children}
+    <Grid item container>
+      <Grid item xs={5} className={css(props.centerLabel ? styles.typoAlignCenter : styles.typoAlignStart)}>
+        <Typography gutterBottom className={props.classes.typography}>{props.label}</Typography>
+      </Grid>
+      <Grid item xs={7}>
+        <Grid item>
+         {props.children}
         </Grid>
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
-    )
+      </Grid>
+    </Grid>
+  );
+}
+
+ToggleExpansionPanelItem.defaultProps = {
+  centerLabel: true
 }
 
 export default withStyles(themeDependantStyles)(ToggleExpansionPanelItem);

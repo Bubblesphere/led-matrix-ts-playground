@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { Component } from 'react';
-import TooltipSlider from '../components/inputs/TooltipSlider';
-import LedConfigurationFormItem from './LedConfigurationFormItem';
-import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
-import ToggleExpansionPanelItem from '../components/toggleExpansionPanel/ToggleExpansionPanelItem';
+import TooltipSlider from '../../components/inputs/TooltipSlider';
+import ToggleExpansionPanelItem from '../../components/toggleExpansionPanel/ToggleExpansionPanelItem';
+import ToggleExpansionPanel from '../../components/toggleExpansionPanel/ToggleExpansionPanel';
+import ToggleExpansionPanelSection from '../../components/toggleExpansionPanel/ToggleExpansionPanelSection';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
 import { LedMatrix, RendererType } from 'led-matrix-ts';
-import { panelTypes, renderers } from '../utils/led-map';
-import SelectCustom from '../components/inputs/Select';
-import SwitchCustom from '../components/inputs/Switch';
-import ColorPickerDialog from '../components/inputs/ColorPickerDialog';
-import InputCustom from '../components/inputs/InputCustom';
-import { s, LedState } from '../App';
+import { panelTypes, renderers } from '../../utils/led-map';
+import SelectCustom from '../../components/inputs/Select';
+import SwitchCustom from '../../components/inputs/Switch';
+import ColorPickerDialog from '../../components/inputs/ColorPickerDialog';
+import InputCustom from '../../components/inputs/InputCustom';
+import { s, LedState } from '../../App';
 
 interface ProfileState {
   activePanel: number
@@ -43,8 +43,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
 
     return (
       <ToggleExpansionPanel>
-        <ToggleExpansionPanelItem title="Panel">
-          <LedConfigurationFormItem label="Scrolling">
+        <ToggleExpansionPanelSection title="Panel">
+          <ToggleExpansionPanelItem label="Scrolling">
             <SelectCustom
               id="panelType"
               statePath={[s.led, s.panelType]}
@@ -53,29 +53,29 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               value={this.props.panelType}
 
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="Reverse">
+          <ToggleExpansionPanelItem label="Reverse">
             <SwitchCustom
               checked={this.props.reverse}
               statePath={[s.led, s.reverse]}
               id="reverse"
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="Increment">
+          <ToggleExpansionPanelItem label="Increment">
             <TooltipSlider
               id="increment"
               statePath={[s.led, s.increment]}
               min={0}
-              max={20}
+              max={32}
               lastCapturedValue={this.props.increment}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="FPS">
+          <ToggleExpansionPanelItem label="FPS">
             <TooltipSlider
               id="fps"
               statePath={[s.led, s.fps]}
@@ -84,9 +84,9 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               lastCapturedValue={this.props.fps}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="Viewport width">
+          <ToggleExpansionPanelItem label="Viewport width">
             <TooltipSlider
               id="width"
               statePath={[s.led, s.viewportWidth]}
@@ -95,10 +95,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               lastCapturedValue={this.props.viewportWidth}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
-        </ToggleExpansionPanelItem>
-        <ToggleExpansionPanelItem title="Renderer">
-          <LedConfigurationFormItem label="Renderer">
+          </ToggleExpansionPanelItem>
+        </ToggleExpansionPanelSection>
+        <ToggleExpansionPanelSection title="Renderer">
+          <ToggleExpansionPanelItem label="Renderer">
             <SelectCustom
               id="rendererType"
               statePath={[s.led, s.rendererType]}
@@ -106,72 +106,72 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               onInputCaptured={this.props.updateState}
               value={this.props.rendererType}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
           {this.props.rendererType == RendererType.ASCII ?
             (
               <Grid item>
-                <LedConfigurationFormItem label="Character on">
+                <ToggleExpansionPanelItem label="Character on">
                   <InputCustom
                     id="characterOn"
                     statePath={[s.led, s.asciiParameters, s.characterOn]}
                     value={this.props.asciiParameters.characterOn}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
 
-                <LedConfigurationFormItem label="Character off">
+                <ToggleExpansionPanelItem label="Character off">
                   <InputCustom
                     id="characterOff"
                     statePath={[s.led, s.asciiParameters, s.characterOff]}
                     value={this.props.asciiParameters.characterOff}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
               </Grid>
             ) : (
               <Grid item>
-                <LedConfigurationFormItem label="Color on">
+                <ToggleExpansionPanelItem label="Color on">
                   <ColorPickerDialog
                     id="colorOn"
                     statePath={[s.led, s.canvaParameters, s.colorOn]}
                     defaultValue={this.props.canvaParameters.colorOn}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
 
-                <LedConfigurationFormItem label="Color off">
+                <ToggleExpansionPanelItem label="Color off">
                   <ColorPickerDialog
                     id="colorOff"
                     statePath={[s.led, s.canvaParameters, s.colorOff]}
                     defaultValue={this.props.canvaParameters.colorOff}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
 
-                <LedConfigurationFormItem label="Stroke on">
+                <ToggleExpansionPanelItem label="Stroke on">
                   <ColorPickerDialog
                     id="strokeOn"
                     statePath={[s.led, s.canvaParameters, s.strokeOn]}
                     defaultValue={this.props.canvaParameters.strokeOn}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
 
-                <LedConfigurationFormItem label="Stroke off">
+                <ToggleExpansionPanelItem label="Stroke off">
                   <ColorPickerDialog
                     id="strokeOff"
                     statePath={[s.led, s.canvaParameters, s.strokeOff]}
                     defaultValue={this.props.canvaParameters.strokeOff}
                     onInputCaptured={this.props.updateState}
                   />
-                </LedConfigurationFormItem>
+                </ToggleExpansionPanelItem>
               </Grid>
             )
           }
-        </ToggleExpansionPanelItem>
-        <ToggleExpansionPanelItem title="Board">
-          <LedConfigurationFormItem label="Letter spacing">
+        </ToggleExpansionPanelSection>
+        <ToggleExpansionPanelSection title="Board">
+          <ToggleExpansionPanelItem label="Letter spacing">
             <TooltipSlider
               id="letterSpacing"
               statePath={[s.led, s.letterSpacing]}
@@ -180,9 +180,9 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               lastCapturedValue={this.props.letterSpacing}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="Size">
+          <ToggleExpansionPanelItem label="Size">
             <TooltipSlider
               id="size"
               statePath={[s.led, s.size]}
@@ -191,9 +191,9 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               lastCapturedValue={this.props.size}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
+          </ToggleExpansionPanelItem>
 
-          <LedConfigurationFormItem label="Padding" centerLabel={false}>
+          <ToggleExpansionPanelItem label="Padding" centerLabel={false}>
             <TooltipSlider
               id="paddingTop"
               statePath={[s.led, s.padding, s.top]}
@@ -226,8 +226,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               lastCapturedValue={this.props.padding.left}
               onInputCaptured={this.props.updateState}
             />
-          </LedConfigurationFormItem>
-        </ToggleExpansionPanelItem>
+          </ToggleExpansionPanelItem>
+        </ToggleExpansionPanelSection>
       </ToggleExpansionPanel>
     );
   }

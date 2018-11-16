@@ -14,7 +14,7 @@ export interface ToggleExpansionPanelPropsOpt {
 export interface ToggleExpansionPanelProps extends ToggleExpansionPanelPropsOpt {
 }
 
-const themeDependantStyles = ({spacing, palette}: Theme) => createStyles({
+const themeDependantStyles = ({spacing}: Theme) => createStyles({
   container: {
     margin: spacing.unit * 4
   }
