@@ -1,10 +1,16 @@
 import { PanelType } from 'led-matrix-ts';
 
-export enum LedMovementState {
+export enum PlaybackMode {
   play,
   stop,
   pause,
   resume
+}
+
+export enum LedMatrixMode {
+  NotLoaded,
+  Loading,
+  Loaded
 }
 
 export enum Renderers {

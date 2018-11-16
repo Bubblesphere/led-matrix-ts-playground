@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { Grid, WithStyles, withStyles, Theme, createStyles, IconButton } from '@material-ui/core';
 import Fullscreen from '@material-ui/icons/Fullscreen';
-import { LedState } from '../App';
+import { AppState } from '../App';
 import { StyleSheet, css } from 'aphrodite';
 import { Link } from 'react-router-dom';
 
-import LedMovementControl from './led/LedMovementControl';
+import LedPlaybackControl from './led/LedPlaybackControl';
 import LedInput from '../components/led/LedInput';
 import LedPanel from '../components/led/LedPanel';
 import LedConfiguration from './led/LedConfiguration';
@@ -30,7 +30,7 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
   }
 });
 
-interface LedSectionProps extends LedState {};
+interface LedSectionProps extends AppState {};
 
 const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   const {classes, ...propsWithoutClasses} = props;
@@ -41,18 +41,31 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
       <Grid item container justify="center"  direction="column" alignItems="center" md={9} className={props.classes.gridLedContent}>
         
         <Grid item container justify="flex-start">
-          <LedInput {...propsWithoutClasses} />
+          <LedInput 
+            updateState={props.updateState}
+            errors={props.errors}
+            input={props.ledSettings.input} 
+          />
         </Grid>
 
         <Grid item container justify="center">
           <Grid item container id="canvas-container">
-            <LedPanel width={props.viewportWidth} height={props.height} onRendererChanged={props.onRendererChanged} maxHeightPixel="50vh" rendererType={props.rendererType} />
+            <LedPanel 
+              width={props.ledSettings.viewportWidth} 
+              height={props.height} 
+              onRendererChanged={props.onRendererChanged} 
+              maxHeightPixel="50vh" 
+              rendererType={props.ledSettings.rendererType} 
+            />
           </Grid>
         </Grid>
 
         <Grid item container alignItems="center" justify="space-between">
           <Grid item>
-            <LedMovementControl {...propsWithoutClasses} />
+            <LedPlaybackControl 
+              updateState={props.updateState}
+              playbackMode={props.playbackMode} 
+            />
           </Grid>
 
           <Grid item >
@@ -68,7 +81,10 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
       </Grid>
 
       <Grid item container md={3} className={css(styles.configuration)}>
-        <LedConfiguration {...propsWithoutClasses} />
+        <LedConfiguration 
+          ledSettings={props.ledSettings}
+          updateState={props.updateState} 
+        />
       </Grid>
     </Grid>
   )

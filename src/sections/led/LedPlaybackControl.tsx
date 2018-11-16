@@ -4,8 +4,8 @@ import Resume from '@material-ui/icons/PlayArrowRounded'
 import Stop from '@material-ui/icons/StopRounded'
 import Pause from '@material-ui/icons/PauseRounded';
 import IconButtonCustom from '../../components/inputs/IconButton';
-import { LedMovementState } from '../../utils/led-map';
-import { s, LedMovement, CanUpdateState } from '../../App';
+import { PlaybackMode } from '../../utils/led-map';
+import { s, CanUpdateState } from '../../App';
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
   icons: {
@@ -14,18 +14,18 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
   },
 });
 
-interface DisplaySectionProps extends LedMovement, CanUpdateState {
-
+interface LedPlaybackControlProps extends CanUpdateState {
+    playbackMode: PlaybackMode
 }
 
-const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
+const LedPlaybackControl: React.SFC<LedPlaybackControlProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
     <Grid item style={{alignSelf: "flex-end"}} >
-        {props.movementState == LedMovementState.play || props.movementState == LedMovementState.resume ? (
+        {props.playbackMode == PlaybackMode.play || props.playbackMode == PlaybackMode.resume ? (
             <IconButtonCustom  
                 id="state" 
-                statePath={[s.led, s.movementState]} 
-                value={LedMovementState.pause} 
+                statePath={[s.playbackMode]} 
+                value={PlaybackMode.pause} 
                 onInputCaptured={props.updateState}
             >
                 <Pause className={[props.classes.icons].join(' ')} />
@@ -33,8 +33,8 @@ const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof them
         ) : (
             <IconButtonCustom 
                 id="state" 
-                statePath={[s.led, s.movementState]} 
-                value={LedMovementState.resume} 
+                statePath={[s.playbackMode]} 
+                value={PlaybackMode.resume} 
                 onInputCaptured={props.updateState}
             >
                 <Resume className={[props.classes.icons].join(' ')} />
@@ -42,8 +42,8 @@ const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof them
         )}
         <IconButtonCustom
             id="state" 
-            statePath={[s.led, s.movementState]} 
-            value={LedMovementState.stop} 
+            statePath={[s.playbackMode]} 
+            value={PlaybackMode.stop} 
             onInputCaptured={props.updateState}
         >
             <Stop className={props.classes.icons} />
@@ -52,4 +52,4 @@ const LedMovementControl: React.SFC<DisplaySectionProps & WithStyles<typeof them
   )
 }
 
-export default withStyles(themeDependantStyles)(LedMovementControl);
+export default withStyles(themeDependantStyles)(LedPlaybackControl);

@@ -153,9 +153,9 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     console.log(char.output.atIndexRange(0, char.output.size));
 
     if (this.state.mode == DrawableLedPanelMode.create) {
-      this.props.updateState([s.led, s.pendingCharacter], char);
+      this.props.updateState([s.pendingCharacter], char);
     } else {
-      this.props.updateState([s.led, s.pendingEditCharacter], char);
+      this.props.updateState([s.pendingEditCharacter], char);
     }
   }
 
@@ -165,7 +165,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   }
 
   private onDelete() {
-    this.props.updateState([s.led, s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
+    this.props.updateState([s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
     this.updateState([a.character], Object.assign({}, this.defaultCharacter));
     this.updateState([a.mode], DrawableLedPanelMode.create);
     this.updateState([a.expansionPanelIndex], 1);

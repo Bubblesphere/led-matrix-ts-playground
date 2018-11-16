@@ -12,13 +12,15 @@ import SelectCustom from '../../components/inputs/Select';
 import SwitchCustom from '../../components/inputs/Switch';
 import ColorPickerDialog from '../../components/inputs/ColorPickerDialog';
 import InputCustom from '../../components/inputs/InputCustom';
-import { s, LedState } from '../../App';
+import { s, LedSettingsState, CanUpdateState } from '../../App';
 
 interface ProfileState {
   activePanel: number
 }
 
-export interface LedConfigurationProps extends LedState { }
+export interface LedConfigurationProps extends CanUpdateState {
+  ledSettings: LedSettingsState
+}
 
 const styles = StyleSheet.create({
 });
@@ -47,18 +49,18 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Scrolling">
             <SelectCustom
               id="panelType"
-              statePath={[s.led, s.panelType]}
+              statePath={[s.ledSettings, s.panelType]}
               menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
               onInputCaptured={this.props.updateState}
-              value={this.props.panelType}
+              value={this.props.ledSettings.panelType}
 
             />
           </ToggleExpansionPanelItem>
 
           <ToggleExpansionPanelItem label="Reverse">
             <SwitchCustom
-              checked={this.props.reverse}
-              statePath={[s.led, s.reverse]}
+              checked={this.props.ledSettings.reverse}
+              statePath={[s.ledSettings, s.reverse]}
               id="reverse"
               onInputCaptured={this.props.updateState}
             />
@@ -67,10 +69,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Increment">
             <TooltipSlider
               id="increment"
-              statePath={[s.led, s.increment]}
+              statePath={[s.ledSettings, s.increment]}
               min={0}
               max={32}
-              lastCapturedValue={this.props.increment}
+              lastCapturedValue={this.props.ledSettings.increment}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -78,10 +80,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="FPS">
             <TooltipSlider
               id="fps"
-              statePath={[s.led, s.fps]}
+              statePath={[s.ledSettings, s.fps]}
               min={0}
               max={60}
-              lastCapturedValue={this.props.fps}
+              lastCapturedValue={this.props.ledSettings.fps}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -89,10 +91,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Viewport width">
             <TooltipSlider
               id="width"
-              statePath={[s.led, s.viewportWidth]}
+              statePath={[s.ledSettings, s.viewportWidth]}
               min={1}
               max={200}
-              lastCapturedValue={this.props.viewportWidth}
+              lastCapturedValue={this.props.ledSettings.viewportWidth}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -101,21 +103,21 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Renderer">
             <SelectCustom
               id="rendererType"
-              statePath={[s.led, s.rendererType]}
+              statePath={[s.ledSettings, s.rendererType]}
               menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
               onInputCaptured={this.props.updateState}
-              value={this.props.rendererType}
+              value={this.props.ledSettings.rendererType}
             />
           </ToggleExpansionPanelItem>
 
-          {this.props.rendererType == RendererType.ASCII ?
+          {this.props.ledSettings.rendererType == RendererType.ASCII ?
             (
               <Grid item>
                 <ToggleExpansionPanelItem label="Character on">
                   <InputCustom
                     id="characterOn"
-                    statePath={[s.led, s.asciiParameters, s.characterOn]}
-                    value={this.props.asciiParameters.characterOn}
+                    statePath={[s.ledSettings, s.asciiParameters, s.characterOn]}
+                    value={this.props.ledSettings.asciiParameters.characterOn}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -123,8 +125,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                 <ToggleExpansionPanelItem label="Character off">
                   <InputCustom
                     id="characterOff"
-                    statePath={[s.led, s.asciiParameters, s.characterOff]}
-                    value={this.props.asciiParameters.characterOff}
+                    statePath={[s.ledSettings, s.asciiParameters, s.characterOff]}
+                    value={this.props.ledSettings.asciiParameters.characterOff}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -134,8 +136,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                 <ToggleExpansionPanelItem label="Color on">
                   <ColorPickerDialog
                     id="colorOn"
-                    statePath={[s.led, s.canvaParameters, s.colorOn]}
-                    defaultValue={this.props.canvaParameters.colorOn}
+                    statePath={[s.ledSettings, s.canvaParameters, s.colorOn]}
+                    defaultValue={this.props.ledSettings.canvaParameters.colorOn}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -143,8 +145,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                 <ToggleExpansionPanelItem label="Color off">
                   <ColorPickerDialog
                     id="colorOff"
-                    statePath={[s.led, s.canvaParameters, s.colorOff]}
-                    defaultValue={this.props.canvaParameters.colorOff}
+                    statePath={[s.ledSettings, s.canvaParameters, s.colorOff]}
+                    defaultValue={this.props.ledSettings.canvaParameters.colorOff}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -152,8 +154,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                 <ToggleExpansionPanelItem label="Stroke on">
                   <ColorPickerDialog
                     id="strokeOn"
-                    statePath={[s.led, s.canvaParameters, s.strokeOn]}
-                    defaultValue={this.props.canvaParameters.strokeOn}
+                    statePath={[s.ledSettings, s.canvaParameters, s.strokeOn]}
+                    defaultValue={this.props.ledSettings.canvaParameters.strokeOn}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -161,8 +163,8 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                 <ToggleExpansionPanelItem label="Stroke off">
                   <ColorPickerDialog
                     id="strokeOff"
-                    statePath={[s.led, s.canvaParameters, s.strokeOff]}
-                    defaultValue={this.props.canvaParameters.strokeOff}
+                    statePath={[s.ledSettings, s.canvaParameters, s.strokeOff]}
+                    defaultValue={this.props.ledSettings.canvaParameters.strokeOff}
                     onInputCaptured={this.props.updateState}
                   />
                 </ToggleExpansionPanelItem>
@@ -174,10 +176,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Letter spacing">
             <TooltipSlider
               id="letterSpacing"
-              statePath={[s.led, s.letterSpacing]}
+              statePath={[s.ledSettings, s.letterSpacing]}
               min={0}
               max={20}
-              lastCapturedValue={this.props.letterSpacing}
+              lastCapturedValue={this.props.ledSettings.letterSpacing}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -185,10 +187,10 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Size">
             <TooltipSlider
               id="size"
-              statePath={[s.led, s.size]}
+              statePath={[s.ledSettings, s.size]}
               min={1}
               max={5}
-              lastCapturedValue={this.props.size}
+              lastCapturedValue={this.props.ledSettings.size}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -196,34 +198,34 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Padding" centerLabel={false}>
             <TooltipSlider
               id="paddingTop"
-              statePath={[s.led, s.padding, s.top]}
+              statePath={[s.ledSettings, s.padding, s.top]}
               min={0}
               max={20}
-              lastCapturedValue={this.props.padding.top}
+              lastCapturedValue={this.props.ledSettings.padding.top}
               onInputCaptured={this.props.updateState}
             />
             <TooltipSlider
               id="paddingRight"
-              statePath={[s.led, s.padding, s.right]}
+              statePath={[s.ledSettings, s.padding, s.right]}
               min={0}
               max={20}
-              lastCapturedValue={this.props.padding.right}
+              lastCapturedValue={this.props.ledSettings.padding.right}
               onInputCaptured={this.props.updateState}
             />
             <TooltipSlider
               id="paddingBottom"
-              statePath={[s.led, s.padding, s.bottom]}
+              statePath={[s.ledSettings, s.padding, s.bottom]}
               min={0}
               max={20}
-              lastCapturedValue={this.props.padding.bottom}
+              lastCapturedValue={this.props.ledSettings.padding.bottom}
               onInputCaptured={this.props.updateState}
             />
             <TooltipSlider
               id="paddingLeft"
-              statePath={[s.led, s.padding, s.left]}
+              statePath={[s.ledSettings, s.padding, s.left]}
               min={0}
               max={20}
-              lastCapturedValue={this.props.padding.left}
+              lastCapturedValue={this.props.ledSettings.padding.left}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>

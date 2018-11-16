@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from 'react';
 import { Grid } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { LedMovementState, panelTypes } from './utils/led-map';
+import { LedMatrixMode, PlaybackMode, panelTypes } from './utils/led-map';
 import { RGBColor } from 'react-color';
 import { HashRouter as Router, Link, Route, withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 import LedSection from './sections/LedSection';
@@ -17,7 +17,7 @@ import { updateState } from './utils/state';
 interface AppProps extends RouteComponentProps { }
 
 export enum s {
-  led = 'led',
+  ledSettings = 'ledSettings',
   asciiParameters = 'asciiParameters',
   characterOff = 'characterOff',
   characterOn = 'characterOn',
@@ -39,9 +39,8 @@ export enum s {
   reverse = 'reverse',
   size = 'size',
   letterSpacing = 'letterSpacing',
-  movementState = 'movementState',
   viewportWidth = 'viewportWidth',
-  error = 'error',
+  errors = 'errors',
   isError = 'isError',
   message = 'message',
   pendingCharacter = 'pendingCharacter',
@@ -50,7 +49,58 @@ export enum s {
   usedCharacters = 'usedCharacters',
   loadedCharacters = 'loadedCharacters',
   height = 'height',
-  onRendererElementReady = 'onRendererElementReady'
+  onRendererElementReady = 'onRendererElementReady',
+  ledMatrixMode = 'ledMatrixMode',
+  playbackMode = 'playbackMode'
+}
+
+export interface AppState extends CanUpdateState, CanUpdateStateErrors {
+  ledSettings: LedSettingsState,
+  errors: AppErrors
+  ledMatrixMode: LedMatrixMode,
+  playbackMode: PlaybackMode,
+  pendingCharacter: Character
+  pendingEditCharacter: Character
+  pendingDeleteCharacter: Character
+  usedCharacters: Character[]
+  height: number
+  onRendererChanged: () => void
+}
+
+export interface LedSettingsState {
+  asciiParameters: {
+    characterOff: string
+    characterOn: string
+  },
+  canvaParameters: {
+    colorOff: RGBColor
+    colorOn: RGBColor
+    strokeOff: RGBColor
+    strokeOn: RGBColor
+  },
+  fps: number
+  increment: number
+  padding: {
+    bottom: number
+    left: number
+    right: number
+    top: number
+  },
+  panelType: PanelType
+  rendererType: RendererType
+  reverse: boolean
+  size: number
+  letterSpacing: number
+  viewportWidth: number
+  loadedCharacters: Character[],
+  input: string,
+}
+
+export interface AppErrors {
+  input: Error,
+  pendingCharacter: Error
+  pendingEditCharacter: Error,
+  pendingDeleteCharacter: Error
 }
 
 export type Error = {
@@ -62,134 +112,83 @@ export interface CanUpdateState {
   updateState: (keys: s[], value: any, callback?: () => void) => void
 }
 
-export interface LedMovement {
-  movementState: LedMovementState
-}
-
 export interface CanUpdateStateErrors {
   updateStateError: (keys: s[], value: any) => void,
 }
 
-export interface CanViewErrors {
-  error: {
-    input: Error,
-    pendingCharacter: Error
-    pendingEditCharacter: Error,
-    pendingDeleteCharacter: Error
-  }
-}
-
-export interface LedInput {
-  input: string
-}
-
-export interface LedState extends CanUpdateState, CanUpdateStateErrors, LedMovement, LedInput, LedInput, CanViewErrors {
-  asciiParameters: {
-    characterOff: string,
-    characterOn: string,
-  },
-  canvaParameters: {
-    colorOff: RGBColor,
-    colorOn: RGBColor,
-    strokeOff: RGBColor,
-    strokeOn: RGBColor,
-  },
-  fps: number,
-  increment: number,
-  padding: {
-    bottom: number,
-    left: number
-    right: number,
-    top: number,
-  },
-  panelType: PanelType,
-  rendererType: RendererType,
-  reverse: boolean,
-  size: number,
-  letterSpacing: number,
-  viewportWidth: number,
-  pendingCharacter: Character,
-  pendingEditCharacter: Character,
-  pendingDeleteCharacter: Character,
-  usedCharacters: Character[],
-  loadedCharacters: Character[],
-  height: number,
-  onRendererChanged: () => void
-}
-
-export interface AppState {
-  led: LedState
-}
-
-enum LedMatrixLoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
 
 class App extends Component<AppProps, AppState> {
   private ledMatrix: LedMatrix;
   private ledMatrixIdCanvas = 'led-matrix';
   private ledMatrixIdAscii = 'led-matrix';
 
-  private init = LedMatrixLoadingState.NotLoaded;
+  private getLedSettingsFromLocalStorage(): LedSettingsState {
+    const settings = JSON.parse(localStorage.getItem('ledSettings'));
+    const loadedCharacters = settings.loadedCharacters.map(x => new Character(x.pattern, new BitArray(x.output), x.width))
+    return {
+      ...settings,
+      loadedCharacters: loadedCharacters
+    }
+  }
 
   state = {
-    led: {
-      asciiParameters: {
-        characterOff: ' ',
-        characterOn: 'X',
-      },
-      canvaParameters: {
-        colorOff: { r: 44, g: 62, b: 80, a: 1 } as RGBColor,
-        colorOn: { r: 39, g: 174, b: 96, a: 1 } as RGBColor,
-        strokeOff: { r: 52, g: 73, b: 94, a: 1 } as RGBColor,
-        strokeOn: { r: 46, g: 204, b: 113, a: 1 } as RGBColor,
-      },
-      fps: 25,
-      increment: 1,
-      input: 'test',
-      padding: {
-        bottom: 1,
-        left: 1,
-        right: 15,
-        top: 1
-      },
-      panelType: PanelType.SideScrollingPanel,
-      rendererType: RendererType.CanvasSquare,
-      reverse: false,
-      size: 1,
-      letterSpacing: 1,
-      movementState: LedMovementState.play,
-      viewportWidth: 50,
-      updateState: this.updateState.bind(this),
-      updateStateError: this.updateStateError.bind(this),
-      error: {
-        input: {
-          isError: false,
-          message: ''
+    ledSettings: localStorage.getItem('ledSettings') ?
+      this.getLedSettingsFromLocalStorage() : {
+        asciiParameters: {
+          characterOff: ' ',
+          characterOn: 'X',
         },
-        pendingCharacter: {
-          isError: false,
-          message: ''
+        canvaParameters: {
+          colorOff: { r: 44, g: 62, b: 80, a: 1 } as RGBColor,
+          colorOn: { r: 39, g: 174, b: 96, a: 1 } as RGBColor,
+          strokeOff: { r: 52, g: 73, b: 94, a: 1 } as RGBColor,
+          strokeOn: { r: 46, g: 204, b: 113, a: 1 } as RGBColor,
         },
-        pendingEditCharacter: {
-          isError: false,
-          message: ''
+        fps: 25,
+        increment: 1,
+        input: 'test',
+        padding: {
+          bottom: 1,
+          left: 1,
+          right: 15,
+          top: 1
         },
-        pendingDeleteCharacter: {
-          isError: false,
-          message: ''
-        }
+        panelType: PanelType.SideScrollingPanel,
+        rendererType: RendererType.CanvasSquare,
+        reverse: false,
+        size: 1,
+        letterSpacing: 1,
+        viewportWidth: 50,
+        loadedCharacters: null,
       },
-      pendingCharacter: null,
-      pendingEditCharacter: null,
-      pendingDeleteCharacter: null,
-      usedCharacters: null,
-      loadedCharacters: null,
-      height: 8,
-      onRendererChanged: this.onRendererChanged.bind(this)
+    errors: {
+      input: {
+        isError: false,
+        message: ''
+      },
+      pendingCharacter: {
+        isError: false,
+        message: ''
+      },
+      pendingEditCharacter: {
+        isError: false,
+        message: ''
+      },
+      pendingDeleteCharacter: {
+        isError: false,
+        message: ''
+      }
     },
+    ledMatrixMode: LedMatrixMode.NotLoaded,
+    playbackMode: PlaybackMode.play,
+    pendingCharacter: null,
+    pendingEditCharacter: null,
+    pendingDeleteCharacter: null,
+    usedCharacters: null,
+    height: 8,
+    onRendererChanged: this.onRendererChanged.bind(this),
+    updateState: this.updateState.bind(this),
+    updateStateError: this.updateStateError.bind(this),
   }
 
   constructor(props) {
@@ -202,211 +201,232 @@ class App extends Component<AppProps, AppState> {
     this.setFps = this.setFps.bind(this);
     this.setIncrement = this.setIncrement.bind(this);
     this.setInput = this.setInput.bind(this);
-    this.setMovement = this.setMovement.bind(this);
+    this.setPlaybackMode = this.setPlaybackMode.bind(this);
     this.setPadding = this.setPadding.bind(this);
     this.setPanelType = this.setPanelType.bind(this);
-    this.setPendingCharacter = this.setPendingCharacter.bind(this);
-    this.setPendingEditCharacter = this.setPendingEditCharacter.bind(this);
-    this.setPendingDeleteCharacter = this.setPendingDeleteCharacter.bind(this);
+    this.handleAddCharacter = this.handleAddCharacter.bind(this);
+    this.handleEditCharacter = this.handleEditCharacter.bind(this);
+    this.handleDeleteCharacter = this.handleDeleteCharacter.bind(this);
     this.setRenderer = this.setRenderer.bind(this);
     this.setRendererParameters = this.setRendererParameters.bind(this);
     this.setReverse = this.setReverse.bind(this);
     this.setSize = this.setSize.bind(this);
     this.setSpacing = this.setSpacing.bind(this);
     this.setViewportWidth = this.setViewportWidth.bind(this);
+    this.handlePotentialErrors = this.handlePotentialErrors.bind(this);
+    this.loadLedMatrixPostCharacters = this.loadLedMatrixPostCharacters.bind(this);
   }
 
   componentDidMount() {
+    // Initialize library with state at mount
     this.ledMatrix = new LedMatrix({
-      fps: this.state.led.fps,
-      increment: this.state.led.increment,
-      panelType: this.state.led.panelType,
-      panelWidth: this.state.led.viewportWidth,
-      letterSpacing: this.state.led.letterSpacing,
+      fps: this.state.ledSettings.fps,
+      increment: this.state.ledSettings.increment,
+      panelType: this.state.ledSettings.panelType,
+      panelWidth: this.state.ledSettings.viewportWidth,
+      letterSpacing: this.state.ledSettings.letterSpacing,
       renderer: {
-        elementId: this.ledMatrixIdCanvas,
-        rendererType: this.state.led.rendererType,
+        elementId: this.state.ledSettings.rendererType == RendererType.ASCII ?
+          this.ledMatrixIdAscii : this.ledMatrixIdCanvas,
+        rendererType: this.state.ledSettings.rendererType,
       },
-      reverse: this.state.led.reverse,
-      padding: [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left]
+      reverse: this.state.ledSettings.reverse,
+      padding: [
+        this.state.ledSettings.padding.top,
+        this.state.ledSettings.padding.right,
+        this.state.ledSettings.padding.bottom,
+        this.state.ledSettings.padding.left
+      ]
     });
 
     this.setRendererParameters();
 
-    // Force main page if ledMatrix isn't loaded
-    if (this.init == LedMatrixLoadingState.NotLoaded) {
+
+    if (this.state.ledMatrixMode == LedMatrixMode.NotLoaded) {
       if (this.props.location.pathname == '/') {
+        // Load library if the panel DOM element is visible on mount
         this.loadLedMatrix();
       } else {
+        // Force redirect to main page if ledMatrix isn't loaded
         this.props.history.push('/');
       }
     }
 
-    this.props.history.listen((location, action) => {
-      if (this.init == LedMatrixLoadingState.Loaded) {
+    this.props.history.listen((location) => {
+      if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
         if (location.pathname == '/') {
-          this.setMovement();
+          this.setPlaybackMode();
           this.setRenderer();
           this.setRendererParameters();
         } else {
           this.ledMatrix.pause();
         }
-      } 
-    });  
+      }
+    });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.init == LedMatrixLoadingState.NotLoaded) {
-      if (this.props.location.pathname == '/') {
-        this.loadLedMatrix();
-      }
+  componentDidUpdate(prevProps: AppProps, prevState: AppState) {
+    if (this.state.ledMatrixMode == LedMatrixMode.NotLoaded
+      && this.props.location.pathname == '/') {
+      this.loadLedMatrix();
     }
 
-    if (this.init == LedMatrixLoadingState.Loaded) {
-
+    if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
       if (this.props.location.pathname == '/fullscreen') {
+        // Make sure the led panel is playing when using fullscreen
         this.ledMatrix.play();
       }
 
-      if (this.state.led.pendingCharacter != prevState.led.pendingCharacter && this.state.led.pendingCharacter != null) {
-        this.setPendingCharacter();
+      if (prevState.pendingCharacter != this.state.pendingCharacter
+        && this.state.pendingCharacter != null) {
+        this.handleAddCharacter();
       }
 
-      if (this.state.led.pendingEditCharacter != prevState.led.pendingEditCharacter && this.state.led.pendingEditCharacter != null) {
-        this.setPendingEditCharacter();
+      if (prevState.pendingEditCharacter != this.state.pendingEditCharacter
+        && this.state.pendingEditCharacter != null) {
+        this.handleEditCharacter();
       }
 
-      if (this.state.led.pendingDeleteCharacter != prevState.led.pendingDeleteCharacter && this.state.led.pendingDeleteCharacter != null) {
-        this.setPendingDeleteCharacter();
+      if (prevState.pendingDeleteCharacter != this.state.pendingDeleteCharacter
+        && this.state.pendingDeleteCharacter != null) {
+        this.handleDeleteCharacter();
       }
 
-      if (this.state.led.panelType != prevState.led.panelType) {
-        this.setPanelType();
+      if (prevState.playbackMode != this.state.playbackMode) {
+        this.setPlaybackMode();
       }
 
-      if (this.state.led.fps != prevState.led.fps) {
-        this.setFps();
+      if (this.state.height != this.ledMatrix.height) {
+        this.state.updateState([s.height], this.ledMatrix.height);
       }
 
-      if (this.state.led.increment != prevState.led.increment) {
-        this.setIncrement();
-      }
+      if (prevState.ledSettings != this.state.ledSettings) {
+        // Save any changes to led settings to local storage
+        localStorage.setItem('ledSettings', JSON.stringify({
+          ...this.state.ledSettings,
+          loadedCharacters: this.state.ledSettings.loadedCharacters.map(x => ({
+            pattern: x.pattern,
+            output: x.output.atIndexRange(0, x.output.size),
+            width: x.width
+          }))
+        }));
 
-      if (this.state.led.viewportWidth != prevState.led.viewportWidth) {
-        this.setViewportWidth();
-      }
+        if (prevState.ledSettings.panelType != this.state.ledSettings.panelType) {
+          this.setPanelType();
+        }
 
-      if (this.state.led.letterSpacing != prevState.led.letterSpacing) {
-        this.setSpacing();
-      }
+        if (prevState.ledSettings.fps != this.state.ledSettings.fps) {
+          this.setFps();
+        }
 
-      if (this.state.led.input != prevState.led.input) {
+        if (prevState.ledSettings.increment != this.state.ledSettings.increment) {
+          this.setIncrement();
+        }
+
+        if (prevState.ledSettings.viewportWidth != this.state.ledSettings.viewportWidth) {
+          this.setViewportWidth();
+        }
+
+        if (prevState.ledSettings.letterSpacing != this.state.ledSettings.letterSpacing) {
+          this.setSpacing();
+        }
+
+        if (prevState.ledSettings.input != this.state.ledSettings.input) {
+          this.setInput();
+        }
+
+        if (prevState.ledSettings.size != this.state.ledSettings.size) {
+          this.setSize();
+        }
+
+        if (prevState.ledSettings.reverse != this.state.ledSettings.reverse) {
+          this.setReverse();
+        }
+
+        if (prevState.ledSettings.padding != this.state.ledSettings.padding) {
+          this.setPadding();
+        }
+
+        const rendererChanged = prevState.ledSettings.rendererType != this.state.ledSettings.rendererType;
+        if (this.state.ledSettings.rendererType == RendererType.ASCII) {
+          if (rendererChanged ||
+            prevState.ledSettings.asciiParameters.characterOn != this.state.ledSettings.asciiParameters.characterOn) {
+            this.setCharacterBitOn();
+          }
+
+          if (rendererChanged ||
+            prevState.ledSettings.asciiParameters.characterOff != this.state.ledSettings.asciiParameters.characterOff) {
+            this.setCharacterBitOff();
+          }
+        } else {
+          if (rendererChanged ||
+            prevState.ledSettings.canvaParameters.colorOn != this.state.ledSettings.canvaParameters.colorOn) {
+            this.setColorBitOn();
+          }
+
+          if (rendererChanged ||
+            prevState.ledSettings.canvaParameters.colorOff != this.state.ledSettings.canvaParameters.colorOff) {
+            this.setColorBitOff();
+          }
+
+          if (rendererChanged ||
+            prevState.ledSettings.canvaParameters.strokeOn != this.state.ledSettings.canvaParameters.strokeOn) {
+            this.setColorStrokeOn();
+          }
+
+          if (rendererChanged ||
+            prevState.ledSettings.canvaParameters.strokeOff != this.state.ledSettings.canvaParameters.strokeOff) {
+            this.setColorStrokeOff();
+          }
+        }
+      }
+    }
+  }
+
+  private handleAddCharacter() {
+    this.handlePotentialErrors(s.pendingCharacter, () => {
+      this.ledMatrix.addCharacter(this.state.pendingCharacter);
+      this.state.updateState([s.pendingCharacter], null);
+      this.state.updateState([s.ledSettings, s.loadedCharacters], this.ledMatrix.loadedCharacters, () => {
         this.setInput();
-      }
-
-      if (this.state.led.size != prevState.led.size) {
         this.setSize();
-      }
-
-      if (this.state.led.reverse != prevState.led.reverse) {
-        this.setReverse();
-      }
-
-      if (this.state.led.padding.top != prevState.led.padding.top ||
-        this.state.led.padding.right != prevState.led.padding.right ||
-        this.state.led.padding.bottom != prevState.led.padding.bottom ||
-        this.state.led.padding.left != prevState.led.padding.left) {
-        this.setPadding();
-      }
-
-      if (this.state.led.movementState != prevState.led.movementState) {
-        this.setMovement();
-      }
-
-      if (this.state.led.rendererType == RendererType.ASCII) {
-        if (this.state.led.asciiParameters.characterOn != prevState.led.characterOn || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setCharacterBitOn();
-        }
-
-        if (this.state.led.asciiParameters.characterOff != prevState.led.characterOff || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setCharacterBitOff();
-        }
-      } else {
-        if (this.state.led.canvaParameters.colorOn != prevState.led.colorOn || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setColorBitOn();
-        }
-
-        if (this.state.led.canvaParameters.colorOff != prevState.led.colorOff || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setColorBitOff();
-        }
-
-        if (this.state.led.canvaParameters.strokeOn != prevState.led.strokeOn || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setColorStrokeOn();
-        }
-
-        if (this.state.led.canvaParameters.strokeOff != prevState.led.strokeOff || this.state.led.rendererType != prevState.led.rendererType) {
-          this.setColorStrokeOff();
-        }
-      }
-
-      if (prevState.led.height != this.ledMatrix.height) {
-        this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
-      }
-    }
-  }
-
-  private setPendingCharacter() {
-    try {
-      this.ledMatrix.addCharacter(this.state.led.pendingCharacter);
-      if (this.state.led.error.pendingCharacter.isError == true) {
-        this.state.led.updateStateError([s.pendingCharacter], {
-          isError: false,
-          message: ''
-        });
-      }
-      this.state.led.updateState([s.led, s.pendingCharacter], null);
-      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
-    } catch (e) {
-      this.state.led.updateStateError([s.pendingCharacter], {
-        isError: true,
-        message: e
       });
-    }
-
+    });
   }
 
-  private setPendingEditCharacter() {
-    try {
-      this.ledMatrix.editCharacter(this.state.led.pendingEditCharacter);
-      if (this.state.led.error.pendingEditCharacter.isError == true) {
-        this.state.led.updateStateError([s.pendingEditCharacter], {
-          isError: false,
-          message: ''
-        });
-      }
-      this.state.led.updateState([s.led, s.pendingEditCharacter], null);
-      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
-    } catch (e) {
-      this.state.led.updateStateError([s.pendingEditCharacter], {
-        isError: true,
-        message: e
+  private handleEditCharacter() {
+    this.handlePotentialErrors(s.pendingEditCharacter, () => {
+      this.ledMatrix.editCharacter(this.state.pendingEditCharacter);
+      this.state.updateState([s.pendingEditCharacter], null);
+      this.state.updateState([s.ledSettings, s.loadedCharacters], this.ledMatrix.loadedCharacters, () => {
+        this.setInput();
+        this.setSize();
       });
-    }
+    });
   }
 
-  private setPendingDeleteCharacter() {
+  private handleDeleteCharacter() {
+    this.handlePotentialErrors(s.pendingDeleteCharacter, () => {
+      this.ledMatrix.deleteCharacter(this.state.pendingDeleteCharacter);
+      this.state.updateState([s.pendingDeleteCharacter], null);
+      this.state.updateState([s.ledSettings, s.loadedCharacters], this.ledMatrix.loadedCharacters, () => {
+        this.setInput();
+        this.setSize();
+      });
+    });
+  }
+
+  private handlePotentialErrors(errorPlaceholder: s, callback: () => void) {
     try {
-      this.ledMatrix.deleteCharacter(this.state.led.pendingDeleteCharacter);
-      if (this.state.led.error.pendingDeleteCharacter.isError == true) {
-        this.state.led.updateStateError([s.pendingDeleteCharacter], {
+      callback();
+      if (this.state.errors[errorPlaceholder].isError == true) {
+        this.state.updateStateError([errorPlaceholder], {
           isError: false,
           message: ''
         });
       }
-      this.state.led.updateState([s.led, s.pendingDeleteCharacter], null);
-      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
     } catch (e) {
-      this.state.led.updateStateError([s.pendingDeleteCharacter], {
+      this.state.updateStateError([errorPlaceholder], {
         isError: true,
         message: e
       });
@@ -414,54 +434,85 @@ class App extends Component<AppProps, AppState> {
   }
 
   private setPanelType() {
-    this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.state.led.panelType)[0].id;
+    this.ledMatrix.panelType = panelTypes.filter(x => x.id == this.state.ledSettings.panelType)[0].id;
   }
 
   private setIncrement() {
-    this.ledMatrix.increment = this.state.led.increment;
+    this.ledMatrix.increment = this.state.ledSettings.increment;
   }
 
   private setFps() {
-    this.ledMatrix.fps = this.state.led.fps;
+    this.ledMatrix.fps = this.state.ledSettings.fps;
   }
 
   private setViewportWidth() {
-    this.ledMatrix.viewportWidth = this.state.led.viewportWidth;
+    this.ledMatrix.viewportWidth = this.state.ledSettings.viewportWidth;
   }
 
   private setSpacing() {
-    this.ledMatrix.spacing = this.state.led.letterSpacing;
+    this.ledMatrix.spacing = this.state.ledSettings.letterSpacing;
   }
 
   private setInput() {
-    try {
-      this.ledMatrix.input = this.state.led.input;
-      this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
-      if (this.state.led.error.input.isError == true) {
-        this.state.led.updateStateError([s.input], {
-          isError: false,
-          message: ''
-        });
-      }
-    } catch (e) {
-      this.state.led.updateStateError([s.input], {
-        isError: true,
-        message: e
-      });
-    }
+    this.handlePotentialErrors(s.input, () => {
+      this.ledMatrix.input = this.state.ledSettings.input;
+      this.state.updateState([s.usedCharacters], this.ledMatrix.usedCharacters);
+    });
   }
 
-  private loadLedMatrix() {
-    this.init = LedMatrixLoadingState.Loading;
-    CharactersJSON.import(`${process.env.PUBLIC_URL}/alphabet.json`, (characters) => {
-      this.ledMatrix.addCharacters(characters);
-      this.setInput();
-      this.ledMatrix.play();
-      this.state.led.updateState([s.led, s.usedCharacters], this.ledMatrix.usedCharacters);
-      this.state.led.updateState([s.led, s.loadedCharacters], this.ledMatrix.loadedCharacters);
-      this.state.led.updateState([s.led, s.height], this.ledMatrix.height);
-      this.init = LedMatrixLoadingState.Loaded;
+  private setReverse() {
+    this.ledMatrix.reverse = this.state.ledSettings.reverse;
+  }
+
+  private setSize() {
+    this.ledMatrix.size = this.state.ledSettings.size;
+  }
+
+  private setPadding() {
+    this.ledMatrix.padding = [
+      this.state.ledSettings.padding.top,
+      this.state.ledSettings.padding.right,
+      this.state.ledSettings.padding.bottom,
+      this.state.ledSettings.padding.left
+    ];
+  }
+
+  private setRenderer() {
+    this.ledMatrix.setRendererFromBuilder({
+      elementId: this.state.ledSettings.rendererType == RendererType.ASCII ?
+        this.ledMatrixIdAscii : this.ledMatrixIdCanvas,
+      rendererType: this.state.ledSettings.rendererType
     });
+  }
+
+  private setCharacterBitOn() {
+    (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = 
+      this.state.ledSettings.asciiParameters.characterOn;
+  }
+
+  private setCharacterBitOff() {
+    (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = 
+    this.state.ledSettings.asciiParameters.characterOff;
+  }
+
+  private setColorBitOn() {
+    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = 
+    toHexString(this.state.ledSettings.canvaParameters.colorOn);
+  }
+
+  private setColorBitOff() {
+    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = 
+    toHexString(this.state.ledSettings.canvaParameters.colorOff);
+  }
+
+  private setColorStrokeOn() {
+    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = 
+    toHexString(this.state.ledSettings.canvaParameters.strokeOn);
+  }
+
+  private setColorStrokeOff() {
+    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = 
+    toHexString(this.state.ledSettings.canvaParameters.strokeOff);
   }
 
   private onRendererChanged() {
@@ -469,27 +520,8 @@ class App extends Component<AppProps, AppState> {
     this.setRendererParameters();
   }
 
-  private setReverse() {
-    this.ledMatrix.reverse = this.state.led.reverse;
-  }
-
-  private setSize() {
-    this.ledMatrix.size = this.state.led.size;
-  }
-
-  private setPadding() {
-    this.ledMatrix.padding = [this.state.led.padding.top, this.state.led.padding.right, this.state.led.padding.bottom, this.state.led.padding.left];
-  }
-
-  private setRenderer() {
-    this.ledMatrix.setRendererFromBuilder({
-      elementId: this.state.led.rendererType == RendererType.ASCII ? this.ledMatrixIdAscii : this.ledMatrixIdCanvas,
-      rendererType: this.state.led.rendererType
-    });
-  }
-
   private setRendererParameters() {
-    if (this.state.led.rendererType == RendererType.ASCII) {
+    if (this.state.ledSettings.rendererType == RendererType.ASCII) {
       this.setCharacterBitOn();
       this.setCharacterBitOff();
     } else {
@@ -500,49 +532,51 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  private setCharacterBitOn() {
-    (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOn = this.state.led.asciiParameters.characterOn;
-  }
-
-  private setCharacterBitOff() {
-    (this.ledMatrix.renderer.parameters as any as AsciiRendererParameter).characterBitOff = this.state.led.asciiParameters.characterOff;
-  }
-
-  private setColorBitOn() {
-    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOn = toHexString(this.state.led.canvaParameters.colorOn);
-  }
-
-  private setColorBitOff() {
-    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorBitOff = toHexString(this.state.led.canvaParameters.colorOff);
-  }
-
-  private setColorStrokeOn() {
-    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOn = toHexString(this.state.led.canvaParameters.strokeOn);
-  }
-
-  private setColorStrokeOff() {
-    (this.ledMatrix.renderer.parameters as any as CanvaRendererParameter).colorStrokeOff = toHexString(this.state.led.canvaParameters.strokeOff);
-  }
-
-  private setMovement() {
-    switch (Number(this.state.led.movementState) as LedMovementState) {
-      case LedMovementState.play:
+  private setPlaybackMode() {
+    switch (Number(this.state.playbackMode) as PlaybackMode) {
+      case PlaybackMode.play:
         this.ledMatrix.play();
         break;
-      case LedMovementState.stop:
+      case PlaybackMode.stop:
         this.ledMatrix.stop();
         break;
-      case LedMovementState.resume:
+      case PlaybackMode.resume:
         this.ledMatrix.resume();
         break;
-      case LedMovementState.pause:
+      case PlaybackMode.pause:
         this.ledMatrix.pause();
         break;
     }
   }
 
+  private loadLedMatrix() {
+    this.state.updateState([s.ledMatrixMode], LedMatrixMode.Loading, () => {
+      // If no characters are loaded, we'll get our characters from a json file
+      if (!this.state.ledSettings.loadedCharacters) {
+        CharactersJSON.import(`${process.env.PUBLIC_URL}/alphabet.json`, (characters) => {
+          this.ledMatrix.addCharacters(characters);
+          this.loadLedMatrixPostCharacters();
+        });
+      } else {
+        this.ledMatrix.addCharacters(this.state.ledSettings.loadedCharacters);
+        this.loadLedMatrixPostCharacters();
+      }
+
+    });
+  }
+
+  private loadLedMatrixPostCharacters() {
+    this.state.updateState([s.usedCharacters], this.ledMatrix.usedCharacters);
+    this.state.updateState([s.ledSettings, s.loadedCharacters], this.ledMatrix.loadedCharacters);
+    this.state.updateState([s.height], this.ledMatrix.height);
+    this.setInput();
+    this.setSize();
+    this.ledMatrix.play();
+    this.state.updateState([s.ledMatrixMode], LedMatrixMode.Loaded);
+  }
+
   updateStateError(keys: s[], value) {
-    keys.unshift(s.led, s.error);
+    keys.unshift(s.errors);
     this.updateState(keys, value);
   }
 

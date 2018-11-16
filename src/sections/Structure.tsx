@@ -43,20 +43,20 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
 
   renderLed() {
     return (
-      <LedSection {...this.props.led} />
+      <LedSection {...this.props} />
     );
   }
 
   renderAlphabet() {
     return (
       <AlphabetSection 
-        updateState={this.props.led.updateState} 
-        loadedCharacters={this.props.led.loadedCharacters} 
-        errorPendingCharacter={this.props.led.error.pendingCharacter}
-        errorPendingEditCharacter={this.props.led.error.pendingEditCharacter}
-        errorPendingDeleteCharacter={this.props.led.error.pendingDeleteCharacter}
-        pendingCharacter={this.props.led.pendingCharacter != null}
-        canvasParameters={this.props.led.canvaParameters}
+        updateState={this.props.updateState} 
+        loadedCharacters={this.props.ledSettings.loadedCharacters} 
+        errorPendingCharacter={this.props.errors.pendingCharacter}
+        errorPendingEditCharacter={this.props.errors.pendingEditCharacter}
+        errorPendingDeleteCharacter={this.props.errors.pendingDeleteCharacter}
+        pendingCharacter={this.props.pendingCharacter != null}
+        canvasParameters={this.props.ledSettings.canvaParameters}
       />
     );
   }
@@ -79,7 +79,12 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         alignContent="center"
         id="canvas-container"
       >
-        <LedPanel width={this.props.led.viewportWidth} height={this.props.led.height}  maxHeightPixel="100vh" rendererType={this.props.led.rendererType} />
+        <LedPanel 
+          width={this.props.ledSettings.viewportWidth} 
+          height={this.props.height}  
+          maxHeightPixel="100vh" 
+          rendererType={this.props.ledSettings.rendererType} 
+        />
       </Grid>
     );
   }
