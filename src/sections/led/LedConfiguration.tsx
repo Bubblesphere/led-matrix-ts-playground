@@ -6,8 +6,8 @@ import ToggleExpansionPanel from '../../components/toggleExpansionPanel/ToggleEx
 import ToggleExpansionPanelSection from '../../components/toggleExpansionPanel/ToggleExpansionPanelSection';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
-import { LedMatrix, RendererType } from 'led-matrix-ts';
-import { panelTypes, renderers } from '../../utils/led-map';
+import { LedMatrix, RendererTypes } from 'led-matrix-ts';
+import { renderers, scrollers } from '../../utils/led-map';
 import SelectCustom from '../../components/inputs/Select';
 import SwitchCustom from '../../components/inputs/Switch';
 import ColorPickerDialog from '../../components/inputs/ColorPickerDialog';
@@ -45,18 +45,32 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
 
     return (
       <ToggleExpansionPanel>
-        <ToggleExpansionPanelSection title="Panel">
+
+        <ToggleExpansionPanelSection title="Player">
           <ToggleExpansionPanelItem label="Scrolling">
             <SelectCustom
               id="panelType"
-              statePath={[s.ledSettings, s.panelType]}
-              menuItems={panelTypes.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+              statePath={[s.ledSettings, s.scrollerType]}
+              menuItems={scrollers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
               onInputCaptured={this.props.updateState}
-              value={this.props.ledSettings.panelType}
+              value={this.props.ledSettings.scrollerType}
 
             />
           </ToggleExpansionPanelItem>
 
+          <ToggleExpansionPanelItem label="FPS">
+            <TooltipSlider
+              id="fps"
+              statePath={[s.ledSettings, s.fps]}
+              min={0}
+              max={60}
+              lastCapturedValue={this.props.ledSettings.fps}
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
+        </ToggleExpansionPanelSection>
+
+        <ToggleExpansionPanelSection title="Panel">
           <ToggleExpansionPanelItem label="Reverse">
             <SwitchCustom
               checked={this.props.ledSettings.reverse}
@@ -73,17 +87,6 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               min={0}
               max={32}
               lastCapturedValue={this.props.ledSettings.increment}
-              onInputCaptured={this.props.updateState}
-            />
-          </ToggleExpansionPanelItem>
-
-          <ToggleExpansionPanelItem label="FPS">
-            <TooltipSlider
-              id="fps"
-              statePath={[s.ledSettings, s.fps]}
-              min={0}
-              max={60}
-              lastCapturedValue={this.props.ledSettings.fps}
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
@@ -110,7 +113,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
             />
           </ToggleExpansionPanelItem>
 
-          {this.props.ledSettings.rendererType == RendererType.ASCII ?
+          {this.props.ledSettings.rendererType == RendererTypes.ASCII ?
             (
               <Grid item>
                 <ToggleExpansionPanelItem label="Character on">

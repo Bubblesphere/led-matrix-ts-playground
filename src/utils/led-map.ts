@@ -1,4 +1,5 @@
-import { PanelType } from 'led-matrix-ts';
+import { ScrollerTypes, RendererTypes } from "led-matrix-ts";
+
 
 export enum PlaybackMode {
   play,
@@ -13,34 +14,29 @@ export enum LedMatrixMode {
   Loaded
 }
 
-export enum Renderers {
-  ASCII,
-  CanvasSquare,
-  CanvasCircle
-}
-
-export const panelTypes = [
+export const scrollers = [
   {
-    id: PanelType.SideScrollingPanel,
+    id: ScrollerTypes.Side,
     text: "Side"
   },
   {
-    id: PanelType.VerticalScrollingPanel,
+    id: ScrollerTypes.Vertical,
     text: "Vertical"
   }
 ];
 
+
 export const renderers = [
   {
-    id: Renderers.ASCII,
+    id: RendererTypes.ASCII,
     text: "ASCII"
   },
   {
-    id: Renderers.CanvasSquare,
+    id: RendererTypes.CanvasSquare,
     text: "Canvas (Square)"
   },
   {
-    id: Renderers.CanvasCircle,
+    id: RendererTypes.CanvasCircle,
     text: "Canvas (Circle)"
   }
 ]

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { withStyles, WithStyles, createStyles, Grid, TextField, Theme, Button } from '@material-ui/core';
 import { StyleSheet, css } from 'aphrodite';
-import { bit, Character, BitArray } from 'led-matrix-ts';
 import { s, CanUpdateState, Error } from '../App';
 import TooltipSlider from '../components/inputs/TooltipSlider';
 import ToggleExpansionPanel from '../components/toggleExpansionPanel/ToggleExpansionPanel';
@@ -12,6 +11,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { updateState } from '../utils/state';
 import { RGBColor } from 'react-color';
+import { Character, bit, BitArray, PanelFrame } from 'led-matrix-ts';
 import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from '../components/led/DrawableLedPanel';
 
 export enum a {
@@ -183,7 +183,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     const id = e.currentTarget.dataset.id;
     const character = this.props.loadedCharacters.filter(x => x.pattern == id)[0];
 
-    let data: bit[][] = [];
+    let data: PanelFrame = [];
     for (let i = 0; i < character.height; i++) {
       data.push(character.output.atIndexRange(i * character.width, character.width));
     }
@@ -206,7 +206,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.updateState([a.expansionPanelIndex], index);
   }
 
-  private onCharacterDataChangedHandle(data: bit[][]) {
+  private onCharacterDataChangedHandle(data: PanelFrame) {
     this.updateState([a.character, a.data], data);
   }
 

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { bit, CanvaRenderers, RendererType } from 'led-matrix-ts';
+import { CanvasRenderers, RendererTypes, PanelFrame } from 'led-matrix-ts';
 import { CanUpdateState } from '../../App';
 import LedPanel from './LedPanel';
 import { RGBColor } from 'react-color';
@@ -13,10 +13,10 @@ export enum DrawableLedPanelMode {
 }
 
 export interface DrawableLedPanelCharacter {
+  data: PanelFrame
   pattern: string,
   width: number,
-  height: number,
-  data: bit[][]
+  height: number
 }
 
 enum a {
@@ -41,7 +41,7 @@ interface DrawableLedPanelProps {
     strokeOff: RGBColor,
     strokeOn: RGBColor
   },
-  onCharacterDataChangedHandle: (data: bit[][]) => void,
+  onCharacterDataChangedHandle: (data: PanelFrame) => void,
   character: DrawableLedPanelCharacter
 }
 
@@ -50,8 +50,8 @@ interface DrawableLedPanelPropsOpt {
 }
 
 class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableLedPanelPropsOpt, DrawableLedPanelState> {
-  renderer: CanvaRenderers.Rect
-
+  renderer: CanvasRenderers.Rect
+  ledPanelId = 'led-matrix';
   static defaultProps: DrawableLedPanelPropsOpt;
 
   // Set the default state
@@ -73,17 +73,15 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
   }
 
   componentDidMount() {
-    const el = document.getElementById("led-matrix");
+    const el = document.getElementById(this.ledPanelId);
 
-    this.renderer = new CanvaRenderers.Rect({
-      elementId: 'led-matrix',
+    this.renderer = new CanvasRenderers.Rect({
+      elementId: this.ledPanelId,
       colorBitOff: toHexString(this.props.canvasParameters.colorOff),
       colorBitOn: toHexString(this.props.canvasParameters.colorOn),
       colorStrokeOff: toHexString(this.props.canvasParameters.strokeOff),
       colorStrokeOn: toHexString(this.props.canvasParameters.strokeOn)
-    })
-
-    this.renderer.render(this.props.character.data);
+    });
 
     el.addEventListener('mousemove', this.onMouseMove);
     el.addEventListener('mousedown', this.onMouseDown);
@@ -91,18 +89,13 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
   }
 
   componentWillUnmount() {
-    const el = document.getElementById("led-matrix");
+    const el = document.getElementById(this.ledPanelId);
     el.removeEventListener('mousemove', this.onMouseMove);
     el.removeEventListener('mousedown', this.onMouseDown);
     el.removeEventListener('mouseup', this.onMouseUp);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // The character data changed, re-render canvas
-    if (prevProps.character.data != this.props.character.data) {
-      this.renderer.render(this.props.character.data);
-    }
-
     // Width was adjusted for current character
     if (prevProps.character.width != this.props.character.width &&
       prevProps.character.pattern == this.props.character.pattern) {
@@ -185,7 +178,7 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
   }
 
   private getMouseIndexPositionOnCanvas(event) {
-    const el = document.getElementById("led-matrix");
+    const el = document.getElementById(this.ledPanelId);
     var rect = el.getBoundingClientRect();
     var x = event.clientX - rect.left;
     var y = event.clientY - rect.top;
@@ -218,10 +211,10 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
   render() {
     return (
       <LedPanel 
-        width={this.props.character.width} 
-        height={this.props.character.height} 
+        panelFrame={this.props.character.data}
+        renderer={this.renderer}
         maxHeightPixel={'80vh'}
-        rendererType={RendererType.CanvasSquare}
+        rendererType={RendererTypes.CanvasSquare}
         onRendererElementChanged={null}
       />
     )
