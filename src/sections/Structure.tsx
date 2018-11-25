@@ -5,9 +5,14 @@ import LedSection from './LedSection';
 import AlphabetSection from './AlphabetSection';
 import MenuSection from './MenuSection';
 import LedPlayer from '../components/led/LedPlayer';
-import CanvasPanel from '../components/led/panels/CanvasPanel';
 import { AppState } from '../App';
 import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import CanvasPanel from '../components/led/panels/CanvasPanel';
+import AsciiPanel from '../components/led/panels/AsciiPanel';
+import { CanvasPanels } from '../components/led/panels/canvas-panels';
+import { PanelTypes } from '../components/led/panels/panel';
+
+import { toHexString } from '../utils/color';
 
 interface StrutureProps extends AppState { }
 interface StructureState {}
@@ -24,7 +29,7 @@ const themeDependantStyles = ({palette}: Theme) => createStyles({
     background: palette.grey["800"],
     color: palette.getContrastText(palette.grey["800"]),
   },
-  fullScreen: {
+  fullScreenMode: {
     background: palette.grey["900"]
   }
 });
@@ -43,8 +48,9 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
   }
 
   renderLed() {
+    const {classes, ...otherProps} = this.props;
     return (
-      <LedSection {...this.props} />
+      <LedSection {...otherProps} />
     );
   }
 
@@ -68,13 +74,52 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
     )
   }
 
+  generatePanel() {
+      switch (+this.props.ledSettings.panelType) {
+        case PanelTypes.Ascii:
+          return (
+            <AsciiPanel
+              characterBitOn={this.props.ledSettings.asciiParameters.characterOn}
+              characterBitOff={this.props.ledSettings.asciiParameters.characterOff}
+              panelFrame={null}
+            />
+          )
+        case PanelTypes.CanvasSquare:
+          return (
+            <CanvasPanel
+              colorBitOn={toHexString(this.props.ledSettings.canvaParameters.colorOn)}
+              colorBitOff={toHexString(this.props.ledSettings.canvaParameters.colorOff)}
+              colorStrokeOn={toHexString(this.props.ledSettings.canvaParameters.strokeOn)}
+              colorStrokeOff={toHexString(this.props.ledSettings.canvaParameters.strokeOff)}
+              CanvasPanelShape={new CanvasPanels.Rect()}
+              id='panel-player'
+              maxHeightPixel='70vh'
+              panelFrame={null}
+            />
+          )
+        case PanelTypes.CanvasCircle:
+        return (
+          <CanvasPanel 
+            colorBitOn={toHexString(this.props.ledSettings.canvaParameters.colorOn)}
+            colorBitOff={toHexString(this.props.ledSettings.canvaParameters.colorOff)}
+            colorStrokeOn={toHexString(this.props.ledSettings.canvaParameters.strokeOn)}
+            colorStrokeOff={toHexString(this.props.ledSettings.canvaParameters.strokeOff)}
+            CanvasPanelShape={new CanvasPanels.Ellipse()}
+            id='panel-player'
+            maxHeightPixel='70vh'
+            panelFrame={null}
+          />
+        )
+      }
+  }
+
   renderFullscreen() {
     return (
       <Grid 
         item 
         container 
         direction="column" 
-        className={[this.props.classes.app, this.props.classes.fullScreen].join(' ')} 
+        className={[this.props.classes.app, this.props.classes.fullScreenMode].join(' ')} 
         alignItems="center" 
         justify="center" 
         alignContent="center"
@@ -83,9 +128,9 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         <LedPlayer
           fps={this.props.ledSettings.fps}
           playbackMode={this.props.playbackMode}
-          sequence={this.props.ledSettings.sequence}
+          sequence={this.props.sequence}
         >
-          <CanvasPanel />
+          {this.generatePanel()}
         </LedPlayer>
       </Grid>
     );

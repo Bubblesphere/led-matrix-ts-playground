@@ -100,7 +100,7 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
             <LedPlayer
               fps={props.ledSettings.fps}
               playbackMode={props.playbackMode}
-              sequence={props.ledSettings.sequence}
+              sequence={props.sequence}
             >
               {
                 generatePanel()

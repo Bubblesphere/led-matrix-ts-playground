@@ -69,6 +69,7 @@ export enum s {
 
 export interface AppState extends CanUpdateState, CanUpdateStateErrors {
   ledSettings: LedSettingsState,
+  sequence: PanelFrame[]
   errors: AppErrors
   ledMatrixMode: LedMatrixMode,
   playbackMode: PlaybackMode,
@@ -81,7 +82,6 @@ export interface AppState extends CanUpdateState, CanUpdateStateErrors {
 }
 
 export interface LedSettingsState {
-  sequence: PanelFrame[],
   fps: number
   asciiParameters: {
     characterOff: string
@@ -173,7 +173,6 @@ class App extends Component<AppProps, AppState> {
         letterSpacing: 1,
         viewportWidth: 50,
         loadedCharacters: null,
-        sequence: null
       },
     errors: {
       input: {
@@ -193,6 +192,7 @@ class App extends Component<AppProps, AppState> {
         message: ''
       }
     },
+    sequence: null,
     ledMatrixMode: LedMatrixMode.NotLoaded,
     playbackMode: PlaybackMode.Play,
     pendingCharacter: null,
@@ -246,7 +246,7 @@ class App extends Component<AppProps, AppState> {
     });
 
     this.ledMatrix.event.newSequence.on((sequence) => {
-      this.state.updateState([s.ledSettings, s.sequence], sequence);
+      this.state.updateState([s.sequence], sequence);
     })
 
     /*
