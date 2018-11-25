@@ -4,7 +4,7 @@ import { Grid, WithStyles, createStyles, withStyles, Theme  } from '@material-ui
 import LedSection from './LedSection';
 import AlphabetSection from './AlphabetSection';
 import MenuSection from './MenuSection';
-import LedPanel from '../components/led/LedPanel';
+import LedPlayer from '../components/led/LedPlayer';
 import { AppState } from '../App';
 import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
@@ -79,11 +79,11 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         alignContent="center"
         id="canvas-container"
       >
-        <LedPanel 
-          width={this.props.ledSettings.viewportWidth} 
-          height={this.props.height}  
-          maxHeightPixel="100vh" 
-          rendererType={this.props.ledSettings.rendererType} 
+        <LedPlayer
+          fps={this.props.ledSettings.fps}
+          playbackMode={this.props.playbackMode}
+          rendererType={this.props.ledSettings.rendererType}
+          sequence={this.props.ledSettings.sequence}
         />
       </Grid>
     );

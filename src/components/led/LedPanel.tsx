@@ -43,6 +43,7 @@ class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyl
 
   componentDidMount() {
     this.setCanvasContainerSize();
+    this.props.renderer.render(this.props.panelFrame);
     window.addEventListener('resize', this.setCanvasContainerSize);
   }
 
@@ -51,20 +52,37 @@ class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyl
   }
 
   componentDidUpdate(prevProps: LedProps, prevState) {
-    if (prevProps.panelFrame != this.props.panelFrame) {
-      if (prevProps.panelFrame && this.props.panelFrame) {
-        if (prevProps.panelFrame.length != this.props.panelFrame.length
-          || prevProps.panelFrame[0].length != this.props.panelFrame[0].length) {
-          this.setCanvasContainerSize();
-        }
+    if (prevProps.panelFrame && this.props.panelFrame) {
+      if (!this.equal(prevProps.panelFrame, this.props.panelFrame)) {
+        this.setCanvasContainerSize();
+        this.props.renderer.render(this.props.panelFrame);
       }
-
     }
+    
+
 
     if (prevProps.rendererType != this.props.rendererType) {
       this.props.onRendererChanged();
     }
   }
+
+  private equal(array1, array2) {
+    if (!Array.isArray(array1) && !Array.isArray(array2)) {
+        return array1 === array2;
+    }
+
+    if (array1.length !== array2.length) {
+        return false;
+    }
+
+    for (var i = 0, len = array1.length; i < len; i++) {
+        if (!this.equal(array1[i], array2[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
   public setCanvasContainerSize() {
     const ledElement = document.getElementById('led-matrix');

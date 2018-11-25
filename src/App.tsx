@@ -265,11 +265,15 @@ class App extends Component<AppProps, AppState> {
     this.props.history.listen((location) => {
       if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
         if (location.pathname == '/') {
-          this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Play);
+          if (this.state.playbackMode != PlaybackMode.Play) {
+            this.state.updateState([s.playbackMode], PlaybackMode.Play);
+          }
           /*this.setRenderer();
           this.setRendererParameters();*/
         } else {
-          this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Pause);
+          if (this.state.playbackMode != PlaybackMode.Play) {
+            this.state.updateState([s.playbackMode], PlaybackMode.Pause);
+          }
         }
       }
     });
@@ -284,7 +288,9 @@ class App extends Component<AppProps, AppState> {
     if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
       if (this.props.location.pathname == '/fullscreen') {
         // Make sure the led panel is playing when using fullscreen
-        this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Play);
+        if (this.state.playbackMode != PlaybackMode.Play) {
+          this.state.updateState([s.playbackMode], PlaybackMode.Play);
+        }
       }
 
       if (prevState.pendingCharacter != this.state.pendingCharacter
