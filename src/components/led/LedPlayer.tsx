@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { Exception, RendererTypes, PanelFrame, Renderer, Sequence, RendererBuilder, CanvasRenderers } from 'led-matrix-ts';
-import LedPanel from './LedPanel';
+import { Exception, PanelFrame, Sequence } from 'led-matrix-ts';
 import { updateState } from '../../utils/state';
+import { Panel } from './panels/panel';
 
 enum a {
   index = 'index',
@@ -16,14 +16,12 @@ export enum PlaybackMode {
 }
 
 interface LedPlayerState {
-  index: number,
-  renderer: Renderer
+  index: number
 }
 
 interface LedPlayerProps {
   sequence: Sequence,
   fps: number,
-  rendererType: RendererTypes,
   playbackMode: PlaybackMode
 }
 
@@ -45,10 +43,7 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
   static defaultProps: LedPlayerPropsOpt;
 
   state = {
-    index: 0,
-    renderer: new CanvasRenderers.Rect({
-      elementId: this.ledPanelId
-    })
+    index: 0
   }
 
   constructor(props) {
@@ -56,12 +51,12 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
   }
 
   componentDidMount() {
-    this.onChangeRendererType();
-    this.onChangePlayback();
-    this.onChangeIndex();
-    this.onChangeSequence();
-    this.onChangeFps();
-    this.onChangeRendererType();
+    if (this.props.sequence) {
+      this.onChangePlayback();
+      this.onChangeIndex();
+      this.onChangeSequence();
+      this.onChangeFps();
+    }
   }
 
   componentDidUpdate(prevProps: LedPlayerProps, prevState: LedPlayerState) {
@@ -80,10 +75,6 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
     if (prevProps.fps != this.props.fps) {
       this.onChangeFps();
     }
-
-    if (prevProps.rendererType != this.props.rendererType) {
-      this.onChangeRendererType();
-    }
   }
 
   private onChangeIndex() {
@@ -95,7 +86,6 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
 
     if (this.props.sequence.length > 0) {
       this.props.onPanelUpdate(this.props.sequence[this.state.index]);
-      this.state.renderer.render(this.props.sequence[this.state.index]);
     }
   }
 
@@ -120,11 +110,6 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
 
   private onChangeSequence() {
     Exception.throwIfNull(this.props.sequence, Exception.getDescriptionForProperty(this.CLASS_NAME, 'sequence'));
-  }
-
-  private onChangeRendererType() {
-    Exception.throwIfNull(this.props.rendererType, Exception.getDescriptionForProperty(this.CLASS_NAME, 'rendererType'))
-    this.updateState([a.renderer], RendererBuilder.build(this.props.rendererType, this.ledPanelId));
   }
 
   private onChangeFps() {
@@ -182,20 +167,16 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
   }
 
   render() {
-    return (
-      this.props.sequence && this.state.renderer && this.props.sequence.length > 0 ?
-        (
-          <LedPanel
-            panelFrame={this.props.sequence[this.state.index]}
-            renderer={this.state.renderer}
-            maxHeightPixel={'70vh'}
-            rendererType={RendererTypes.CanvasSquare}
-            onRendererElementChanged={null}
-          />) :
-        (
-          <div style={{maxHeight: '70vh'}} />
-        )
-    )
+
+    const panelWithProps = this.props.sequence && this.props.sequence.length > 0 ?
+      React.Children.toArray(this.props.children).map((child, index) => (
+        React.cloneElement(child as React.ReactElement<any>, {
+          panelFrame: this.props.sequence[this.state.index]
+        })
+      )) :
+      <div style={{ maxHeight: '70vh' }} />
+
+    return panelWithProps;
   }
 }
 

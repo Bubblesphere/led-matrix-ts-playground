@@ -7,7 +7,8 @@ import ToggleExpansionPanelSection from '../../components/toggleExpansionPanel/T
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
 import { LedMatrix, RendererTypes } from 'led-matrix-ts';
-import { renderers, scrollers } from '../../utils/led-map';
+import { scrollers } from '../../utils/led-map';
+import { panels, PanelTypes } from '../../components/led/panels/panel';
 import SelectCustom from '../../components/inputs/Select';
 import SwitchCustom from '../../components/inputs/Switch';
 import ColorPickerDialog from '../../components/inputs/ColorPickerDialog';
@@ -162,14 +163,14 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
           <ToggleExpansionPanelItem label="Renderer">
             <SelectCustom
               id="rendererType"
-              statePath={[s.ledSettings, s.rendererType]}
-              menuItems={renderers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+              statePath={[s.ledSettings, s.panelType]}
+              menuItems={panels.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
               onInputCaptured={this.props.updateState}
-              value={this.props.ledSettings.rendererType}
+              value={this.props.ledSettings.panelType}
             />
           </ToggleExpansionPanelItem>
 
-          {this.props.ledSettings.rendererType == RendererTypes.ASCII ?
+          {this.props.ledSettings.panelType == PanelTypes.Ascii ?
             (
               <Grid item>
                 <ToggleExpansionPanelItem label="Character on">

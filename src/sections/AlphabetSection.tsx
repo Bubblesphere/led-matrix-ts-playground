@@ -12,7 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { updateState } from '../utils/state';
 import { RGBColor } from 'react-color';
 import { Character, bit, BitArray, PanelFrame } from 'led-matrix-ts';
-import DrawableLedPanel, { DrawableLedPanelMode, DrawableLedPanelCharacter, DrawableLedPanelDefaultProps } from '../components/led/DrawableLedPanel';
+import DrawableCanvasPanel, { DrawableCanvasPanelMode, DrawableCanvasPanelCharacter, DrawableCanvasPanelDefaultProps } from '../components/led/panels/DrawableCanvasPanel';
 
 export enum a {
   mode = 'mode',
@@ -26,8 +26,8 @@ export enum a {
 }
 
 interface AlphabetSectionState {
-  character: DrawableLedPanelCharacter
-  mode: DrawableLedPanelMode,
+  character: DrawableCanvasPanelCharacter
+  mode: DrawableCanvasPanelMode,
   expansionPanelIndex: number,
   pendingSave: boolean
 }
@@ -113,7 +113,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     character: this.defaultCharacter,
     expansionPanelIndex: 0,
     pendingSave: true,
-    mode: DrawableLedPanelDefaultProps.mode
+    mode: DrawableCanvasPanelDefaultProps.mode
   }
 
   constructor(props) {
@@ -134,7 +134,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     // Character was added successfully?
     if (prevProps.pendingCharacter == true && this.props.pendingCharacter == false) {
       this.updateState([a.character, a.pattern], prevState.character.pattern);
-      this.updateState([a.mode], DrawableLedPanelMode.edit);
+      this.updateState([a.mode], DrawableCanvasPanelMode.edit);
     }
 
     // If the character data changed or there's an error, show the save button
@@ -152,7 +152,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     const char = this.getCharacterFromState(this.state.character.pattern);
     console.log(char.output.atIndexRange(0, char.output.size));
 
-    if (this.state.mode == DrawableLedPanelMode.create) {
+    if (this.state.mode == DrawableCanvasPanelMode.create) {
       this.props.updateState([s.pendingCharacter], char);
     } else {
       this.props.updateState([s.pendingEditCharacter], char);
@@ -167,14 +167,14 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
   private onDelete() {
     this.props.updateState([s.pendingDeleteCharacter], this.getCharacterFromState(this.state.character.pattern));
     this.updateState([a.character], Object.assign({}, this.defaultCharacter));
-    this.updateState([a.mode], DrawableLedPanelMode.create);
+    this.updateState([a.mode], DrawableCanvasPanelMode.create);
     this.updateState([a.expansionPanelIndex], 1);
     this.updateState([a.pendingSave], true);
   }
 
   private onModeAdd(e) {
     this.updateState([a.character], Object.assign({}, this.defaultCharacter));
-    this.updateState([a.mode], DrawableLedPanelMode.create);
+    this.updateState([a.mode], DrawableCanvasPanelMode.create);
     this.updateState([a.expansionPanelIndex], 0);
     this.updateState([a.pendingSave], true);
   }
@@ -194,7 +194,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       width: character.width,
       pattern: character.pattern
     });
-    this.updateState([a.mode], DrawableLedPanelMode.edit);
+    this.updateState([a.mode], DrawableCanvasPanelMode.edit);
     this.updateState([a.pendingSave], false);
   }
 
@@ -221,7 +221,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
       <Grid container item direction="row-reverse">
 
         <Grid item container md={9} justify="center" alignContent="center" alignItems="center" className={css(styles.common)}>
-          <DrawableLedPanel
+          <DrawableCanvasPanel
             canvasParameters={this.props.canvasParameters}
             onCharacterDataChangedHandle={this.onCharacterDataChangedHandle}
             character={this.state.character}
@@ -237,7 +237,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                   label={this.props.errorPendingCharacter.isError ? this.props.errorPendingCharacter.message : "Pattern"}
                   error={this.props.errorPendingCharacter.isError}
                   onChange={this.handlePatternChanged}
-                  disabled={this.state.mode == DrawableLedPanelMode.edit}
+                  disabled={this.state.mode == DrawableCanvasPanelMode.edit}
                   value={this.state.character.pattern}
                 />
 
@@ -276,7 +276,7 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
                     ''
                 }
                 {
-                  this.state.mode == DrawableLedPanelMode.edit ?
+                  this.state.mode == DrawableCanvasPanelMode.edit ?
                     <Button variant="contained" type="button" aria-label="Delete" onClick={this.onDelete} color="secondary" size="small" className={this.props.classes.button}>
                       Delete
                       <DeleteIcon className={this.props.classes.rightIcon} />

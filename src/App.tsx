@@ -24,6 +24,7 @@ import {
 import { toHexString } from './utils/color';
 import { updateState } from './utils/state';
 import { PlaybackMode } from './components/led/LedPlayer';
+import { PanelTypes } from './components/led/panels/panel';
 
 interface AppProps extends RouteComponentProps { }
 
@@ -46,7 +47,7 @@ export enum s {
   right = 'right',
   top = 'top',
   scrollerType = 'scrollerType',
-  rendererType = 'rendererType',
+  panelType = 'panelType',
   reverse = 'reverse',
   size = 'size',
   letterSpacing = 'letterSpacing',
@@ -92,7 +93,7 @@ export interface LedSettingsState {
     strokeOff: RGBColor
     strokeOn: RGBColor
   },
-  rendererType: RendererTypes
+  panelType: PanelTypes
   increment: number
   padding: {
     bottom: number
@@ -166,7 +167,7 @@ class App extends Component<AppProps, AppState> {
           top: 1
         },
         scrollerType: ScrollerTypes.Side,
-        rendererType: RendererTypes.CanvasSquare,
+        panelType: PanelTypes.CanvasSquare,
         reverse: false,
         size: 1,
         letterSpacing: 1,

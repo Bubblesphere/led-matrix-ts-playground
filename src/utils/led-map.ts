@@ -16,20 +16,3 @@ export const scrollers = [
     text: "Vertical"
   }
 ];
-
-
-export const renderers = [
-  {
-    id: RendererTypes.ASCII,
-    text: "ASCII"
-  },
-  {
-    id: RendererTypes.CanvasSquare,
-    text: "Canvas (Square)"
-  },
-  {
-    id: RendererTypes.CanvasCircle,
-    text: "Canvas (Circle)"
-  }
-]
-

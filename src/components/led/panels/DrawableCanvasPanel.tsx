@@ -1,18 +1,17 @@
 import * as React from 'react'
-import { CanvasRenderers, RendererTypes, PanelFrame } from 'led-matrix-ts';
-import { CanUpdateState } from '../../App';
-import LedPanel from './LedPanel';
+import { CanvasRenderers, PanelFrame } from 'led-matrix-ts';
 import { RGBColor } from 'react-color';
-import { toHexString } from '../../utils/color';
-import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../../utils/array';
-import { updateState } from '../../utils/state';
+import { toHexString } from '../../../utils/color';
+import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../../../utils/array';
+import { updateState } from '../../../utils/state';
+import CanvasPanel from './CanvasPanel'
 
-export enum DrawableLedPanelMode {
+export enum DrawableCanvasPanelMode {
   create,
   edit
 }
 
-export interface DrawableLedPanelCharacter {
+export interface DrawableCanvasPanelCharacter {
   data: PanelFrame
   pattern: string,
   width: number,
@@ -26,7 +25,7 @@ enum a {
   isMouseDown = 'isMouseDown'
 }
 
-interface DrawableLedPanelState {
+interface DrawableCanvasPanelState {
   lastMouseIndex: {
     x: number,
     y: number
@@ -34,7 +33,7 @@ interface DrawableLedPanelState {
   isMouseDown: boolean
 }
 
-interface DrawableLedPanelProps {
+interface DrawableCanvasPanelProps {
   canvasParameters: {
     colorOff: RGBColor,
     colorOn: RGBColor,
@@ -42,21 +41,21 @@ interface DrawableLedPanelProps {
     strokeOn: RGBColor
   },
   onCharacterDataChangedHandle: (data: PanelFrame) => void,
-  character: DrawableLedPanelCharacter
+  character: DrawableCanvasPanelCharacter
 }
 
-interface DrawableLedPanelPropsOpt {
-  mode: DrawableLedPanelMode
+interface DrawableCanvasPanelPropsOpt {
+  mode: DrawableCanvasPanelMode
 }
 
-class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableLedPanelPropsOpt, DrawableLedPanelState> {
+class DrawableCanvasPanel extends React.Component<DrawableCanvasPanelProps & DrawableCanvasPanelPropsOpt, DrawableCanvasPanelState> {
   renderer: CanvasRenderers.Rect
   ledPanelId = 'led-matrix';
-  static defaultProps: DrawableLedPanelPropsOpt;
+  static defaultProps: DrawableCanvasPanelPropsOpt;
 
   // Set the default state
   state = {
-    mode: DrawableLedPanelMode.create,
+    mode: DrawableCanvasPanelMode.create,
     lastMouseIndex: {
       x: -1,
       y: -1
@@ -210,21 +209,19 @@ class DrawableLedPanel extends React.Component<DrawableLedPanelProps & DrawableL
 
   render() {
     return (
-      <LedPanel 
+      <CanvasPanel 
+        id='drawable-canvas-panel'
+        maxHeightPixel='70vh'
         panelFrame={this.props.character.data}
-        renderer={this.renderer}
-        maxHeightPixel={'80vh'}
-        rendererType={RendererTypes.CanvasSquare}
-        onRendererElementChanged={null}
       />
     )
   }
 }
 
-DrawableLedPanel.defaultProps = {
-  mode: DrawableLedPanelMode.create
+DrawableCanvasPanel.defaultProps = {
+  mode: DrawableCanvasPanelMode.create
 }
 
-export const DrawableLedPanelDefaultProps = DrawableLedPanel.defaultProps
+export const DrawableCanvasPanelDefaultProps = DrawableCanvasPanel.defaultProps
 
-export default DrawableLedPanel;
+export default DrawableCanvasPanel;

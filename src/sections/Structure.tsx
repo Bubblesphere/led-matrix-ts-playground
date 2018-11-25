@@ -5,6 +5,7 @@ import LedSection from './LedSection';
 import AlphabetSection from './AlphabetSection';
 import MenuSection from './MenuSection';
 import LedPlayer from '../components/led/LedPlayer';
+import CanvasPanel from '../components/led/panels/CanvasPanel';
 import { AppState } from '../App';
 import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
@@ -82,9 +83,10 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         <LedPlayer
           fps={this.props.ledSettings.fps}
           playbackMode={this.props.playbackMode}
-          rendererType={this.props.ledSettings.rendererType}
           sequence={this.props.ledSettings.sequence}
-        />
+        >
+          <CanvasPanel />
+        </LedPlayer>
       </Grid>
     );
   }

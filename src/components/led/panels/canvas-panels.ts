@@ -1,10 +1,7 @@
-import { CanvasRenderer, CanvasRendererParameter } from "./canvas-renderer";
+import { CanvasPanelShape } from "./CanvasPanel";
 
-export namespace CanvasRenderers {
-  export class Ellipse extends CanvasRenderer  {
-    constructor(parameters: CanvasRendererParameter) {
-      super(parameters)
-    }
+export namespace CanvasPanels {
+  export class Ellipse implements CanvasPanelShape  {
     
     moveToNextBit(ctx: CanvasRenderingContext2D, i: any, j: any, w: any, h: any): void {
       ctx.moveTo(w*(j+1), h*(i+1) - h / 2);
@@ -18,18 +15,12 @@ export namespace CanvasRenderers {
     }
   }
 
-  export class Rect extends CanvasRenderer {
-    constructor(parameters: CanvasRendererParameter) {
-      super(parameters);
-    }
-
+  export class Rect implements CanvasPanelShape {
     drawBit(context: CanvasRenderingContext2D, i: any, j: any, w: any, h: any): void {
       return context.rect(w * j, h * i, w, h);
     }
 
     moveToNextBit(ctx: CanvasRenderingContext2D, i: any, j: any, w: any, h: any): void {
     }
-
-
   }
 }
