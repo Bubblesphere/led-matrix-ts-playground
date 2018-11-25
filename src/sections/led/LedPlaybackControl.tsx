@@ -4,8 +4,8 @@ import Resume from '@material-ui/icons/PlayArrowRounded'
 import Stop from '@material-ui/icons/StopRounded'
 import Pause from '@material-ui/icons/PauseRounded';
 import IconButtonCustom from '../../components/inputs/IconButton';
-import { PlaybackMode } from '../../utils/led-map';
 import { s, CanUpdateState } from '../../App';
+import { PlaybackMode } from '../../components/led/LedPlayer';
 
 const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
   icons: {
@@ -21,11 +21,11 @@ interface LedPlaybackControlProps extends CanUpdateState {
 const LedPlaybackControl: React.SFC<LedPlaybackControlProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
     <Grid item style={{alignSelf: "flex-end"}} >
-        {props.playbackMode == PlaybackMode.play || props.playbackMode == PlaybackMode.resume ? (
+        {props.playbackMode == PlaybackMode.Play || props.playbackMode == PlaybackMode.Resume ? (
             <IconButtonCustom  
                 id="state" 
                 statePath={[s.playbackMode]} 
-                value={PlaybackMode.pause} 
+                value={PlaybackMode.Pause} 
                 onInputCaptured={props.updateState}
             >
                 <Pause className={[props.classes.icons].join(' ')} />
@@ -34,7 +34,7 @@ const LedPlaybackControl: React.SFC<LedPlaybackControlProps & WithStyles<typeof 
             <IconButtonCustom 
                 id="state" 
                 statePath={[s.playbackMode]} 
-                value={PlaybackMode.resume} 
+                value={PlaybackMode.Resume} 
                 onInputCaptured={props.updateState}
             >
                 <Resume className={[props.classes.icons].join(' ')} />
@@ -43,7 +43,7 @@ const LedPlaybackControl: React.SFC<LedPlaybackControlProps & WithStyles<typeof 
         <IconButtonCustom
             id="state" 
             statePath={[s.playbackMode]} 
-            value={PlaybackMode.stop} 
+            value={PlaybackMode.Stop} 
             onInputCaptured={props.updateState}
         >
             <Stop className={props.classes.icons} />

@@ -46,7 +46,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
     return (
       <ToggleExpansionPanel>
 
-        <ToggleExpansionPanelSection title="Player">
+        <ToggleExpansionPanelSection title="Controls">
           <ToggleExpansionPanelItem label="Scrolling">
             <SelectCustom
               id="panelType"
@@ -68,9 +68,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
-        </ToggleExpansionPanelSection>
 
-        <ToggleExpansionPanelSection title="Panel">
           <ToggleExpansionPanelItem label="Reverse">
             <SwitchCustom
               checked={this.props.ledSettings.reverse}
@@ -101,7 +99,65 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
+
+          <ToggleExpansionPanelItem label="Letter spacing">
+            <TooltipSlider
+              id="letterSpacing"
+              statePath={[s.ledSettings, s.letterSpacing]}
+              min={0}
+              max={20}
+              lastCapturedValue={this.props.ledSettings.letterSpacing}
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
+
+          <ToggleExpansionPanelItem label="Size">
+            <TooltipSlider
+              id="size"
+              statePath={[s.ledSettings, s.size]}
+              min={1}
+              max={5}
+              lastCapturedValue={this.props.ledSettings.size}
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
+
+          <ToggleExpansionPanelItem label="Padding" centerLabel={false}>
+            <TooltipSlider
+              id="paddingTop"
+              statePath={[s.ledSettings, s.padding, s.top]}
+              min={0}
+              max={20}
+              lastCapturedValue={this.props.ledSettings.padding.top}
+              onInputCaptured={this.props.updateState}
+            />
+            <TooltipSlider
+              id="paddingRight"
+              statePath={[s.ledSettings, s.padding, s.right]}
+              min={0}
+              max={20}
+              lastCapturedValue={this.props.ledSettings.padding.right}
+              onInputCaptured={this.props.updateState}
+            />
+            <TooltipSlider
+              id="paddingBottom"
+              statePath={[s.ledSettings, s.padding, s.bottom]}
+              min={0}
+              max={20}
+              lastCapturedValue={this.props.ledSettings.padding.bottom}
+              onInputCaptured={this.props.updateState}
+            />
+            <TooltipSlider
+              id="paddingLeft"
+              statePath={[s.ledSettings, s.padding, s.left]}
+              min={0}
+              max={20}
+              lastCapturedValue={this.props.ledSettings.padding.left}
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
         </ToggleExpansionPanelSection>
+        
         <ToggleExpansionPanelSection title="Renderer">
           <ToggleExpansionPanelItem label="Renderer">
             <SelectCustom
@@ -174,64 +230,6 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               </Grid>
             )
           }
-        </ToggleExpansionPanelSection>
-        <ToggleExpansionPanelSection title="Board">
-          <ToggleExpansionPanelItem label="Letter spacing">
-            <TooltipSlider
-              id="letterSpacing"
-              statePath={[s.ledSettings, s.letterSpacing]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.letterSpacing}
-              onInputCaptured={this.props.updateState}
-            />
-          </ToggleExpansionPanelItem>
-
-          <ToggleExpansionPanelItem label="Size">
-            <TooltipSlider
-              id="size"
-              statePath={[s.ledSettings, s.size]}
-              min={1}
-              max={5}
-              lastCapturedValue={this.props.ledSettings.size}
-              onInputCaptured={this.props.updateState}
-            />
-          </ToggleExpansionPanelItem>
-
-          <ToggleExpansionPanelItem label="Padding" centerLabel={false}>
-            <TooltipSlider
-              id="paddingTop"
-              statePath={[s.ledSettings, s.padding, s.top]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.padding.top}
-              onInputCaptured={this.props.updateState}
-            />
-            <TooltipSlider
-              id="paddingRight"
-              statePath={[s.ledSettings, s.padding, s.right]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.padding.right}
-              onInputCaptured={this.props.updateState}
-            />
-            <TooltipSlider
-              id="paddingBottom"
-              statePath={[s.ledSettings, s.padding, s.bottom]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.padding.bottom}
-              onInputCaptured={this.props.updateState}
-            />
-            <TooltipSlider
-              id="paddingLeft"
-              statePath={[s.ledSettings, s.padding, s.left]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.padding.left}
-              onInputCaptured={this.props.updateState}
-            />
-          </ToggleExpansionPanelItem>
         </ToggleExpansionPanelSection>
       </ToggleExpansionPanel>
     );

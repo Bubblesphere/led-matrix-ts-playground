@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 
 const themeDependantStyles = ({ spacing }: Theme) => createStyles({
   characterCanvasContainer: {
-    margin: `${spacing.unit * 4}px ${spacing.unit * 2}px`
+    margin: `0px ${spacing.unit * 2}px`
   },
 });
 
@@ -43,7 +43,6 @@ class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyl
 
   componentDidMount() {
     this.setCanvasContainerSize();
-    this.props.renderer.render(this.props.panelFrame);
     window.addEventListener('resize', this.setCanvasContainerSize);
   }
 
@@ -53,10 +52,13 @@ class LedPanel extends Component<LedProps & WithStyles<typeof themeDependantStyl
 
   componentDidUpdate(prevProps: LedProps, prevState) {
     if (prevProps.panelFrame != this.props.panelFrame) {
-      if (prevProps.panelFrame.length != this.props.panelFrame.length
-        || prevProps.panelFrame[0].length != this.props.panelFrame[0].length) {
-        this.setCanvasContainerSize();
+      if (prevProps.panelFrame && this.props.panelFrame) {
+        if (prevProps.panelFrame.length != this.props.panelFrame.length
+          || prevProps.panelFrame[0].length != this.props.panelFrame[0].length) {
+          this.setCanvasContainerSize();
+        }
       }
+
     }
 
     if (prevProps.rendererType != this.props.rendererType) {

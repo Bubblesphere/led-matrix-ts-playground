@@ -9,6 +9,8 @@ import LedPlaybackControl from './led/LedPlaybackControl';
 import LedInput from '../components/led/LedInput';
 import LedPanel from '../components/led/LedPanel';
 import LedConfiguration from './led/LedConfiguration';
+import LedPlayer from '../components/led/LedPlayer';
+import { RendererBuilder } from 'led-matrix-ts';
 
 const styles = StyleSheet.create({
   configuration: {
@@ -17,7 +19,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const themeDependantStyles = ({typography, spacing, palette}: Theme) => createStyles({
+const themeDependantStyles = ({ typography, spacing, palette }: Theme) => createStyles({
   fullScreen: {
     color: palette.primary.main,
     fontSize: typography.fontSize * 4
@@ -27,51 +29,55 @@ const themeDependantStyles = ({typography, spacing, palette}: Theme) => createSt
   },
   gridLed: {
     background: 'rgb(240, 240, 240)'
+  },
+  nowrap: {
+    flexWrap: "nowrap"
   }
 });
 
-interface LedSectionProps extends AppState {};
+interface LedSectionProps extends AppState { };
 
 const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantStyles>> = (props) => {
-  const {classes, ...propsWithoutClasses} = props;
+  const { classes, ...propsWithoutClasses } = props;
   return (
     <Grid item container direction={"row-reverse"} className={props.classes.gridLed}>
-      
 
-      <Grid item container justify="center"  direction="column" alignItems="center" md={9} className={props.classes.gridLedContent}>
-        
-        <Grid item container justify="flex-start">
-          <LedInput 
+
+      <Grid item container justify="center" direction="row" alignItems="center" md={9} className={props.classes.gridLedContent}>
+
+        <Grid item container justify="flex-start" className={props.classes.nowrap}>
+          <LedInput
             updateState={props.updateState}
             errors={props.errors}
-            input={props.ledSettings.input} 
+            input={props.ledSettings.input}
           />
         </Grid>
 
-        <Grid item container justify="center">
+        <Grid item container justify="center" className={props.classes.nowrap}>
           <Grid item container id="canvas-container">
-            <LedPanel 
-              width={props.ledSettings.viewportWidth} 
-              height={props.height} 
-              onRendererChanged={props.onRendererChanged} 
-              maxHeightPixel="50vh" 
-              rendererType={props.ledSettings.rendererType} 
-            />
+
+                <LedPlayer
+                  fps={props.ledSettings.fps}
+                  playbackMode={props.playbackMode}
+                  rendererType={props.ledSettings.rendererType}
+                  sequence={props.ledSettings.sequence}
+                />
+
           </Grid>
         </Grid>
 
-        <Grid item container alignItems="center" justify="space-between">
+        <Grid item container alignItems="center" justify="space-between" className={props.classes.nowrap}>
           <Grid item>
-            <LedPlaybackControl 
+            <LedPlaybackControl
               updateState={props.updateState}
-              playbackMode={props.playbackMode} 
+              playbackMode={props.playbackMode}
             />
           </Grid>
 
           <Grid item >
             <Link to={'/fullscreen'}>
               <IconButton>
-                <Fullscreen  className={classes.fullScreen}/>
+                <Fullscreen className={classes.fullScreen} />
               </IconButton>
             </Link>
           </Grid>
@@ -81,9 +87,9 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
       </Grid>
 
       <Grid item container md={3} className={css(styles.configuration)}>
-        <LedConfiguration 
+        <LedConfiguration
           ledSettings={props.ledSettings}
-          updateState={props.updateState} 
+          updateState={props.updateState}
         />
       </Grid>
     </Grid>

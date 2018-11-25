@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { LedMatrixMode, PlaybackMode } from './utils/led-map';
+import { LedMatrixMode } from './utils/led-map';
 import { RGBColor } from 'react-color';
 import { withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 import Structure from './sections/Structure';
@@ -18,10 +18,12 @@ import {
   ScrollerBuilder, 
   ScrollerTypes,
   RendererBuilder,
-  Sequence
+  Sequence,
+  Renderer
 } from 'led-matrix-ts';
 import { toHexString } from './utils/color';
 import { updateState } from './utils/state';
+import { PlaybackMode } from './components/led/LedPlayer';
 
 interface AppProps extends RouteComponentProps { }
 
@@ -60,7 +62,8 @@ export enum s {
   height = 'height',
   onRendererElementReady = 'onRendererElementReady',
   ledMatrixMode = 'ledMatrixMode',
-  playbackMode = 'playbackMode'
+  playbackMode = 'playbackMode',
+  sequence = 'sequence'
 }
 
 export interface AppState extends CanUpdateState, CanUpdateStateErrors {
@@ -73,7 +76,7 @@ export interface AppState extends CanUpdateState, CanUpdateStateErrors {
   pendingDeleteCharacter: Character
   usedCharacters: Character[]
   height: number
-  onRendererChanged: () => void
+  //onRendererChanged: () => void
 }
 
 export interface LedSettingsState {
@@ -129,7 +132,6 @@ export interface CanUpdateStateErrors {
 
 class App extends Component<AppProps, AppState> {
   private ledMatrix: LedMatrix;
-  private ledMatrixPlayer: LedMatrixPlayer;
   private ledMatrixId = 'led-matrix';
 
   private getLedSettingsFromLocalStorage(): LedSettingsState {
@@ -191,35 +193,34 @@ class App extends Component<AppProps, AppState> {
       }
     },
     ledMatrixMode: LedMatrixMode.NotLoaded,
-    playbackMode: PlaybackMode.play,
+    playbackMode: PlaybackMode.Play,
     pendingCharacter: null,
     pendingEditCharacter: null,
     pendingDeleteCharacter: null,
     usedCharacters: null,
     height: 8,
-    onRendererChanged: this.onRendererChanged.bind(this),
+    //onRendererChanged: this.onRendererChanged.bind(this),
     updateState: this.updateState.bind(this),
     updateStateError: this.updateStateError.bind(this),
   }
 
   constructor(props) {
     super(props);
-    this.setCharacterBitOff = this.setCharacterBitOff.bind(this);
-    this.setCharacterBitOn = this.setCharacterBitOn.bind(this);
-    this.setColorBitOff = this.setColorBitOff.bind(this);
-    this.setColorStrokeOff = this.setColorStrokeOff.bind(this);
-    this.setColorStrokeOn = this.setColorStrokeOn.bind(this);
-    this.setFps = this.setFps.bind(this);
+    //this.setCharacterBitOff = this.setCharacterBitOff.bind(this);
+    //this.setCharacterBitOn = this.setCharacterBitOn.bind(this);
+    //this.setColorBitOff = this.setColorBitOff.bind(this);
+    //this.setColorStrokeOff = this.setColorStrokeOff.bind(this);
+    //this.setColorStrokeOn = this.setColorStrokeOn.bind(this);
+    //this.setFps = this.setFps.bind(this);
     this.setIncrement = this.setIncrement.bind(this);
     this.setInput = this.setInput.bind(this);
-    this.setPlaybackMode = this.setPlaybackMode.bind(this);
     this.setPadding = this.setPadding.bind(this);
     this.setScrollerType = this.setScrollerType.bind(this);
     this.handleAddCharacter = this.handleAddCharacter.bind(this);
     this.handleEditCharacter = this.handleEditCharacter.bind(this);
     this.handleDeleteCharacter = this.handleDeleteCharacter.bind(this);
-    this.setRenderer = this.setRenderer.bind(this);
-    this.setRendererParameters = this.setRendererParameters.bind(this);
+    //this.setRenderer = this.setRenderer.bind(this);
+    //this.setRendererParameters = this.setRendererParameters.bind(this);
     this.setReverse = this.setReverse.bind(this);
     this.setSize = this.setSize.bind(this);
     this.setLetterSpacing = this.setLetterSpacing.bind(this);
@@ -243,20 +244,13 @@ class App extends Component<AppProps, AppState> {
       ]
     });
 
-    this.ledMatrixPlayer = new LedMatrixPlayer(
-      this.ledMatrix.sequence,
-      {
-        fps: this.state.ledSettings.fps,
-        renderer: RendererBuilder.build(this.state.ledSettings.rendererType, this.ledMatrixId)
-      }
-    );
-
     this.ledMatrix.event.newSequence.on((sequence) => {
-      this.ledMatrixPlayer.sequence = sequence;
+      this.state.updateState([s.ledSettings, s.sequence], sequence);
     })
 
+    /*
     this.setRendererParameters();
-
+    */
 
     if (this.state.ledMatrixMode == LedMatrixMode.NotLoaded) {
       if (this.props.location.pathname == '/') {
@@ -271,11 +265,11 @@ class App extends Component<AppProps, AppState> {
     this.props.history.listen((location) => {
       if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
         if (location.pathname == '/') {
-          this.setPlaybackMode();
-          this.setRenderer();
-          this.setRendererParameters();
+          this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Play);
+          /*this.setRenderer();
+          this.setRendererParameters();*/
         } else {
-          this.ledMatrixPlayer.pause();
+          this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Pause);
         }
       }
     });
@@ -290,7 +284,7 @@ class App extends Component<AppProps, AppState> {
     if (this.state.ledMatrixMode == LedMatrixMode.Loaded) {
       if (this.props.location.pathname == '/fullscreen') {
         // Make sure the led panel is playing when using fullscreen
-        this.ledMatrixPlayer.play();
+        this.state.updateState([s.ledSettings, s.playbackMode], PlaybackMode.Play);
       }
 
       if (prevState.pendingCharacter != this.state.pendingCharacter
@@ -306,10 +300,6 @@ class App extends Component<AppProps, AppState> {
       if (prevState.pendingDeleteCharacter != this.state.pendingDeleteCharacter
         && this.state.pendingDeleteCharacter != null) {
         this.handleDeleteCharacter();
-      }
-
-      if (prevState.playbackMode != this.state.playbackMode) {
-        this.setPlaybackMode();
       }
 
       if (this.state.height != this.ledMatrix.height) {
@@ -329,10 +319,6 @@ class App extends Component<AppProps, AppState> {
 
         if (prevState.ledSettings.scrollerType != this.state.ledSettings.scrollerType) {
           this.setScrollerType();
-        }
-
-        if (prevState.ledSettings.fps != this.state.ledSettings.fps) {
-          this.setFps();
         }
 
         if (prevState.ledSettings.increment != this.state.ledSettings.increment) {
@@ -363,6 +349,7 @@ class App extends Component<AppProps, AppState> {
           this.setPadding();
         }
 
+        /*
         const rendererChanged = prevState.ledSettings.rendererType != this.state.ledSettings.rendererType;
         if (this.state.ledSettings.rendererType == RendererTypes.ASCII) {
           if (rendererChanged ||
@@ -395,6 +382,7 @@ class App extends Component<AppProps, AppState> {
             this.setColorStrokeOff();
           }
         }
+        */
       }
     }
   }
@@ -457,10 +445,6 @@ class App extends Component<AppProps, AppState> {
     this.ledMatrix.increment = this.state.ledSettings.increment;
   }
 
-  private setFps() {
-    this.ledMatrixPlayer.fps = this.state.ledSettings.fps;
-  }
-
   private setViewportWidth() {
     this.ledMatrix.viewportWidth = this.state.ledSettings.viewportWidth;
   }
@@ -492,7 +476,7 @@ class App extends Component<AppProps, AppState> {
       this.state.ledSettings.padding.left
     ];
   }
-
+/*
   private setRenderer() {
     this.ledMatrixPlayer.renderer = RendererBuilder.build(this.state.ledSettings.rendererType, this.ledMatrixId)
   }
@@ -543,24 +527,7 @@ class App extends Component<AppProps, AppState> {
       this.setColorStrokeOff();
     }
   }
-
-  private setPlaybackMode() {
-    switch (Number(this.state.playbackMode) as PlaybackMode) {
-      case PlaybackMode.play:
-        this.ledMatrixPlayer.play();
-        break;
-      case PlaybackMode.stop:
-        this.ledMatrixPlayer.stop();
-        break;
-      case PlaybackMode.resume:
-        this.ledMatrixPlayer.resume();
-        break;
-      case PlaybackMode.pause:
-        this.ledMatrixPlayer.pause();
-        break;
-    }
-  }
-
+*/
   private loadLedMatrix() {
     this.state.updateState([s.ledMatrixMode], LedMatrixMode.Loading, () => {
       // If no characters are loaded, we'll get our characters from a json file
@@ -583,7 +550,7 @@ class App extends Component<AppProps, AppState> {
     this.state.updateState([s.height], this.ledMatrix.height);
     this.setInput();
     this.setSize();
-    this.ledMatrixPlayer.play();
+    this.state.updateState([s.playbackMode], PlaybackMode.Play);
     this.state.updateState([s.ledMatrixMode], LedMatrixMode.Loaded);
   }
 

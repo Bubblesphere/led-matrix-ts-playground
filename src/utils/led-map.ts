@@ -1,13 +1,5 @@
 import { ScrollerTypes, RendererTypes } from "led-matrix-ts";
 
-
-export enum PlaybackMode {
-  play,
-  stop,
-  pause,
-  resume
-}
-
 export enum LedMatrixMode {
   NotLoaded,
   Loading,
