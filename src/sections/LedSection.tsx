@@ -59,7 +59,7 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
             colorStrokeOff={toHexString(props.ledSettings.canvaParameters.strokeOff)}
             CanvasPanelShape={new CanvasPanels.Rect()}
             id='panel-player'
-            maxHeightPixel='70vh'
+            maxHeightPixel='65vh'
             panelFrame={null}
           />
         )
@@ -72,7 +72,7 @@ const LedSection: React.SFC<LedSectionProps & WithStyles<typeof themeDependantSt
           colorStrokeOff={toHexString(props.ledSettings.canvaParameters.strokeOff)}
           CanvasPanelShape={new CanvasPanels.Ellipse()}
           id='panel-player'
-          maxHeightPixel='70vh'
+          maxHeightPixel='65vh'
           panelFrame={null}
         />
       )
