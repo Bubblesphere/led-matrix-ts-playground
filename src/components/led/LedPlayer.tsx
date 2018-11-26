@@ -51,12 +51,12 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
   }
 
   componentDidMount() {
-    if (this.props.sequence) {
-      this.onChangePlayback();
-      this.onChangeIndex();
-      this.onChangeSequence();
-      this.onChangeFps();
-    }
+    this.onChangePlayback();
+    this.onChangeFps();
+  }
+
+  componentWillUnmount() {
+    this._shouldUpdate = false;
   }
 
   componentDidUpdate(prevProps: LedPlayerProps, prevState: LedPlayerState) {
