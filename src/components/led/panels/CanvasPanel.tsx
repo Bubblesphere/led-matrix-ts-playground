@@ -9,7 +9,7 @@ import { Grid, Theme, createStyles, withStyles, WithStyles } from '@material-ui/
 const styles = StyleSheet.create({
   characterCanvasContainer: {
     '@media (max-width: 600px)': {
-      height: '100%'
+      height: '80vh'
     }
   }
 });
