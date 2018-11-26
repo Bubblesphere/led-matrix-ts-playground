@@ -93,7 +93,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
               colorStrokeOff={toHexString(this.props.ledSettings.canvaParameters.strokeOff)}
               CanvasPanelShape={new CanvasPanels.Rect()}
               id='panel-player'
-              maxHeightPixel='70vh'
+              maxHeightPixel='100vh'
               panelFrame={null}
             />
           )
@@ -106,7 +106,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
             colorStrokeOff={toHexString(this.props.ledSettings.canvaParameters.strokeOff)}
             CanvasPanelShape={new CanvasPanels.Ellipse()}
             id='panel-player'
-            maxHeightPixel='70vh'
+            maxHeightPixel='100vh'
             panelFrame={null}
           />
         )
