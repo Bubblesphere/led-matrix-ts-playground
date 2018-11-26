@@ -25,6 +25,10 @@ export interface AsciiPanelProps extends PanelProps {}
 export default class AsciiPanel extends Component<AsciiPanelProps & AsciiPanelPropsOpt, AsciiPanelState> implements Panel {
   static defaultProps: AsciiPanelPropsOpt;
 
+  state = {
+    content: ''
+  }
+
   constructor(props) {
     super(props);
   }
@@ -56,7 +60,7 @@ export default class AsciiPanel extends Component<AsciiPanelProps & AsciiPanelPr
 
   render() {
     return (
-      <div>
+      <div className={css(styles.ascii)}>
         {this.state.content}
       </div>
     )
