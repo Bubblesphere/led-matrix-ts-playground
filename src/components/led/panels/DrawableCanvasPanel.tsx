@@ -210,9 +210,13 @@ class DrawableCanvasPanel extends React.Component<DrawableCanvasPanelProps & Dra
   render() {
     return (
       <CanvasPanel 
-        id='drawable-canvas-panel'
-        maxHeightPixel='70vh'
+        id={this.ledPanelId}
+        maxHeightPixel='65vh'
         panelFrame={this.props.character.data}
+        colorBitOn={toHexString(this.props.canvasParameters.colorOn)}
+        colorBitOff={toHexString(this.props.canvasParameters.colorOff)}
+        colorStrokeOn={toHexString(this.props.canvasParameters.strokeOn)}
+        colorStrokeOff={toHexString(this.props.canvasParameters.strokeOff)}
       />
     )
   }
