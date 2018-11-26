@@ -174,7 +174,7 @@ class LedPlayer extends React.Component<LedPlayerProps & LedPlayerPropsOpt, LedP
           panelFrame: this.props.sequence[this.state.index]
         })
       )) :
-      <div style={{ maxHeight: '70vh' }} />
+      <div style={{ maxHeight: '65vh' }} />
 
     return panelWithProps;
   }
