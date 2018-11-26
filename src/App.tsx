@@ -228,6 +228,7 @@ class App extends Component<AppProps, AppState> {
     this.setViewportWidth = this.setViewportWidth.bind(this);
     this.handlePotentialErrors = this.handlePotentialErrors.bind(this);
     this.loadLedMatrixPostCharacters = this.loadLedMatrixPostCharacters.bind(this);
+    this.onNewSequenceHandler = this.onNewSequenceHandler.bind(this);
   }
 
   componentDidMount() {
@@ -245,9 +246,7 @@ class App extends Component<AppProps, AppState> {
       ]
     });
 
-    this.ledMatrix.event.newSequence.on((sequence) => {
-      this.state.updateState([s.sequence], sequence);
-    })
+    this.ledMatrix.event.newSequence.on(this.onNewSequenceHandler)
 
     /*
     this.setRendererParameters();
@@ -278,6 +277,14 @@ class App extends Component<AppProps, AppState> {
         }
       }
     });
+  }
+
+  onNewSequenceHandler(sequence: Sequence) {
+    this.state.updateState([s.sequence], sequence);
+  }
+
+  componentWillUnmount() {
+    this.ledMatrix.event.newSequence.off(this.onNewSequenceHandler);
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
