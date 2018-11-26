@@ -64,6 +64,9 @@ class CanvasPanel extends Component<CanvasPanelProps & CanvasPanelPropsOpt & Wit
         this.setCanvasContainerSize();
         this.draw();
       }
+    } else if (!prevProps.panelFrame && this.props.panelFrame) {
+      this.setCanvasContainerSize();
+      this.draw();
     }
   }
 
