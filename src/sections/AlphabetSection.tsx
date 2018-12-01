@@ -141,8 +141,8 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     if ((prevState.character.pattern == this.state.character.pattern
       && prevState.character.data != this.state.character.data)
       || (prevProps.errorPendingCharacter.isError == false && this.props.errorPendingCharacter.isError == true)) {
-
       this.updateState([a.pendingSave], true);
+      this.updateState([a.expansionPanelIndex], 0);
     }
   }
 
