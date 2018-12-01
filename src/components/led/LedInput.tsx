@@ -23,7 +23,7 @@ const LedInput: React.SFC<LedInputProps & WithStyles<typeof themeDependantStyles
             id="input"
             statePath={[s.ledSettings, s.input]}
             label={props.errors.input.isError ? props.errors.input.message : "Input"}
-            value={props.input}
+            defaultValue={props.input}
             onInputCaptured={props.updateState}
             error={props.errors.input.isError}
             InputProps={{

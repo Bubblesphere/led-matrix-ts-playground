@@ -5,21 +5,14 @@ import { RGBColor } from 'react-color';
 import { withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 import Structure from './sections/Structure';
 import { 
-  RendererTypes, 
   PanelFrame, 
-  Scroller, 
-  LedMatrixPlayer, 
   LedMatrix, 
   Character, 
   BitArray, 
   CharactersJSON, 
-  AsciiRendererParameter, 
-  CanvasRendererParameter, 
   ScrollerBuilder, 
   ScrollerTypes,
-  RendererBuilder,
   Sequence,
-  Renderer
 } from 'led-matrix-ts';
 import { toHexString } from './utils/color';
 import { updateState } from './utils/state';
@@ -58,7 +51,6 @@ export enum s {
   pendingCharacter = 'pendingCharacter',
   pendingEditCharacter = 'pendingEditCharacter',
   pendingDeleteCharacter = 'pendingDeleteCharacter',
-  usedCharacters = 'usedCharacters',
   loadedCharacters = 'loadedCharacters',
   height = 'height',
   onRendererElementReady = 'onRendererElementReady',
@@ -76,7 +68,6 @@ export interface AppState extends CanUpdateState, CanUpdateStateErrors {
   pendingCharacter: Character
   pendingEditCharacter: Character
   pendingDeleteCharacter: Character
-  usedCharacters: Character[]
   height: number
   //onRendererChanged: () => void
 }
@@ -157,13 +148,13 @@ class App extends Component<AppProps, AppState> {
           strokeOff: { r: 52, g: 73, b: 94, a: 1 } as RGBColor,
           strokeOn: { r: 46, g: 204, b: 113, a: 1 } as RGBColor,
         },
-        fps: 25,
+        fps: 24,
         increment: 1,
-        input: 'test',
+        input: 'Hello world',
         padding: {
           bottom: 1,
           left: 1,
-          right: 15,
+          right: 20,
           top: 1
         },
         scrollerType: ScrollerTypes.Side,
@@ -171,7 +162,7 @@ class App extends Component<AppProps, AppState> {
         reverse: false,
         size: 1,
         letterSpacing: 1,
-        viewportWidth: 50,
+        viewportWidth: 78,
         loadedCharacters: null,
       },
     errors: {
@@ -198,21 +189,13 @@ class App extends Component<AppProps, AppState> {
     pendingCharacter: null,
     pendingEditCharacter: null,
     pendingDeleteCharacter: null,
-    usedCharacters: null,
     height: 8,
-    //onRendererChanged: this.onRendererChanged.bind(this),
     updateState: this.updateState.bind(this),
     updateStateError: this.updateStateError.bind(this),
   }
 
   constructor(props) {
     super(props);
-    //this.setCharacterBitOff = this.setCharacterBitOff.bind(this);
-    //this.setCharacterBitOn = this.setCharacterBitOn.bind(this);
-    //this.setColorBitOff = this.setColorBitOff.bind(this);
-    //this.setColorStrokeOff = this.setColorStrokeOff.bind(this);
-    //this.setColorStrokeOn = this.setColorStrokeOn.bind(this);
-    //this.setFps = this.setFps.bind(this);
     this.setIncrement = this.setIncrement.bind(this);
     this.setInput = this.setInput.bind(this);
     this.setPadding = this.setPadding.bind(this);
@@ -220,8 +203,6 @@ class App extends Component<AppProps, AppState> {
     this.handleAddCharacter = this.handleAddCharacter.bind(this);
     this.handleEditCharacter = this.handleEditCharacter.bind(this);
     this.handleDeleteCharacter = this.handleDeleteCharacter.bind(this);
-    //this.setRenderer = this.setRenderer.bind(this);
-    //this.setRendererParameters = this.setRendererParameters.bind(this);
     this.setReverse = this.setReverse.bind(this);
     this.setSize = this.setSize.bind(this);
     this.setLetterSpacing = this.setLetterSpacing.bind(this);
@@ -234,6 +215,7 @@ class App extends Component<AppProps, AppState> {
   componentDidMount() {
     // Initialize library with state at mount
     this.ledMatrix = new LedMatrix({
+      scroller: ScrollerBuilder.build(this.state.ledSettings.scrollerType),
       increment: this.state.ledSettings.increment,
       panelWidth: this.state.ledSettings.viewportWidth,
       letterSpacing: this.state.ledSettings.letterSpacing,
@@ -247,10 +229,6 @@ class App extends Component<AppProps, AppState> {
     });
 
     this.ledMatrix.event.newSequence.on(this.onNewSequenceHandler)
-
-    /*
-    this.setRendererParameters();
-    */
 
     if (this.state.ledMatrixMode == LedMatrixMode.NotLoaded) {
       if (this.props.location.pathname == '/') {
@@ -362,41 +340,6 @@ class App extends Component<AppProps, AppState> {
         if (prevState.ledSettings.padding != this.state.ledSettings.padding) {
           this.setPadding();
         }
-
-        /*
-        const rendererChanged = prevState.ledSettings.rendererType != this.state.ledSettings.rendererType;
-        if (this.state.ledSettings.rendererType == RendererTypes.ASCII) {
-          if (rendererChanged ||
-            prevState.ledSettings.asciiParameters.characterOn != this.state.ledSettings.asciiParameters.characterOn) {
-            this.setCharacterBitOn();
-          }
-
-          if (rendererChanged ||
-            prevState.ledSettings.asciiParameters.characterOff != this.state.ledSettings.asciiParameters.characterOff) {
-            this.setCharacterBitOff();
-          }
-        } else {
-          if (rendererChanged ||
-            prevState.ledSettings.canvaParameters.colorOn != this.state.ledSettings.canvaParameters.colorOn) {
-            this.setColorBitOn();
-          }
-
-          if (rendererChanged ||
-            prevState.ledSettings.canvaParameters.colorOff != this.state.ledSettings.canvaParameters.colorOff) {
-            this.setColorBitOff();
-          }
-
-          if (rendererChanged ||
-            prevState.ledSettings.canvaParameters.strokeOn != this.state.ledSettings.canvaParameters.strokeOn) {
-            this.setColorStrokeOn();
-          }
-
-          if (rendererChanged ||
-            prevState.ledSettings.canvaParameters.strokeOff != this.state.ledSettings.canvaParameters.strokeOff) {
-            this.setColorStrokeOff();
-          }
-        }
-        */
       }
     }
   }
@@ -452,7 +395,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   private setScrollerType() {
-    this.ledMatrix.scroller = ScrollerBuilder.build(this.state.ledSettings.scrollerType, '');
+    this.ledMatrix.scroller = ScrollerBuilder.build(this.state.ledSettings.scrollerType);
   }
 
   private setIncrement() {
@@ -470,7 +413,6 @@ class App extends Component<AppProps, AppState> {
   private setInput() {
     this.handlePotentialErrors(s.input, () => {
       this.ledMatrix.input = this.state.ledSettings.input;
-      this.state.updateState([s.usedCharacters], this.ledMatrix.usedCharacters);
     });
   }
 
@@ -490,58 +432,7 @@ class App extends Component<AppProps, AppState> {
       this.state.ledSettings.padding.left
     ];
   }
-/*
-  private setRenderer() {
-    this.ledMatrixPlayer.renderer = RendererBuilder.build(this.state.ledSettings.rendererType, this.ledMatrixId)
-  }
 
-  private setCharacterBitOn() {
-    (this.ledMatrixPlayer.renderer.parameters as any as AsciiRendererParameter).characterBitOn = 
-      this.state.ledSettings.asciiParameters.characterOn;
-  }
-
-  private setCharacterBitOff() {
-    (this.ledMatrixPlayer.renderer.parameters as any as AsciiRendererParameter).characterBitOff = 
-    this.state.ledSettings.asciiParameters.characterOff;
-  }
-
-  private setColorBitOn() {
-    (this.ledMatrixPlayer.renderer.parameters as any as CanvasRendererParameter).colorBitOn = 
-    toHexString(this.state.ledSettings.canvaParameters.colorOn);
-  }
-
-  private setColorBitOff() {
-    (this.ledMatrixPlayer.renderer.parameters as any as CanvasRendererParameter).colorBitOff = 
-    toHexString(this.state.ledSettings.canvaParameters.colorOff);
-  }
-
-  private setColorStrokeOn() {
-    (this.ledMatrixPlayer.renderer.parameters as any as CanvasRendererParameter).colorStrokeOn = 
-    toHexString(this.state.ledSettings.canvaParameters.strokeOn);
-  }
-
-  private setColorStrokeOff() {
-    (this.ledMatrixPlayer.renderer.parameters as any as CanvasRendererParameter).colorStrokeOff = 
-    toHexString(this.state.ledSettings.canvaParameters.strokeOff);
-  }
-
-  private onRendererChanged() {
-    this.setRenderer();
-    this.setRendererParameters();
-  }
-
-  private setRendererParameters() {
-    if (this.state.ledSettings.rendererType == RendererTypes.ASCII) {
-      this.setCharacterBitOn();
-      this.setCharacterBitOff();
-    } else {
-      this.setColorBitOn();
-      this.setColorBitOff();
-      this.setColorStrokeOn();
-      this.setColorStrokeOff();
-    }
-  }
-*/
   private loadLedMatrix() {
     this.state.updateState([s.ledMatrixMode], LedMatrixMode.Loading, () => {
       // If no characters are loaded, we'll get our characters from a json file
@@ -559,7 +450,6 @@ class App extends Component<AppProps, AppState> {
   }
 
   private loadLedMatrixPostCharacters() {
-    this.state.updateState([s.usedCharacters], this.ledMatrix.usedCharacters);
     this.state.updateState([s.ledSettings, s.loadedCharacters], this.ledMatrix.loadedCharacters);
     this.state.updateState([s.height], this.ledMatrix.height);
     this.setInput();

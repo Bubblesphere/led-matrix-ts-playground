@@ -10,9 +10,10 @@ import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
 import CanvasPanel from '../components/led/panels/CanvasPanel';
 import AsciiPanel from '../components/led/panels/AsciiPanel';
 import { CanvasPanels } from '../components/led/panels/canvas-panels';
-import { PanelTypes } from '../components/led/panels/panel';
+import { PanelTypes, panels } from '../components/led/panels/panel';
 
 import { toHexString } from '../utils/color';
+import { ScrollerTypes } from 'led-matrix-ts';
 
 interface StrutureProps extends AppState { }
 interface StructureState {}
@@ -28,9 +29,6 @@ const themeDependantStyles = ({palette}: Theme) => createStyles({
     flex: '0 1 80px',
     background: palette.grey["800"],
     color: palette.getContrastText(palette.grey["800"]),
-  },
-  fullScreenMode: {
-    background: palette.grey["900"]
   }
 });
 
@@ -119,7 +117,8 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         item 
         container 
         direction="column" 
-        className={[this.props.classes.app, this.props.classes.fullScreenMode].join(' ')} 
+        style={{background: this.props.ledSettings.panelType != PanelTypes.Ascii ? toHexString(this.props.ledSettings.canvaParameters.strokeOff) : 'initial'}}
+        className={[this.props.classes.app].join(' ')} 
         alignItems="center" 
         justify="center" 
         alignContent="center"
@@ -144,7 +143,7 @@ class Structure extends Component<StrutureProps & WithStyles<typeof themeDependa
         </Grid>
         <Grid container item xs={12}>
           <Route exact path="/" render={this.renderLed} />
-          <Route exact path="/alphabet" render={this.renderAlphabet} />
+          <Route exact path="/characters" render={this.renderAlphabet} />
         </Grid>
       </Grid>
     );

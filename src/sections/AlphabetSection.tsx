@@ -150,7 +150,6 @@ class AlphabetSection extends React.Component<AlphabetSectionProps & WithStyles<
     this.updateState([a.pendingSave], false);
 
     const char = this.getCharacterFromState(this.state.character.pattern);
-    console.log(char.output.atIndexRange(0, char.output.size));
 
     if (this.state.mode == DrawableCanvasPanelMode.create) {
       this.props.updateState([s.pendingCharacter], char);

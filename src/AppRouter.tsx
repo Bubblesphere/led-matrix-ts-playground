@@ -1,10 +1,17 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { HashRouter as Router} from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import App from './App';
 
-interface AppRouterProps  {}
-interface AppRouterState {}
+interface AppRouterProps { }
+interface AppRouterState { }
+
+const theme = createMuiTheme({
+  palette: {
+  }
+});
+
 
 class AppRouter extends Component<AppRouterProps, AppRouterState> {
   constructor(props) {
@@ -13,9 +20,11 @@ class AppRouter extends Component<AppRouterProps, AppRouterState> {
 
   render() {
     return (
-      <Router>
-        <App/>
-      </Router>
+      <MuiThemeProvider theme={theme}>
+        <Router>
+          <App />
+        </Router>
+      </MuiThemeProvider>
     );
   }
 }

@@ -38,7 +38,11 @@ export default class AsciiPanel extends Component<AsciiPanelProps & AsciiPanelPr
   }
 
   componentDidUpdate(prevProps: AsciiPanelProps, prevState: AsciiPanelState) {
-    if (prevProps.panelFrame != this.props.panelFrame) {
+    if (prevProps.panelFrame && this.props.panelFrame) {
+      if (!this.equal(prevProps.panelFrame, this.props.panelFrame)) {
+        this.draw();
+      }
+    } else if (!prevProps.panelFrame && this.props.panelFrame) {
       this.draw();
     }
   }
@@ -57,6 +61,24 @@ export default class AsciiPanel extends Component<AsciiPanelProps & AsciiPanelPr
       content: output
     })
   }
+
+  private equal(array1, array2) {
+    if (!Array.isArray(array1) && !Array.isArray(array2)) {
+        return array1 === array2;
+    }
+
+    if (array1.length !== array2.length) {
+        return false;
+    }
+
+    for (var i = 0, len = array1.length; i < len; i++) {
+        if (!this.equal(array1[i], array2[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
   render() {
     return (

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CanvasRenderers, PanelFrame } from 'led-matrix-ts';
+import { PanelFrame } from 'led-matrix-ts';
 import { RGBColor } from 'react-color';
 import { toHexString } from '../../../utils/color';
 import { generate2dArrayOfOffBits, generateArrayOfOffBits } from '../../../utils/array';
@@ -49,7 +49,6 @@ interface DrawableCanvasPanelPropsOpt {
 }
 
 class DrawableCanvasPanel extends React.Component<DrawableCanvasPanelProps & DrawableCanvasPanelPropsOpt, DrawableCanvasPanelState> {
-  renderer: CanvasRenderers.Rect
   ledPanelId = 'led-matrix';
   static defaultProps: DrawableCanvasPanelPropsOpt;
 
@@ -73,14 +72,6 @@ class DrawableCanvasPanel extends React.Component<DrawableCanvasPanelProps & Dra
 
   componentDidMount() {
     const el = document.getElementById(this.ledPanelId);
-
-    this.renderer = new CanvasRenderers.Rect({
-      elementId: this.ledPanelId,
-      colorBitOff: toHexString(this.props.canvasParameters.colorOff),
-      colorBitOn: toHexString(this.props.canvasParameters.colorOn),
-      colorStrokeOff: toHexString(this.props.canvasParameters.strokeOff),
-      colorStrokeOn: toHexString(this.props.canvasParameters.strokeOn)
-    });
 
     el.addEventListener('mousemove', this.onMouseMove);
     el.addEventListener('mousedown', this.onMouseDown);

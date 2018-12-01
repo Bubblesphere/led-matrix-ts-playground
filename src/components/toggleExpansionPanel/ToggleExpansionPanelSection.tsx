@@ -16,9 +16,11 @@ const styles = StyleSheet.create({
   }
 });
 
-const themeDependantStyles = ({palette}: Theme) => createStyles({
+const themeDependantStyles = ({palette, spacing}: Theme) => createStyles({
   title: {
-    color: palette.primary.main
+    color: palette.primary.dark,
+    fontSize: spacing.unit * 2,
+    fontWeight: 'bold'
   }
 });
 

@@ -6,7 +6,7 @@ import ToggleExpansionPanel from '../../components/toggleExpansionPanel/ToggleEx
 import ToggleExpansionPanelSection from '../../components/toggleExpansionPanel/ToggleExpansionPanelSection';
 import { Grid, MenuItem, withStyles, WithStyles, Theme, createStyles, Button } from '@material-ui/core';
 import { StyleSheet } from 'aphrodite';
-import { LedMatrix, RendererTypes } from 'led-matrix-ts';
+import { LedMatrix } from 'led-matrix-ts';
 import { scrollers } from '../../utils/led-map';
 import { panels, PanelTypes } from '../../components/led/panels/panel';
 import SelectCustom from '../../components/inputs/Select';
@@ -19,8 +19,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 
 interface ProfileState {
-  showAdvancedConfigurations: boolean,
-  showAdvancedAppearance: boolean
+  showAdvancedConfigurations: boolean
 }
 
 export interface LedConfigurationProps extends CanUpdateState {
@@ -50,20 +49,12 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
   constructor(props) {
     super(props);
     this.toggleAdvancedConfigurations = this.toggleAdvancedConfigurations.bind(this);
-    this.toggleAdvancedAppearance = this.toggleAdvancedAppearance.bind(this);
   }
 
   toggleAdvancedConfigurations() {
     this.setState((prevState) => ({
       ...prevState,
       showAdvancedConfigurations: !prevState.showAdvancedConfigurations
-    }));
-  }
-
-  toggleAdvancedAppearance() {
-    this.setState((prevState) => ({
-      ...prevState,
-      showAdvancedAppearance: !prevState.showAdvancedAppearance
     }));
   }
 
@@ -75,7 +66,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         <ToggleExpansionPanelSection title="Configurations">
           <ToggleExpansionPanelItem label="Scrolling">
             <SelectCustom
-              id="panelType"
+              id="scrollerType"
               statePath={[s.ledSettings, s.scrollerType]}
               menuItems={scrollers.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
               onInputCaptured={this.props.updateState}
@@ -84,7 +75,19 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
             />
           </ToggleExpansionPanelItem>
 
-          <ToggleExpansionPanelItem label="Viewport width">
+
+          <ToggleExpansionPanelItem label="Speed" description="in frames per second">
+            <TooltipSlider
+              id="fps"
+              statePath={[s.ledSettings, s.fps]}
+              min={0}
+              max={60}
+              lastCapturedValue={this.props.ledSettings.fps}
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
+
+          <ToggleExpansionPanelItem label="Width">
             <TooltipSlider
               id="width"
               statePath={[s.ledSettings, s.viewportWidth]}
@@ -95,18 +98,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
             />
           </ToggleExpansionPanelItem>
 
-          <ToggleExpansionPanelItem label="Letter spacing">
-            <TooltipSlider
-              id="letterSpacing"
-              statePath={[s.ledSettings, s.letterSpacing]}
-              min={0}
-              max={20}
-              lastCapturedValue={this.props.ledSettings.letterSpacing}
-              onInputCaptured={this.props.updateState}
-            />
-          </ToggleExpansionPanelItem>
-
-          <ToggleExpansionPanelItem label="Size">
+          <ToggleExpansionPanelItem label="Size" description={`${this.props.ledSettings.size}x original size`}>
             <TooltipSlider
               id="size"
               statePath={[s.ledSettings, s.size]}
@@ -116,7 +108,14 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               onInputCaptured={this.props.updateState}
             />
           </ToggleExpansionPanelItem>
-
+          <ToggleExpansionPanelItem label="Reverse">
+            <SwitchCustom
+              checked={this.props.ledSettings.reverse}
+              statePath={[s.ledSettings, s.reverse]}
+              id="reverse"
+              onInputCaptured={this.props.updateState}
+            />
+          </ToggleExpansionPanelItem>
 
           {
             this.state.showAdvancedConfigurations &&
@@ -133,16 +132,20 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               </ToggleExpansionPanelItem>
 
 
-              <ToggleExpansionPanelItem label="Reverse">
-                <SwitchCustom
-                  checked={this.props.ledSettings.reverse}
-                  statePath={[s.ledSettings, s.reverse]}
-                  id="reverse"
+
+
+              <ToggleExpansionPanelItem label="Character Spacing">
+                <TooltipSlider
+                  id="letterSpacing"
+                  statePath={[s.ledSettings, s.letterSpacing]}
+                  min={0}
+                  max={20}
+                  lastCapturedValue={this.props.ledSettings.letterSpacing}
                   onInputCaptured={this.props.updateState}
                 />
               </ToggleExpansionPanelItem>
 
-              <ToggleExpansionPanelItem label="Padding (Top)">
+              <ToggleExpansionPanelItem label="Padding" description="Top, Right, Bottom, Left" centerLabel={false}>
                 <TooltipSlider
                   id="paddingTop"
                   statePath={[s.ledSettings, s.padding, s.top]}
@@ -151,9 +154,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                   lastCapturedValue={this.props.ledSettings.padding.top}
                   onInputCaptured={this.props.updateState}
                 />
-              </ToggleExpansionPanelItem>
 
-              <ToggleExpansionPanelItem label="Padding (Right)">
                 <TooltipSlider
                   id="paddingRight"
                   statePath={[s.ledSettings, s.padding, s.right]}
@@ -162,9 +163,6 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                   lastCapturedValue={this.props.ledSettings.padding.right}
                   onInputCaptured={this.props.updateState}
                 />
-              </ToggleExpansionPanelItem>
-
-              <ToggleExpansionPanelItem label="Padding (Bottom)">
                 <TooltipSlider
                   id="paddingBottom"
                   statePath={[s.ledSettings, s.padding, s.bottom]}
@@ -173,9 +171,7 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
                   lastCapturedValue={this.props.ledSettings.padding.bottom}
                   onInputCaptured={this.props.updateState}
                 />
-              </ToggleExpansionPanelItem>
 
-              <ToggleExpansionPanelItem label="Padding (Left)">
                 <TooltipSlider
                   id="paddingLeft"
                   statePath={[s.ledSettings, s.padding, s.left]}
@@ -195,6 +191,15 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
         </ToggleExpansionPanelSection>
 
         <ToggleExpansionPanelSection title="Appearance">
+          <ToggleExpansionPanelItem label="Renderer">
+            <SelectCustom
+              id="rendererType"
+              statePath={[s.ledSettings, s.panelType]}
+              menuItems={panels.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
+              onInputCaptured={this.props.updateState}
+              value={this.props.ledSettings.panelType}
+            />
+          </ToggleExpansionPanelItem>
           {this.props.ledSettings.panelType == PanelTypes.Ascii ?
             (
               <React.Fragment>
@@ -256,33 +261,6 @@ class LedConfiguration extends Component<LedConfigurationProps & WithStyles<type
               </React.Fragment>
             )
           }
-          {
-            this.state.showAdvancedAppearance &&
-            <React.Fragment >
-              <ToggleExpansionPanelItem label="Renderer">
-                <SelectCustom
-                  id="rendererType"
-                  statePath={[s.ledSettings, s.panelType]}
-                  menuItems={panels.map(x => <MenuItem key={x.id} value={x.id}>{x.text}</MenuItem>)}
-                  onInputCaptured={this.props.updateState}
-                  value={this.props.ledSettings.panelType}
-                />
-              </ToggleExpansionPanelItem>
-              <ToggleExpansionPanelItem label="FPS">
-                <TooltipSlider
-                  id="fps"
-                  statePath={[s.ledSettings, s.fps]}
-                  min={0}
-                  max={60}
-                  lastCapturedValue={this.props.ledSettings.fps}
-                  onInputCaptured={this.props.updateState}
-                />
-              </ToggleExpansionPanelItem>
-            </React.Fragment>
-          }
-          <Button onClick={this.toggleAdvancedAppearance}>
-            {this.state.showAdvancedAppearance ? <ExpandLess /> : <ExpandMore />}
-          </Button>
         </ToggleExpansionPanelSection>
       </ToggleExpansionPanel >
     );

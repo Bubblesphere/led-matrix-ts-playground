@@ -16,7 +16,7 @@ const themeDependantStyles = ({spacing, palette}: Theme) => {
       marginRight: spacing.unit * 4,
       borderTop: `${activeBorderHeight}px solid transparent`,
       '&:hover': {
-        borderTop: `${activeBorderHeight}px solid ${palette.primary.main}`
+        borderTop: `${activeBorderHeight}px solid ${palette.primary.light}`
       }
     },
     active: {
@@ -26,7 +26,7 @@ const themeDependantStyles = ({spacing, palette}: Theme) => {
       color: 'rgb(240, 240, 240)',
       textDecoration: 'none',
       '&:hover': {
-        color:  palette.primary.main
+        color:  palette.primary.light
       },
       outline: 'none'
     },
@@ -45,7 +45,7 @@ const Menu: React.SFC<MenuProps & WithStyles<typeof themeDependantStyles> & Rout
     [props.classes.gridLink, props.classes.active].join(' ') :
     props.classes.gridLink;
 
-  const gridLinkAlphabetClasses = props.location.pathname == '/alphabet' ? 
+  const gridLinkAlphabetClasses = props.location.pathname == '/characters' ? 
     [props.classes.gridLink, props.classes.active].join(' ') :
     props.classes.gridLink;
 
@@ -64,11 +64,11 @@ const Menu: React.SFC<MenuProps & WithStyles<typeof themeDependantStyles> & Rout
       </Grid>
 
       <Grid item className={gridLinkAlphabetClasses}>
-        <Tooltip title="Create / Edit / Delete Characters From Your Alphabet" enterDelay={500} placement={'bottom'}>
-          <Link to={'/alphabet'} className={props.classes.link}>
+        <Tooltip title="Create / Edit / Delete Characters" enterDelay={500} placement={'bottom'}>
+          <Link to={'/characters'} className={props.classes.link}>
             <Grid container item justify="center" alignItems="center" style={{height: '100%'}}>
               <Translate  className={props.classes.icon} />
-              Alphabet
+              Characters
             </Grid>
           </Link>
         </Tooltip>

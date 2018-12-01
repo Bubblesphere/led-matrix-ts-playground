@@ -1,4 +1,4 @@
-import { ScrollerTypes, RendererTypes } from "led-matrix-ts";
+import { ScrollerTypes } from "led-matrix-ts";
 
 export enum LedMatrixMode {
   NotLoaded,

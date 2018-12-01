@@ -12,25 +12,34 @@ const styles = StyleSheet.create({
   }
 });
 
-const themeDependantStyles = ({typography, palette}: Theme) => createStyles({
-  typography: {
+const themeDependantStyles = ({typography, palette, spacing}: Theme) => createStyles({
+  label: {
     fontSize: typography.fontSize,
-    color: palette.text.secondary,
-    letterSpacing: 1
+    color: palette.text.primary
+  },
+  description: {
+    fontSize: typography.fontSize / 1.15,
+    color: palette.text.hint,
+    paddingRight: spacing.unit
   }
 });
 
 interface ToggleExpansionPanelItemProps {
   label: string,
   children: ReactNode,
-  centerLabel?: boolean
+  centerLabel?: boolean,
+  description?: string
 }
 
 const ToggleExpansionPanelItem: React.SFC<ToggleExpansionPanelItemProps & WithStyles<typeof themeDependantStyles>> = (props) => {
   return (
     <Grid item container>
       <Grid item xs={5} className={css(props.centerLabel ? styles.typoAlignCenter : styles.typoAlignStart)}>
-        <Typography gutterBottom className={props.classes.typography}>{props.label}</Typography>
+        <Typography gutterBottom className={props.classes.label}>{props.label}</Typography>
+        {
+          props.description && 
+          <Typography className={props.classes.description}>{props.description}</Typography>
+        }
       </Grid>
       <Grid item xs={7}>
         <Grid item>
@@ -42,7 +51,8 @@ const ToggleExpansionPanelItem: React.SFC<ToggleExpansionPanelItemProps & WithSt
 }
 
 ToggleExpansionPanelItem.defaultProps = {
-  centerLabel: true
+  centerLabel: true,
+  description: ''
 }
 
 export default withStyles(themeDependantStyles)(ToggleExpansionPanelItem);

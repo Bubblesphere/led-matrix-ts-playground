@@ -7,15 +7,26 @@ interface TextFieldCustomProps extends InputProps {
 };
 
 const TextFieldCustom: React.SFC<TextFieldCustomProps & TextFieldProps> = (props) => {
-  const handleChanges = (e) => {
-    props.onInputCaptured(props.statePath, e.target.value);
+  let typingTimer;              
+  let doneTypingInterval = 200;
+
+  const doneTyping = (value) => {
+    props.onInputCaptured(props.statePath, value);
+  }
+
+  const onKeyUp = (e) => {
+    const value = e.target.value;
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      doneTyping(value);
+    }, doneTypingInterval);   
   }
     
   const { statePath, onInputCaptured, ...textFieldProps} = props;
   return (
     <TextField
       {...textFieldProps}
-      onChange={handleChanges}
+      onKeyUp={onKeyUp}
     />
   )
 }
